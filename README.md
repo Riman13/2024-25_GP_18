@@ -15,7 +15,7 @@ It uses a hybrid recommendation system incorporating facial emotion recognition 
 
   
 ## Launch Instructions
-1. Clone the repository: `git clone https://github.com/yourusername/2024-25_GP_GroupNumber.git`
+1. Clone the repository: `git clone https://github.com/Riman13/2024-25_GP_18.git`
 2. Navigate to the project directory: `cd 2024-25_GP_18`
 3. Install dependencies: `pip install -r requirements.txt`
 4. Run the application:
