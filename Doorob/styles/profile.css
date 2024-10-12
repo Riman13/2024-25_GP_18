@@ -5,10 +5,12 @@
 }
 
 .container1 {
-    width: 100%;
+    width: 80%;
+    margin-top: 40px;
     height: 100%;
     background-color: white;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px; ;
     overflow: hidden;
 }
 
@@ -17,7 +19,7 @@
     font-weight: bold;
     text-align: center;
     padding: 40px;
-    background-color:#23374d;
+    background-color:#506984;
     border-bottom: 1px solid #e0e0e0;
     color: rgb(255, 255, 255);
 }
