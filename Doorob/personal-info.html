@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Information</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles/personal-info.css">
+</head>
+
+<body>
+    <div class="personal-info-container">
+        <div class="header">
+            <h2>Personal Information</h2>
+            <button id="editSaveBtn" class="edit-btn" onclick="toggleEdit()"><i class="fas fa-edit"></i> Edit</button>
+        </div>
+
+        <div class="info-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" value="Sarah" readonly>
+        </div>
+
+        <div class="info-group">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" value="yusef" readonly>
+        </div>
+
+        <div class="info-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" value="jsara@example.com" readonly>
+        </div>
+
+        <div class="info-group">
+            <label for="resetPassword">
+                <a href="resetPassword.html" class="reset-password-link">
+                    Reset Password <i class="fas fa-arrow-right"></i></a>
+            </label>
+          
+        </div>
+    </div>
+
+    <script>
+        let isEditing = false;
+
+        function toggleEdit() {
+            isEditing = !isEditing;
+            const fields = ['firstName', 'lastName', 'email'];
+            const editSaveBtn = document.getElementById('editSaveBtn');
+
+            fields.forEach(field => {
+                const inputField = document.getElementById(field);
+                if (isEditing) {
+                    inputField.removeAttribute('readonly');
+                    inputField.focus();
+                    editSaveBtn.innerHTML = '<i class="fas fa-save"></i> Save';
+                    editSaveBtn.classList.replace('edit-btn', 'save-btn');
+                } else {
+                    inputField.setAttribute('readonly', 'readonly');
+                    editSaveBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
+                    editSaveBtn.classList.replace('save-btn', 'edit-btn');
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>
