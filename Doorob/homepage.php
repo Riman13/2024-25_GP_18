@@ -103,7 +103,7 @@ if ($result && $result->num_rows > 0) {
         <p>Your gateway to unforgettable adventures and memories in Riyadh!</p>
         <button class="cta-btn">Explore Destinations</button>
 </div>
-    <div class="col"><img src="Imgs/Riyadh4.png" class="feature-img"></div>
+    <div class="col"><img src="Imgs/Riyadh.png" class="feature-img"></div>
     
 </div>
 
