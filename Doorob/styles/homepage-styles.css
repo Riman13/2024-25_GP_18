@@ -1,0 +1,457 @@
+
+/*=============== Intro ===============*/
+
+.row{
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: 3vh;
+
+}
+.col{
+
+    flex-basis: 50%;
+    position: relative;
+}
+
+.col h1{
+    margin-top: 180px;
+    font-family: 'Playfair Display', serif; 
+    font-size: 2.8em; 
+    line-height: 1.2; 
+
+}
+
+.col p{
+    margin-top: 15px;
+    font-family: 'Playfair Display', serif; 
+    font-size: 1em; 
+    line-height: 1.2; 
+
+}
+
+.col button {
+    text-decoration: none;
+    padding: 18px 50px;
+    border-radius: 30px;
+    background: var(--text-color-light);;
+    display: inline-block;
+    color: white;
+    font-weight: 700;
+    margin-top: 70px;
+    box-shadow: 5px 8px 10px rgba(0, 0, 0, 0.1);
+    font-family: 'Playfair Display', serif;
+
+}
+
+.feature-img{
+    width: 80%;
+    margin-top: 10% ;
+    margin-left: 13%;
+}
+.highlight {
+    color: var(--text-color-light); 
+    font-family: 'Playfair Display', serif; 
+}
+
+/*
+.Intro-container {
+    background: url('Imgs/Riyadh4.png') no-repeat center center/cover;
+    height: 150vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    color: white;
+    
+}
+
+.Intro-text {
+    margin-top: 15vh;
+    margin-bottom: 10vh;
+    color: white;
+    text-align: left;
+    margin-left: 3vh;
+
+}
+
+.Intro-text  *{
+
+    margin-top: 3vh;
+
+}
+
+.Intro-text h1 {
+    font-family: 'Playfair Display', serif; 
+    font-size: 3em; 
+    line-height: 1.2; 
+}
+
+.Intro-text p {
+    font-family: 'Playfair Display', serif; 
+    font-size: 1.2em; 
+    font-weight: 400; 
+    margin-top: 1.5vh;
+}
+
+
+.highlight {
+    color: var(--text-color-light); 
+    font-family: 'Playfair Display', serif; 
+}
+
+.cta-btn {
+    font-family: 'Playfair Display', serif;
+    font-weight: 600; 
+    padding: 10px 20px;
+    background-color: var(--text-color-light);
+    border: 1px solid #ddd;
+    border-radius: 50px; 
+    box-sizing: border-box;
+    color: white;
+    cursor: pointer;
+}
+
+
+*/
+
+
+/*=============== Search ===============*/
+
+.search-bar {
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    width: 100%; 
+    margin-top: 20px;
+
+}
+
+.search-input-container {
+    position: relative;
+    width: 75%; 
+    display: flex;
+    margin: 0 auto; 
+}
+
+/* Input field */
+.search-input-container input {
+    padding: 10px 40px 10px 20px; 
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 50px; 
+    box-sizing: border-box;
+}
+
+
+.search-input-container button {
+    position: absolute;
+    right: 15px; 
+    top: 50%;
+    transform: translateY(-50%); 
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.search-input-container button i {
+    color: var(--text-color-light); 
+    font-size: 18px;
+}
+
+
+.search-input-container input:focus {
+    outline: none;
+    border-color: #aaa; 
+}
+
+
+
+.body-container {
+    max-width: 100%; 
+    margin: 5vh auto; 
+    padding: 20px; 
+    border-radius: 10px; 
+}
+
+
+.mission-values {
+    text-align: center;
+    color: var(--text-color-light);
+    padding: 40px 20px; 
+    border-radius: 10px; 
+    margin-bottom: 30px; 
+    background-color: #fff;
+}
+
+.mission-values h1 {
+    font-size: 2.5em; 
+    margin-bottom: 5%;
+    color: #555; 
+
+}
+
+.key-pillars {
+    display: flex; 
+    justify-content: space-around; 
+    flex-wrap: wrap; 
+    gap: 20px; 
+}
+
+.key-pillars div {
+    background-color: var(--text-color-light); 
+    padding: 20px;
+    border-radius: 10px; 
+    color: white;
+    width: 150px; 
+    text-align: center; 
+    transition: transform 0.3s; 
+}
+
+.key-pillars div:hover {
+    transform: scale(1.05); 
+}
+
+.key-pillars i {
+    font-size: 3em; 
+    
+}
+
+
+.Aboutus-container {
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    padding: 30px;
+    background-color: rgba(255, 255, 255, 0.758);
+    color: #333;
+    border-radius: 10px; 
+    margin-bottom: 30px; 
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); 
+    
+}
+
+.logo-container {
+    display: inline-block; 
+    margin-right: 5%;
+}
+
+.logo-container img {
+    max-width: 100%; 
+    height: auto; 
+   
+}
+
+.Aboutus-container h2 {
+    font-size: 2em; 
+    margin-bottom: 20px; 
+    font-family: 'Playfair Display', serif;
+}
+
+.Aboutus-container p {
+    font-size: 1em; 
+    line-height: 1.6; 
+    color: #555; 
+    font-family: 'Playfair Display', serif;
+}
+
+
+.Aboutus-container:hover {
+    transform: scale(1.02); 
+}
+
+
+.filter-container {
+    text-align: center; 
+    padding: 40px 20px; 
+    background-color: var(--text-color-light);
+    color: white; 
+    border-radius: 10px; 
+}
+
+.filter-container h2 {
+    font-size: 2.2em; 
+    margin-bottom: 30px; 
+    font-family:'Playfair Display', serif;;
+}
+
+
+.filter-boxes {
+    display: flex; 
+    justify-content: center; 
+    gap: 20px; 
+    flex-wrap: wrap; 
+}
+
+.filter-box {
+    background-color: rgba(255, 255, 255, 0.1); 
+    padding: 20px;
+    border-radius: 10px; 
+    text-align: center; 
+    width: 150px; 
+    transition: transform 0.3s; 
+    color: white;
+}
+
+.filter-box:hover {
+    transform: scale(1.05); 
+}
+
+.filter-box i {
+    font-size: 3em; 
+}
+
+.filter-box p {
+    margin-top: 10px; 
+    font-size: 1.2em; 
+}
+
+
+
+
+.destinations {
+    padding: 50px 0;
+    width: auto;
+    margin: 0 auto; 
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    position: relative;   
+}
+
+.destinations h2 {
+    font-size: 2.5em; 
+    margin-bottom: 5%;
+    color: #555; 
+    font-family: 'Playfair Display', serif;
+
+}
+
+
+.places-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Individual place cards */
+.place {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    margin: 0 15px;
+    padding: 20px;
+    transition: transform 0.3s ease;
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+    width: 320px; 
+    height: 340px;
+    
+}
+
+
+.place.large {
+    width: 360px; /* Larger size for the middle place */
+    transform: scale(1.1);
+    height: 350px;
+}
+
+
+.place img {
+    width: 100%;
+    height: 40%;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+
+.place h3 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    color: #333;
+    font-family: 'Playfair Display', serif;
+
+}
+
+
+.place p {
+    font-size: 1em;
+    color: #777;
+    margin: 5px 0;
+    font-family: 'Playfair Display', serif;
+}
+
+
+.place button {
+    transition: background-color 0.3s ease;
+    font-family: 'Playfair Display', serif;
+    font-weight: 600; 
+    padding: 10px 20px;
+    background-color: var(--text-color-light);
+    border: 1px solid #ddd;
+    border-radius: 50px; 
+    box-sizing: border-box;
+    color: white;
+    cursor: pointer;
+}
+
+
+.place button:hover {
+    background-color: #0056b3;
+}
+
+.nav-btn {
+    background-color: var(--text-color-light);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 50%;
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    position: absolute; 
+    top: 50%; 
+    transform: translateY(-50%); 
+    z-index: 1; 
+
+}
+
+
+.nav-btn.left {
+    left: 10px; 
+}
+
+.nav-btn.right {
+    right: 10px; 
+}
+
+
+.nav-btn:hover {
+    background-color: #0056b3;
+}
+
+
+.places-container {
+    transition: transform 0.5s ease-in-out;
+}
+
+.show-more {
+    margin-top: 30px;
+    padding: 10px 20px;
+    font-size: 1.2em;
+    transition: background-color 0.3s ease;
+    font-family: 'Playfair Display', serif;
+    font-weight: 600; 
+    padding: 10px 20px;
+    background-color: var(--text-color-light);
+    border: 1px solid #ddd;
+    border-radius: 50px; 
+    box-sizing: border-box;
+    color: white;
+    cursor: pointer;
+}
+
+
+.show-more:hover {
+    background-color: #0056b3;
+}
+
