@@ -51,15 +51,15 @@
     </nav>
   </header>
 
-  <div style="height: 40px;"></div> 
+  <div style="height: 80px;"></div> 
     <div class="registration">
     <div class="container1" id="container1">
         <div class="form-container1 sign-in-container1">
-            <form action="#">
+            <form action="login.php" method="post">
                 <h1>Sign In</h1>
                 <span>Welcome Back!</span>
-                <input type="email" placeholder="Email" />
-                <input type="password" placeholder="Password" />
+                <input type="email" placeholder="Email" id="email"  name="email" required/>
+                <input type="password" placeholder="Password" id="password" name="password" required/>
                 <button id="signin1">Sign In</button>
                 <label for="resetPassword">
                  <a href="resetPassword.html" class="reset-password-link">
@@ -69,12 +69,12 @@
         </div>
 
         <div class="form-container1 sign-up-container1">
-            <form action="#">
+            <form action="signup.php" method="post">
                 <h1>Create Account</h1>
                 <span>Please enter your details below</span>
-                <input type="text" placeholder="Name" />
-                <input type="email" placeholder="Email" />
-                <input type="password" placeholder="Password" />
+                <input type="text" placeholder="Name" id="name" name="name" required />
+                <input type="email" placeholder="Email" id="eml" name="eml" required />
+                <input type="password" placeholder="Password" id="pass" name="pass" required />
                 <button id="signUp1">Sign Up</button>
             </form>
         </div>
@@ -108,6 +108,13 @@
             container.classList.remove("right-panel-active");
         });
     </script>
+</div>
+<div style="display: flex; justify-content: center; align-items: center;">
+    <?php
+        if(isset($_GET['error'])){
+            echo '<p style="color:red; text-align: center;">'.$_GET['error'].'</p>';
+        }
+    ?>
 </div>
     <footer class="footer section">
         <div class="footer__container container grid">
