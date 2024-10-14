@@ -19,21 +19,25 @@ if ($result && $result->num_rows > 0) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doroob</title>
-    <link rel="stylesheet" href="styles/homepage-styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-       <!--======== CSS ========-->
-    <link rel="stylesheet" href="styles/footer-header-styles.css">
-      <!--======== ICONS ========-->
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
-       <!--======== WEBSITEICON ========-->
-       <link rel="shortcut icon" href="imgs/logo.png" type="image/x-icon">
-       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-       <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doroob</title>
 
+<!--======== FONTS ========-->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
+<!--======== CSS ========-->
+<link rel="stylesheet" href="styles/footer-header-styles.css">
+<link rel="stylesheet" href="styles/homepage-styles.css">
+
+<!--======== ICONS ========-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<!--======== WEBSITE ICON ========-->
+<link rel="shortcut icon" href="imgs/logo.png" type="image/x-icon">
+       
 </head>
 <body>
 
@@ -79,38 +83,43 @@ if ($result && $result->num_rows > 0) {
   </header>
 
 
-<!--
-
-<div class="Intro-container">
-    <div class="Intro-text">
-        <h1>Discover Riyadh<span class="highlight"> with Doroob</span></h1>
-        <p>Your gateway to unforgettable adventures and memories in Riyadh!</p>
-        <button class="cta-btn">Explore Destinations</button>
+<div class="intro-container">
+<div class="intro-image">
+<div class="intro-image-card intro-image-card1">
+        <span><i class="ri-map-pin-fill"></i></span>
+        Riyadh
     </div>
-
-
-</div>
--->
-
-
-
-
-
-
-<div class="row">
-<div class="col">
-<h1>Discover Riyadh<span class="highlight"> with Doroob</span></h1>
-        <p>Your gateway to unforgettable adventures and memories in Riyadh!</p>
-        <button class="cta-btn">Explore Destinations</button>
-</div>
-    <div class="col"><img src="Imgs/Riyadh.png" class="feature-img"></div>
+    <div class="intro-image-card intro-image-card2">
+        <span><i class="ri-hotel-line"></i></span>
+        Hotel
+    </div>
+    <div class="intro-image-card intro-image-card3">
+        <span><i class="ri-cup-fill"></i></span>
+        Cafes
+    </div>
+    <div class="intro-image-card intro-image-card4">
+        <span><i class="ri-restaurant-2-fill"></i></span>
+        Resturant
+    </div>
+    <div class="intro-image-card intro-image-card5">
+        <span><i class="ri-calendar-event-fill"></i></span>
+        Events
+    </div>
     
+</div>
+<div class="intro-content">
+
+<h1>LET'S GO! <br/> THE<span class="highlight"> ADVENTURE</span> IS WAITING FOR You</h1>
+<p>Embark on your journey with Doroob from the heart of Riyadh, where hidden gems and fascinating experiences await. Explore cultural landmarks and modern wonders, creating unforgettable memories as you discover Saudi Arabia's capital's rich heritage and dynamic attractions.</p>        <button class="cta-btn" onclick="scrollToDestinations()">Explore Destinations</button>    
+</div>
 </div>
 
 
 
 <div class="body-container">
-<!-- Mission & Values Section -->
+
+ 
+<!--============ Mission & Values Section =============-->
 <div class="mission-values">
     <h1>MISSION & VALUES</h1>
     <div class="key-pillars">
@@ -122,21 +131,39 @@ if ($result && $result->num_rows > 0) {
     </div>
 </div>
 
-<!-- About Us Section -->
-<div class="Aboutus-container">
-    <div class="logo-container">
-        <img src="Imgs/logo.png" alt="Doroob Logo">
-    </div>
-    <div>
-        <h2>About Us</h2>
-        <p>Welcome to Doroob, your personalized guide to discovering the best destinations in Riyadh! At Doroob, exploring new places should be easy, enjoyable, and tailored to your interests. Whether a resident or a tourist, our website helps you find the perfect spots, from restaurants and cafes to parks and markets.</p>
-        <p>Our innovative recommendation system uses advanced algorithms to offer you suggestions based on your preferences and location. By filtering out irrelevant options, we make it easy for you to find exactly what you're looking for saving you time, energy, and money.</p>
-        <p>Doroob isn't just about exploration, it's about enhancing the tourism and entertainment experience in Saudi Arabia.</p>
-        <p>Join us on Doroob, and let us guide you on your next adventure!</p>
-    </div>
-</div>
 
-<!-- Filter Section -->
+ <!--============ Gallrey =============-->
+<section>
+    <div class="gallrey">
+        <h3>Explore & Discover Our Destinations</h>
+        <p>Enjoy breathtaking views and unique experiences with your family</p>
+    </div>
+    <div class="gallrey-container">
+        <div class="items item1">
+            <h2>Edge Of The World</h2>
+            
+        </div>
+        <div class="items item2">
+            <h2>Via Riyadh</h2>
+            
+        </div>
+        <div class="items item3">
+            <h2>Kingdom Tower</h2>
+            
+        </div>
+        <div class="items item4">
+            <h2>King Abdullah Financial District || KAFD</h2>
+            
+        </div>
+        <div class="items item5">
+            <h2>Al-Masmak Palace</h2>
+            
+        </div>
+
+    </div>
+</section>
+
+ <!--============ Filter =============-->
 <div class="filter-container">
     <h2>What are you looking for?</h2>
     <div class="filter-boxes">
@@ -175,7 +202,9 @@ if ($result && $result->num_rows > 0) {
     </div>
 </div>
 
-<div class="destinations">
+ <!--============ All Destinations =============-->
+
+<div class="destinations" id="destinations">
     <h2>Discover Your Destination</h2>
     <div class="places-container" id="placesContainer">
         <!-- Places will be dynamically injected here -->
@@ -189,6 +218,8 @@ if ($result && $result->num_rows > 0) {
     <!-- Show More button -->
     <button class="show-more" onclick="window.location.href='allplaces.php'">Show More</button>
 </div>
+
+ <!--============ CFRS =============-->
 <div class="destinations">
     <h2>You might like this</h2>
     <div class="places-container" id="cfrsPlacesContainer">
@@ -271,9 +302,12 @@ if ($result && $result->num_rows > 0) {
     <span class="footer__copy">Doorob &#169;All rigths reserved</span>
   </footer>
   
-   <!--========== JS ==========-->
-   <script src="scripts/scripts-fh.js"></script>
-   <script>
+<!--========== JS ==========-->
+<script src="scripts/scripts-fh.js"></script>
+<script src="https://unpkg.com/scrollreveal"></script>
+<script src="scripts/homepage-js.js"></script>
+
+<script>
 // Initialize variables
 let places = <?php echo json_encode($places); ?>;
 let currentIndex = 0;
@@ -291,7 +325,7 @@ function renderPlaces() {
         const isMiddle = index === 1; // Middle place
         placeDiv.className = isMiddle ? 'place large' : 'place small';
         placeDiv.innerHTML = `
-            <img src='Imgs/Riyadh.jpg' alt='${place.place_name}'>
+            <img src='imgs/Riyadh.jpg' alt='${place.place_name}'>
             <h3>${place.place_name}</h3>
             <p>Category: ${place.is_restaurant === 'RESTURANT' ? 'Restaurant' : place.categories}</p>
             <p>Rating: ${'★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))}</p>
