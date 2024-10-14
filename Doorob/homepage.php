@@ -56,7 +56,7 @@ if ($result && $result->num_rows > 0) {
             <a href="#" class="nav__link active-link">Home</a>
           </li>
           <li class="nav__item">
-            <a href="#" class="nav__link">Profile</a>
+            <a href="profile.html" class="nav__link">Profile</a>
           </li>
           <li class="nav__item">
             <a href="#" class="nav__link">Places</a>
