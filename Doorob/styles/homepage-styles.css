@@ -51,7 +51,7 @@ img {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-image: url(imgs/SaudiMap.png);
+    background-image: url(../imgs/SaudiMap.png);
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -538,24 +538,24 @@ section .gallrey p {
 }
 
 .gallrey-container .item1 {
-    background: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.6)),url(imgs/homepagegallery/pic1.jpg);
+    background: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.6)),url(../imgs/homepagegallery/pic1.jpg);
     grid-row: span 2; 
 }
 .gallrey-container .item2 {
-    background: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.6)),url(imgs/homepagegallery/pic2.jpg);
+    background: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.6)),url(../imgs/homepagegallery/pic2.jpg);
 }
 
 .gallrey-container .item3 {
-    background: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.6)),url(imgs/homepagegallery/pic3.jpg);
+    background: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.6)),url(../imgs/homepagegallery/pic3.jpg);
 }
 
 .gallrey-container .item4 {
-    background: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.6)),url(imgs/homepagegallery/pic5.jpg);
+    background: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.6)),url(../imgs/homepagegallery/pic5.jpg);
     grid-row: span 2; 
 }
 
 .gallrey-container .item5 {
-    background: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.6)),url(imgs/homepagegallery/pic4.jpg);
+    background: linear-gradient(rgba(0,0,0,0.4),rgba(0,0,0,0.6)),url(../imgs/homepagegallery/pic4.jpg);
     grid-column: span 2; 
 }
 
