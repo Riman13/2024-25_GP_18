@@ -1,6 +1,6 @@
 <?php
 include 'config.php'; // Include the database connection
-
+include 'session.php';
 // Query to get the first 21 places
 $sql = "SELECT id, place_name, is_restaurant, categories, average_rating FROM riyadhplaces LIMIT 21";
 $result = $conn->query($sql);
@@ -53,10 +53,10 @@ if ($result && $result->num_rows > 0) {
       <div class="nav__menu" id="nav-menu">
         <ul class="nav__list">
           <li class="nav__item">
-            <a href="#" class="nav__link active-link">Home</a>
+            <a href="homepage.php" class="nav__link active-link">Home</a>
           </li>
           <li class="nav__item">
-            <a href="profile.html" class="nav__link">Profile</a>
+            <a href="profile.php" class="nav__link">Profile</a>
           </li>
           <li class="nav__item">
             <a href="#" class="nav__link">Places</a>

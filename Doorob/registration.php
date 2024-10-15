@@ -53,6 +53,13 @@
 
   <div style="height: 80px;"></div> 
     <div class="registration">
+    <div style="display: flex; justify-content: center; align-items: center;">
+<?php
+if(isset($_GET['error'])){
+    echo '<script type="text/javascript">alert("'.$_GET['error'].'");</script>';
+}
+?>
+</div>
     <div class="container1" id="container1">
         <div class="form-container1 sign-in-container1">
             <form action="login.php" method="post">
@@ -108,13 +115,6 @@
             container.classList.remove("right-panel-active");
         });
     </script>
-</div>
-<div style="display: flex; justify-content: center; align-items: center;">
-    <?php
-        if(isset($_GET['error'])){
-            echo '<p style="color:red; text-align: center;">'.$_GET['error'].'</p>';
-        }
-    ?>
 </div>
     <footer class="footer section">
         <div class="footer__container container grid">

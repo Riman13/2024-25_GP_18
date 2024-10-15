@@ -1,3 +1,4 @@
+<?php include 'session.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,10 +21,10 @@
       <div class="nav__menu" id="nav-menu">
         <ul class="nav__list">
           <li class="nav__item">
-            <a href="#" class="nav__link active-link">Home</a>
+            <a href="homepage.php" class="nav__link active-link">Home</a>
           </li>
           <li class="nav__item">
-            <a href="#" class="nav__link">Profile</a>
+            <a href="profile.php" class="nav__link">Profile</a>
           </li>
           <li class="nav__item">
             <a href="#" class="nav__link">Places</a>
