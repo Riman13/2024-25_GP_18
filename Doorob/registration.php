@@ -51,7 +51,7 @@
     </nav>
   </header>
 
-  <div style="height: 80px;"></div> 
+  <div style="height: 100px;"></div> 
     <div class="registration">
     <div style="display: flex; justify-content: center; align-items: center;">
 <?php
