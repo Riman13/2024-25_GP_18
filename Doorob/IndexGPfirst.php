@@ -8,8 +8,8 @@
       href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="indexFooter-header-styles.css" />
-    <link rel="stylesheet" href="IndexGPfirst.css" />
+    <link rel="stylesheet" href="styles/indexFooter-header-styles.css" />
+    <link rel="stylesheet" href="styles/IndexGPfirst.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
     <title>Doroob Index</title>
   </head>
@@ -22,7 +22,7 @@
         
         <a href="#" class="nav__logo">
        
-       <img src="Dlogo.png" alt="Logo" class="nav__logo-img">
+       <img src="imgs/logo.png" alt="Logo" class="nav__logo-img">
        Doorob
      
    </a>
@@ -51,7 +51,7 @@
         </div>
         <div class="destination__grid">
           <div class="destination__card">
-            <img src="Cafe.png" alt="destination" />
+            <img src="imgs/Cafe.png" alt="destination" />
             <div class="card__content">
               <h4>Cafes</h4>
               <p>
@@ -62,7 +62,7 @@
             </div>
           </div>
           <div class="destination__card">
-            <img src="restaurant.png" alt="destination" />
+            <img src="imgs/restaurant.png" alt="destination" />
             <div class="card__content">
               <h4>Restaurants</h4>
               <p>
@@ -74,7 +74,7 @@
             </div>
           </div>
           <div class="destination__card">
-            <img src="beauty.png" alt="destination" />
+            <img src="imgs/beauty.png" alt="destination" />
             <div class="card__content">
               <h4>AND MORE!</h4>
               <p>
