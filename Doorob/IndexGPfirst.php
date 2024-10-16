@@ -2,18 +2,26 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
+  <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css"
-      rel="stylesheet"
-    />
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css" rel="stylesheet" />
     <link rel="stylesheet" href="styles/indexFooter-header-styles.css" />
     <link rel="stylesheet" href="styles/IndexGPfirst.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,900&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://md-aqil.github.io/images/swiper.min.css">
+    <style>
+        
+    </style>
+
+    <title>Doroob Index</title>
+
     <title>Doroob Index</title>
   </head>
   <body>
+   
     <div class="container1">
       <nav>
         <!--<div class="nav__logo">
@@ -89,6 +97,142 @@
       </div>
     </div>
 
+    <section class="spacer">
+		<h2 class="testimonial-title">
+  <i class="fas fa-quote"></i> What Our Clients Say
+</h2>
+
+            <div class="testimonial-section">
+                <div class="testi-user-img">
+                <div class="swiper-container gallery-thumbs">
+                      <div class="swiper-wrapper">
+                              <div class="swiper-slide">
+                                    <img class="u3" src="imgs\1.png" alt="">
+                                </div>
+                      <div class="swiper-slide">
+                          <img class="u1" src="imgs\2.png" alt="">
+                      </div>
+                      <div class="swiper-slide">
+                      <img class="u2" src="imgs\3.png" alt="">
+                      </div>
+                  
+                      <div class="swiper-slide">
+                      <img class="u4" src="imgs\4.png" alt="">
+                      </div>
+                      
+                      </div>
+                  </div>
+                </div>
+                <div class="user-saying">
+                      <div class="swiper-container testimonial">
+                              <!-- Additional required wrapper -->
+                              <div class="swiper-wrapper ">
+                                  <!-- Slides -->
+                                  <div class="swiper-slide">
+                                      <div class="quote">
+                                              <img class="quote-icon" src="https://md-aqil.github.io/images/quote.png" alt="">
+                                          <p>
+                                                  “This is the best platform for recommended places in Riyadh. I was able to discover new spots that I hadn’t known about before!                    
+                                          “
+                                          </p>
+                                          <div class="name">-Mohammed Abdullad-</div>
+                                          <div class="designation">University Student</div>
+                                          
+                                      </div>
+                                  </div>
+                                  <div class="swiper-slide">
+                                      <div class="quote">
+                                            <img class="quote-icon" src="https://md-aqil.github.io/images/quote.png" alt="">
+                                        
+                                          <p>
+                                                  “I had so much fun exploring Riyadh using this website. The interface is user-friendly, and it’s easy to find new attractions.“
+                                          </p>
+                                          <div class="name">-Farah Hadie-</div>
+                                          <div class="designation">University Student</div>
+                                          
+                                      </div>
+                                  </div>
+                                  <div class="swiper-slide">
+                                      <div class="quote">
+                                            <img class="quote-icon" src="https://md-aqil.github.io/images/quote.png" alt="">
+                                              
+                                          <p>
+                                                  “I recommend this website to every Riyadh resident. It not only saved me time and effort, but it also introduced me to amazing places around the city.“
+                                          </p>
+                                          <div class="name">-Noura Ali-</div>
+                                          <div class="designation">University Student</div>
+                                          
+                                      </div>
+                                  </div>
+                                  <div class="swiper-slide">
+                                          <div class="quote">
+                                                <img class="quote-icon" src="https://md-aqil.github.io/images/quote.png" alt="">
+                                             
+                                              <p>
+                                                      “I’m new to Riyadh, and this website helped me navigate the city with ease. I found the best dining spots and entertainment venues.“
+                                              </p>
+                                              <div class="name">-Fatemah Abdullah-</div>
+                                              <div class="designation">University Student</div>
+                                              
+                                          </div>
+                                      </div>
+                                  
+                              </div>
+                              <!-- If we need pagination -->
+                              <div class="swiper-pagination swiper-pagination-white"></div>
+                          
+                          </div>
+                </div>
+            </div>
+        </section>
+<script src="https://md-aqil.github.io/images/swiper.min.js"></script>
+
+
+<script>
+      var galleryThumbs = new Swiper('.gallery-thumbs', {
+	effect: 'coverflow',
+	grabCursor: true,
+	centeredSlides: true,
+	slidesPerView: '2',
+	// coverflowEffect: {
+	//   rotate: 50,
+	//   stretch: 0,
+	//   depth: 100,
+	//   modifier: 1,
+	//   slideShadows : true,
+	// },
+	
+	coverflowEffect: {
+        rotate: 0,
+        stretch: 0,
+        depth: 50,
+        modifier: 6,
+        slideShadows : false,
+	  },
+	  
+  });
+  
+  
+var galleryTop = new Swiper('.swiper-container.testimonial', {
+	speed: 400,
+	spaceBetween: 50,
+	autoplay: {
+	  delay: 3000,
+	  disableOnInteraction: false,
+	},
+	direction: 'vertical',
+	pagination: {
+	  clickable: true,
+	  el: '.swiper-pagination',
+	  type: 'bullets',
+	},
+	thumbs: {
+		swiper: galleryThumbs
+	  }
+  });
+  
+</script>
+
 
     <footer class="footer section">
   <div class="footer__container container grid">
@@ -154,6 +298,7 @@
 
   <span class="footer__copy">Doorob &#169;All rigths reserved</span>
 </footer>
+
 
     </body>
 
