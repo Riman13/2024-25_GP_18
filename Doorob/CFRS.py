@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 from flask import Flask, jsonify, request, render_template
 from flask_cors import CORS  # Import CORS
+from sklearn.preprocessing import minmax_scale
+
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -26,7 +28,11 @@ from recommenders.evaluation.python_evaluation import (
 
 # Top K items to recommend
 TOP_K = 10
-# Define datasets with actual file paths
+
+TEST_SIZE = 0.2  # 20% for testing, 80% for training
+
+RANDOM_SEED = 42
+
 PLACES_DATA_PATH = 'riyadh_places_8836x9.csv'          
 RATINGS_DATA_PATH = 'modified_ratings.csv' 
 
@@ -62,7 +68,6 @@ places_df['longitude'] = places_df['longitude'].astype(float)
 ratings_df['rating'] = ratings_df['rating'].astype(float)
 ratings_df = ratings_df.drop_duplicates(subset=['user_id', 'place_id'])
 
-# Preparing data
 data = ratings_df
 data["rating"] = data["rating"].astype(np.float32)
 
@@ -78,8 +83,48 @@ model = SAR(
     normalize=True
 )
 
+logging.basicConfig(level=logging.DEBUG, 
+                    format='%(asctime)s %(levelname)-8s %(message)s')
+
 # Fit the model on training data
 model.fit(train)
+top_k = model.recommend_k_items(test, top_k=TOP_K, remove_seen=True)
+
+#evaluation
+# Ranking metrics
+eval_map = map(test, top_k, col_user="user_id", col_item="place_id", col_rating="rating", k=TOP_K)
+eval_ndcg = ndcg_at_k(test, top_k, col_user="user_id", col_item="place_id", col_rating="rating", k=TOP_K)
+eval_precision = precision_at_k(test, top_k, col_user="user_id", col_item="place_id", col_rating="rating", k=TOP_K)
+eval_recall = recall_at_k(test, top_k, col_user="user_id", col_item="place_id", col_rating="rating", k=TOP_K)
+# Rating metrics
+eval_rmse = rmse(test, top_k, col_user="user_id", col_item="place_id", col_rating="rating")
+eval_mae = mae(test, top_k, col_user="user_id", col_item="place_id", col_rating="rating")
+eval_rsquared = rsquared(test, top_k, col_user="user_id", col_item="place_id", col_rating="rating")
+eval_exp_var = exp_var(test, top_k, col_user="user_id", col_item="place_id", col_rating="rating")
+
+positivity_threshold = 2
+test_bin = test.copy()
+test_bin["rating"] = binarize(test_bin["rating"], positivity_threshold)
+
+top_k_prob = top_k.copy()
+top_k_prob["prediction"] = minmax_scale(top_k_prob["prediction"].astype(float))
+
+eval_logloss = logloss(
+    test_bin, top_k_prob, col_user="user_id", col_item="place_id", col_rating="rating"
+)
+
+print("Model:\t",
+      "Top K:\t%d" % TOP_K,
+      "MAP:\t%f" % eval_map,
+      "NDCG:\t%f" % eval_ndcg,
+      "Precision@K:\t%f" % eval_precision,
+      "Recall@K:\t%f" % eval_recall,
+      "RMSE:\t%f" % eval_rmse,
+      "MAE:\t%f" % eval_mae,
+      "R2:\t%f" % eval_rsquared,
+      "Exp var:\t%f" % eval_exp_var,
+      "Logloss:\t%f" % eval_logloss,
+      sep='\n')
 
 @app.route('/api/recommendations/<int:user_id>', methods=['GET'])
 def get_recommendations_by_id(user_id):

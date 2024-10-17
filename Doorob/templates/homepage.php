@@ -2,7 +2,7 @@
 include 'config.php'; // Include the database connection
 include 'session.php';
 // Query to get the first 21 places
-$sql = "SELECT id, place_name, is_restaurant, categories, average_rating FROM riyadhplaces LIMIT 21";
+$sql = "SELECT id, place_name, is_restaurant, categories, granular_category, average_rating FROM riyadhplaces LIMIT 21";
 $result = $conn->query($sql);
 // Store places in an array
 $places = [];
@@ -373,7 +373,7 @@ let currentIndex = 0; // Initialize current index
             placeDiv.innerHTML = `
                 <img src='imgs/Riyadh.jpg' alt='${place.place_name}'>
                 <h3>${place.place_name}</h3>
-                <p>Category: ${place.is_restaurant === 'RESTAURANT' ? 'Restaurant' : place.categories}</p>
+                <p>Category: ${place.granular_category}</p>
                 <p>Rating: ${'★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))}</p>
                 <button class="details-btn" data-id="${place.id}">More Details</button>
             `;
@@ -417,7 +417,7 @@ for (let i = currentIndexCFRS; i < currentIndexCFRS + 3 && i < recommendations.l
     placeDiv.innerHTML = `
         <img src='imgs/Riyadh.jpg' alt='${place.place_name}'>
         <h3>${place.place_name}</h3>
-        <p>Category: ${place.is_restaurant ? 'Restaurant' : place.categories}</p>
+        <p>Category: ${place.granular_category}</p>
         <p>Rating: ${ratingDisplay}</p> <!-- Use the calculated rating display here -->
         <button class="details-btn" data-id="${place.id}">More Details</button>
     `;
