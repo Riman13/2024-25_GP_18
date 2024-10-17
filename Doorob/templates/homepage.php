@@ -262,7 +262,7 @@ if ($response === false) {
     <button class="nav-btn right" id="AllRightArrow" onclick="navigate(1)">&gt;</button>
     
     <!-- Show More button -->
-    <button class="show-more" onclick="window.location.href='allplaces.php'">Show More</button>
+    <button class="show-more" onclick="window.location.href='places.php'">Show More</button>
 </div>
 
 
@@ -417,7 +417,7 @@ for (let i = currentIndexCFRS; i < currentIndexCFRS + 3 && i < recommendations.l
     placeDiv.innerHTML = `
         <img src='imgs/Riyadh.jpg' alt='${place.place_name}'>
         <h3>${place.place_name}</h3>
-        <p>Category: ${place.is_restaurant === 'True' ? 'Restaurant' : place.categories}</p>
+        <p>Category: ${place.is_restaurant ? 'Restaurant' : place.categories}</p>
         <p>Rating: ${ratingDisplay}</p> <!-- Use the calculated rating display here -->
         <button class="details-btn" data-id="${place.id}">More Details</button>
     `;
