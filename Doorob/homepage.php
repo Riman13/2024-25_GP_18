@@ -216,7 +216,7 @@ if ($result && $result->num_rows > 0) {
     <button class="nav-btn right" id="rightArrow" onclick="navigate(1)">&gt;</button>
 
     <!-- Show More button -->
-    <button class="show-more" onclick="window.location.href='allplaces.php'">Show More</button>
+    <button class="show-more" onclick="window.location.href='places.php'">Show More</button>
 </div>
 
  <!--============ CFRS =============-->
