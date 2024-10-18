@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.4.0/fonts/remixicon.css" rel="stylesheet" />
     <link rel="stylesheet" href="styles/indexFooter-header-styles.css" />
-    <link rel="stylesheet" href="styles/IndexGPfirst.css" />
+    <link rel="stylesheet" href="styles/Index.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
 
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
