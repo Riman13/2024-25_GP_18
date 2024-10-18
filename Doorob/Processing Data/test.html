@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+
+<!--We used this code to fetch new places from google places API -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -89,7 +91,7 @@
                 types.forEach(type => {
                     let request = {
                         location: location,
-                        radius: '5000', // Maximum radius is 50km
+                        radius: '5000', 
                         type: type
                     };
                     fetchNearbyPlaces(request, type);
