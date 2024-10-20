@@ -17,6 +17,19 @@ if ($result && $result->num_rows > 0) {
 // Retrieve the user_id from the session
 $user_id = $_SESSION['userID'];
 
+
+// Query to get the user's name directly
+$query = "SELECT Name FROM users WHERE UserID = $user_id";
+$result = mysqli_query($conn, $query);
+
+if ($result && mysqli_num_rows($result) > 0) {
+    $user = mysqli_fetch_assoc($result);
+    $username = $user['Name'];
+} else {
+    $username = "Guest";
+}
+
+
 // ====================
 // 2. Communicate with Flask API
 // ====================
@@ -124,6 +137,12 @@ if ($response === false) {
           <i class='bx bx-grid-alt' ></i>
       </div>
       </div>
+      <div class="UserName">
+      <a href="profile.php" class="user-profile-link">
+  <span><i class="ri-user-3-fill"></i></span>
+  <?php echo htmlspecialchars($username); ?>
+</a>
+  </div>
     </nav>
   </header>
 

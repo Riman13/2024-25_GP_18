@@ -25,6 +25,36 @@ img {
     width: 100%;
 }
 
+/*=============== User Name ===============*/
+
+.UserName {
+    display: inline-block;
+    margin-right: 10px;
+}
+.user-profile-link {
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    color: #333;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #f2f2f2;
+    transition: background-color 0.3s ease;
+}
+
+.user-profile-link:hover {
+    background-color: #ddd;
+}
+
+.user-profile-link span {
+    margin-right: 8px;
+}
+
+.user-profile-link i {
+    font-size: 20px;
+    color: var(--primary-color);
+}
 /*=============== Intro ===============*/
 
 .intro-container {
