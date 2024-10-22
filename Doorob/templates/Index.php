@@ -132,12 +132,7 @@
               <li>
                   <a href="registration.php" class="footer__link">Home</a>
               </li>
-              <li>
-                  <a href="registration.php" class="footer__link">Profile page</a>
-              </li>
-              <li>
-                  <a href="registration.php" class="footer__link">History Ratings</a>
-              </li>
+             
               
           </ul>
       </div>
