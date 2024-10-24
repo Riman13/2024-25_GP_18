@@ -1,5 +1,5 @@
 <?php
-session_start();
+include 'session.php';
 include 'config.php'; // Include your database connection
 
 // Check if the user is logged in

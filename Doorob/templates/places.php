@@ -1,7 +1,8 @@
 <?php
 include 'config.php'; // Include the database connection
 // Query to get the first 21 places
-$sql = "SELECT id, place_name, is_restaurant, categories, average_rating FROM riyadhplaces_doroob";
+include 'session.php';
+$sql = "SELECT id, place_name, is_restaurant, categories, average_rating FROM  riyadhplaces_doroob";
 $result = $conn->query($sql);
 // Store places in an array
 $places = [];
@@ -88,7 +89,7 @@ if ($result && $result->num_rows > 0) {
     <div class="intro-text">
         <h1>DISCOVER</h1>
         <h2>NEW PLACE</h2>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</p>
+        <p>Start your journey of exploring new destinations in Riyadh with Doroob</p>
     </div>
 </div>
  <!--============ Filter =============-->

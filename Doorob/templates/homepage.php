@@ -2,7 +2,7 @@
 include 'config.php'; // Include the database connection
 include 'session.php';
 // Query to get the first 21 places
-$sql = "SELECT id, place_name, is_restaurant, categories, granular_category, average_rating FROM riyadhplaces LIMIT 21";
+$sql = "SELECT id, place_name, is_restaurant, categories, granular_category, average_rating FROM riyadhplaces_doroob LIMIT 21";
 $result = $conn->query($sql);
 // Store places in an array
 $places = [];
@@ -117,7 +117,7 @@ if ($response === false) {
             <a href="profile.php" class="nav__link">Profile</a>
           </li>
           <li class="nav__item">
-            <a href="#" class="nav__link">Places</a>
+            <a href="places.php" class="nav__link">Places</a>
           </li>
         </ul>
   
@@ -130,7 +130,9 @@ if ($response === false) {
      
         <i class='bx bx-moon change-theme' id="theme-button"></i>
         <i class='bx bxs-bell nav__notification' id="notification-button"></i>
-        <i class='bx bx bx-log-out nav__sign-out' id="signout-button"></i>
+        <a href="logout.php">
+    <i class='bx bx-log-out nav__sign-out' id="signout-button"></i>
+</a>
   
         
         <div class="nav__toggle" id="nav-toggle">
