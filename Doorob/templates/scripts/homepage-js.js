@@ -33,23 +33,23 @@ ScrollReveal().reveal(".intro-image-card2", {
     ...scrollRevealOrtion,
     duration: 1000,
     interval: 500,
-    delay: 2500,
+    delay: 2400,
 });
 ScrollReveal().reveal(".intro-image-card3", {
     ...scrollRevealOrtion,
     duration: 1000,
     interval: 500,
-    delay: 2500,
+    delay: 2400,
 });
 ScrollReveal().reveal(".intro-image-card4", {
     ...scrollRevealOrtion,
     duration: 1000,
     interval: 500,
-    delay: 2500,
+    delay: 2400,
 });
 ScrollReveal().reveal(".intro-image-card5", {
     ...scrollRevealOrtion,
     duration: 1000,
     interval: 500,
-    delay: 2500,
+    delay: 3000,
 });

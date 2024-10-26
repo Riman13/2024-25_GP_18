@@ -2,7 +2,7 @@
 include 'config.php'; // Include the database connection
 include 'session.php';
 // Query to get the first 21 places
-$sql = "SELECT id, place_name, is_restaurant, categories, granular_category, average_rating FROM riyadhplaces_doroob LIMIT 21";
+$sql = "SELECT id, place_name, is_restaurant, categories, granular_category, average_rating FROM riyadhplaces LIMIT 21";
 $result = $conn->query($sql);
 // Store places in an array
 $places = [];
@@ -168,8 +168,8 @@ if ($response === false) {
         Resturant
     </div>
     <div class="intro-image-card intro-image-card5">
-        <span><i class="ri-calendar-event-fill"></i></span>
-        Events
+        <span><i class="ri-more-2-fill"></i></span>
+        and more
     </div>
     
 </div>
@@ -229,44 +229,6 @@ if ($response === false) {
     </div>
 </section>
 
- <!--============ Filter =============-->
-<div class="filter-container">
-    <h2>What are you looking for?</h2>
-    <div class="filter-boxes">
-        <div class="filter-box">
-            <i class="fas fa-utensils"></i>
-            <p>Restaurants</p>
-        </div>
-        <div class="filter-box">
-            <i class="fas fa-hotel"></i>
-            <p>Hotels</p>
-        </div>
-        <div class="filter-box">
-            <i class="fas fa-coffee"></i>
-            <p>Cafes</p>
-        </div>
-        <div class="filter-box">
-            <i class="fas fa-spa"></i>
-            <p>Beauty</p>
-        </div>
-        <div class="filter-box">
-            <i class="fas fa-calendar-alt"></i>
-            <p>Events</p>
-        </div>
-        <div class="filter-box">
-            <i class="fas fa-shopping-bag"></i>
-            <p>Malls</p>
-        </div>
-    </div>
-    <div class="search-bar">
-        <div class="search-input-container">
-            <input type="text" placeholder="Search destinations...">
-            <button>
-                <i class="fas fa-search"></i>
-            </button>
-        </div>
-    </div>
-</div>
 
  <!--============ All Destinations =============-->
 
