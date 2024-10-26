@@ -112,12 +112,16 @@ if ($result && $result->num_rows > 0) {
             <p>Beauty</p>
         </div>
         <div class="filter-box">
-            <i class="fas fa-calendar-alt"></i>
-            <p>Events</p>
+            <i class="fas fa-tree"></i>
+            <p>Parks</p>
         </div>
         <div class="filter-box">
             <i class="fas fa-shopping-bag"></i>
             <p>Malls</p>
+        </div>
+        <div class="filter-box">
+            <i class="fas fa-palette"></i>
+            <p>Art Gallery</p>
         </div>
     </div>
     <div class="search-bar">

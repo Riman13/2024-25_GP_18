@@ -28,7 +28,7 @@ include 'config.php';  ?>
             <a href="profile.php" class="nav__link">Profile</a>
           </li>
           <li class="nav__item">
-            <a href="#" class="nav__link">Places</a>
+            <a href="places.php" class="nav__link">Places</a>
           </li>
         </ul>
   
