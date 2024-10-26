@@ -1,7 +1,7 @@
 <?php
 include 'config.php'; 
 include 'session.php';
-$sql = "SELECT id, place_name, is_restaurant, categories, average_rating , user_id FROM  riyadhplaces_doroob";
+$sql = "SELECT id, place_name, is_restaurant, granular_category, average_rating , place_id FROM  riyadhplaces_doroob";
 $result = $conn->query($sql);
 // Store places in an array
 $places = [];
@@ -236,7 +236,7 @@ function renderPlaces() {
         placeDiv.innerHTML = `
             <img src='imgs/Riyadh.jpg' alt='${place.place_name}'>
             <h3>${place.place_name}</h3>
-            <p>Category: ${place.is_restaurant === 'RESTURANT' ? 'Restaurant' : place.categories}</p>
+            <p>Category: ${ place.granular_category}</p>
             <p>Rating: ${'★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))}</p>
             <i class="fas fa-heart favorite" onclick="toggleFavorite(${place.id})"></i>
             <button onclick="window.location.href='placedetails.php?id=${place.id}'">More Details</button>
