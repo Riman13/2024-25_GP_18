@@ -1,8 +1,7 @@
 <?php
-include 'config.php'; // Include the database connection
-// Query to get the first 21 places
+include 'config.php'; 
 include 'session.php';
-$sql = "SELECT id, place_name, is_restaurant, categories, average_rating FROM  riyadhplaces_doroob";
+$sql = "SELECT id, place_name, is_restaurant, categories, average_rating , user_id FROM  riyadhplaces_doroob";
 $result = $conn->query($sql);
 // Store places in an array
 $places = [];

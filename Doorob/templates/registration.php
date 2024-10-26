@@ -20,17 +20,6 @@
         
       </a>
       <div class="nav__menu" id="nav-menu">
-        <ul class="nav__list">
-          <li class="nav__item">
-            <a href="#" class="nav__link active-link">Home</a>
-          </li>
-          <li class="nav__item">
-            <a href="#" class="nav__link">Profile</a>
-          </li>
-          <li class="nav__item">
-            <a href="#" class="nav__link">Places</a>
-          </li>
-        </ul>
   
         <div class="nav__close" id="nav-close">
           <i class='bx bx-x'></i>
@@ -40,8 +29,7 @@
       <div class="nav__btns">
      
         <i class='bx bx-moon change-theme' id="theme-button"></i>
-        <i class='bx bxs-bell nav__notification' id="notification-button"></i>
-        <i class='bx bx bx-log-out nav__sign-out' id="signout-button"></i>
+
   
         
         <div class="nav__toggle" id="nav-toggle">

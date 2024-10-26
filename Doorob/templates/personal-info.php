@@ -1,12 +1,6 @@
 <?php
 include 'session.php';
-include 'config.php'; // Include your database connection
-
-// Check if the user is logged in
-if (!isset($_SESSION['userID'])) {
-    header("Location: login.php"); // Redirect to login page if not logged in
-    exit();
-}
+include 'config.php'; 
 
 // Fetch user information from the database
 $userId = $_SESSION['userID'];
@@ -17,7 +11,6 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
-    // Handle user not found
     echo "User not found.";
     exit();
 }
@@ -64,7 +57,7 @@ $user = $result->fetch_assoc();
 
     <script>
         let isEditing = false;
-
+// editing user info
         function toggleEdit() {
             isEditing = !isEditing;
             const fields = ['name', 'email'];
@@ -81,7 +74,6 @@ $user = $result->fetch_assoc();
                     inputField.setAttribute('readonly', 'readonly');
                     editSaveBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
                     editSaveBtn.classList.replace('save-btn', 'edit-btn');
-                    // Here you would typically save the changes
                     saveChanges();
                 }
             });
@@ -102,7 +94,7 @@ $user = $result->fetch_assoc();
             .then(data => {
                 if (data.success) {
                     alert('Information updated successfully!');
-                    location.reload(); // Reload the page to reflect changes
+                    location.reload();
                 } else {
                     alert('Failed to update information: ' + data.error);
                 }

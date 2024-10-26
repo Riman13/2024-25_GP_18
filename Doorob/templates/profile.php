@@ -1,4 +1,5 @@
-<?php include 'session.php'; ?>
+<?php include 'session.php';
+include 'config.php';  ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -65,9 +66,9 @@
 
             <div class="content1">
                 <iframe id="iframe1" class="iframe" src="personal-info.php"></iframe>
-                <iframe id="iframe2" class="iframe" src="privacy-settings.html" style="display: none;"></iframe>
-                <iframe id="iframe3" class="iframe" src="rating-history.html" style="display: none;"></iframe>
-                <iframe id="iframe4" class="iframe" src="favorite-list.html" style="display: none;"></iframe>
+                <iframe id="iframe2" class="iframe" src="privacy-settings.php" style="display: none;"></iframe>
+                <iframe id="iframe3" class="iframe" src="rating-history.php" style="display: none;"></iframe>
+                <iframe id="iframe4" class="iframe" src="favorite-list.php" style="display: none;"></iframe>
             </div>
         </div>
     </div>
