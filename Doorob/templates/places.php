@@ -98,9 +98,9 @@ if ($result && mysqli_num_rows($result) > 0) {
 </div>
       </nav>
     </header>
-    
+    <!-   
   <div style="height: 80px;"></div> 
-<!--intro-->
+<!--intro
 
 <div class="intro">
     <div class="intro-text">
@@ -108,7 +108,7 @@ if ($result && mysqli_num_rows($result) > 0) {
         <h2>NEW PLACE</h2>
         <p>Start your journey of exploring new destinations in Riyadh with Doroob</p>
     </div>
-</div>
+</div>-->
  <!--============ Filter =============-->
  <div class="filter-container">
     <h2>What are you looking for?</h2>
