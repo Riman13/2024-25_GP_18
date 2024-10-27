@@ -38,7 +38,7 @@ if ($result && mysqli_num_rows($result) > 0) {
       <a href="#" class="nav__logo">
        
           <img src="imgs/logo.png" alt="Logo" class="nav__logo-img">
-          Doorob</a>
+          Doroob</a>
       <div class="nav__menu" id="nav-menu">
         <ul class="nav__list">
           <li class="nav__item">

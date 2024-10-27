@@ -60,9 +60,7 @@ if ($result && mysqli_num_rows($result) > 0) {
       <a href="#" class="nav__logo">
        
           <img src="imgs/logo.png" alt="Logo" class="nav__logo-img">
-          Doorob
-        
-      </a>
+          Doroob</a>
       <div class="nav__menu" id="nav-menu">
         <ul class="nav__list">
           <li class="nav__item">
@@ -87,20 +85,20 @@ if ($result && mysqli_num_rows($result) > 0) {
         <i class='bx bxs-bell nav__notification' id="notification-button"></i>
         <i class='bx bx bx-log-out nav__sign-out' id="signout-button"></i>
   
-        
+       
         <div class="nav__toggle" id="nav-toggle">
-          <i class='bx bx-grid-alt' ></i>
-      </div>
-      </div>
-      <div class="UserName"> 
+            <i class='bx bx-grid-alt' ></i>
+        </div>
+        </div>
+        <div class="UserName"> 
     <div class="user-profile">
         <span><i class="ri-user-3-fill"></i></span>
         <?php echo htmlspecialchars($username); ?>
     </div>
 </div>
-    </nav>
-  </header>
-
+      </nav>
+    </header>
+    
   <div style="height: 80px;"></div> 
 <!--intro-->
 
