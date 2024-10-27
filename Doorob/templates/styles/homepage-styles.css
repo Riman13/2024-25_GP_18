@@ -625,4 +625,13 @@ section .gallrey p {
   .carousel-dots .active {
     background-color: #717171;
   }
-  
+  #photoCarousel {
+    display: flex;
+    overflow-x: scroll;
+}
+
+#photoCarousel img {
+    margin-right: 10px;
+    height: 200px; /* Adjust as needed */
+    width: auto;
+}
