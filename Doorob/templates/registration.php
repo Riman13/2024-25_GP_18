@@ -135,13 +135,7 @@ if(isset($_GET['error'])){
       
                 <ul class="footer__links">
                     <li>
-                        <a href="#" class="footer__link">Home</a>
-                    </li>
-                    <li>
-                        <a href="#" class="footer__link">Profile page</a>
-                    </li>
-                    <li>
-                        <a href="#" class="footer__link">History Ratings</a>
+                        <a href="   Index.php" class="footer__link">Home</a>
                     </li>
                     
                 </ul>
