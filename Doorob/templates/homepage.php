@@ -392,10 +392,11 @@ function fetchPhotosByLatLng($lat, $lng) {
                     <a href="#" class="footer__link">Home</a>
                 </li>
                 <li>
-                    <a href="#" class="footer__link">Profile page</a>
+                    <a href="profile.php" class="footer__link">Profile page</a>
                 </li>
                 <li>
-                    <a href="#" class="footer__link">History Ratings</a>
+                <a href="profile.php?iframe=iframe3" class="footer__link">History Ratings</a>
+
                 </li>
                 
             </ul>

@@ -199,21 +199,22 @@ if ($result && mysqli_num_rows($result) > 0) {
             </div>
       
             <div class="footer__content">
-                <h3 class="footer__title section__title">Doroob</h3>
-      
-                <ul class="footer__links">
-                    <li>
-                        <a href="#" class="footer__link">Home</a>
-                    </li>
-                    <li>
-                        <a href="#" class="footer__link">Profile page</a>
-                    </li>
-                    <li>
-                        <a href="#" class="footer__link">History Ratings</a>
-                    </li>
-                    
-                </ul>
-            </div>
+            <h3 class="footer__title section__title">Doroob</h3>
+  
+            <ul class="footer__links">
+                <li>
+                    <a href="homepage.php" class="footer__link">Home</a>
+                </li>
+                <li>
+                    <a href="profile.php" class="footer__link">Profile page</a>
+                </li>
+                <li>
+                <a href="profile.php?iframe=iframe3" class="footer__link">History Ratings</a>
+
+                </li>
+                
+            </ul>
+        </div>
       
             <div class="footer__content">
                 <h3 class="footer__title section__title">Social</h3>

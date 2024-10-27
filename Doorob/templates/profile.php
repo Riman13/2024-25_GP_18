@@ -108,6 +108,17 @@ if ($result && mysqli_num_rows($result) > 0) {
             });
             document.getElementById(iframeId).style.display = 'block';
         }
+            // footer Function to get query parameters from the URL
+    function getQueryParameter(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+
+    // Check if there's a query parameter and display the corresponding iframe
+    const iframeToShow = getQueryParameter('iframe');
+    if (iframeToShow) {
+        showIframe(iframeToShow);
+    }
     </script>
 </div>
 
@@ -142,13 +153,14 @@ if ($result && mysqli_num_rows($result) > 0) {
   
             <ul class="footer__links">
                 <li>
-                    <a href="#" class="footer__link">Home</a>
+                    <a href="homepage.php" class="footer__link">Home</a>
                 </li>
                 <li>
                     <a href="#" class="footer__link">Profile page</a>
                 </li>
                 <li>
-                    <a href="#" class="footer__link">History Ratings</a>
+                <a href="profile.php?iframe=iframe3" class="footer__link">History Ratings</a>
+
                 </li>
                 
             </ul>
