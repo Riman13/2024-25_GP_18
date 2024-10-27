@@ -215,7 +215,7 @@ body.dark-theme {
 
 .user-profile i {
   font-size: 20px;
-  color: var(--primary-color);
+  color: var(--title-color);
 }
 
 /*======= HEADER & NAV ===========*/
@@ -263,12 +263,17 @@ body.dark-theme {
   display: flex;
   align-items: center;
   column-gap: 1rem;
+  color: var(--title-color);
+  
 }
 
 .nav__toggle, 
 .nav__shop {
   font-size: 1.25rem;
   cursor: pointer;
+}
+.nav__sign-out {
+  color: var(--text-dark);
 }
 
 @media screen and (max-width: 767px) {
