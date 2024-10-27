@@ -5,6 +5,7 @@
 :root {
   --header-height: 3.5rem;
   /*========== Colors ==========*/
+  --primary-color: hsl(215, 20%, 40%);
   --first-color: hsl(242, 35%, 19%); /* Light green */
   --text-color: hsl(30, 20%, 30%); /* Brown */
             --text-color-light: hsl(215, 20%, 40%); /* Lighter brown */
@@ -39,6 +40,14 @@
   /*========== z index ==========*/
  
   --z-fixed: 100;
+  /*========== homebage ==========*/
+  --primary-color-dark: hsl(215, 30%, 50%);
+  --text-dark: #333333;
+  --text-light: #767268;
+  --white: #ffffff;
+  --max-width: 1200px;
+  --header-fonts: "Bebas Neue", sans-serif;
+
 }
 .nav__logo-img {
   width: 35px; 
@@ -119,7 +128,7 @@ label {
 }
 
 .toggle-btn {
-    background-color: #325070;
+    background-color: var(--primary-color);;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -131,13 +140,13 @@ label {
 }
 
 .toggle-btn.active {
-    background-color: #325070;
+    background-color: var(--primary-color);;
 }
 
 .toggle-btn:hover {
-    background-color: #2980b9;
+    background-color: var(--primary-color-dark);;
 }
 
 .toggle-btn.active:hover {
-    background-color: #325070;
+    background-color: var(--primary-color);;
 }

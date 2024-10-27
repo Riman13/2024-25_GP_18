@@ -19,7 +19,7 @@
     font-weight: bold;
     text-align: center;
     padding: 40px;
-    background-color:#506984;
+    background-color:var(--primary-color);
     border-bottom: 1px solid #e0e0e0;
     color: rgb(255, 255, 255);
 }
@@ -52,7 +52,7 @@
 }
 
 .sidebar1 button:hover {
-    background-color: #23374d;
+    background-color: var(--primary-color-dark);
     color: white;
   font-weight: var(--font-medium);
 }
