@@ -170,12 +170,12 @@ foreach ($places as &$place) {
           <i class='bx bx-grid-alt' ></i>
       </div>
       </div>
-      <div class="UserName">
-      <a href="profile.php" class="user-profile-link">
-  <span><i class="ri-user-3-fill"></i></span>
-  <?php echo htmlspecialchars($username); ?>
-</a>
-  </div>
+      <div class="UserName"> 
+    <div class="user-profile">
+        <span><i class="ri-user-3-fill"></i></span>
+        <?php echo htmlspecialchars($username); ?>
+    </div>
+</div>
     </nav>
   </header>
 
