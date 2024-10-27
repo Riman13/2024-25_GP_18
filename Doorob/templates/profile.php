@@ -1,5 +1,21 @@
 <?php include 'session.php';
-include 'config.php';  ?>
+include 'config.php';
+
+// Retrieve the user_id from the session
+$user_id = $_SESSION['userID'];
+
+
+// Query to get the user's name directly
+$query = "SELECT Name FROM users WHERE UserID = $user_id";
+$result = mysqli_query($conn, $query);
+
+if ($result && mysqli_num_rows($result) > 0) {
+    $user = mysqli_fetch_assoc($result);
+    $username = $user['Name'];
+} else {
+    $username = "Guest";
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,6 +26,10 @@ include 'config.php';  ?>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> 
   <link rel="stylesheet" href="styles/footer-header-styles.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+  <!--======== ICONS ========-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
    <link rel="shortcut icon" href="imgs/logo.png" type="image/x-icon">
 </head>
 <body>
@@ -48,6 +68,12 @@ include 'config.php';  ?>
             <i class='bx bx-grid-alt' ></i>
         </div>
         </div>
+        <div class="UserName"> 
+    <div class="user-profile">
+        <span><i class="ri-user-3-fill"></i></span>
+        <?php echo htmlspecialchars($username); ?>
+    </div>
+</div>
       </nav>
     </header>
   

@@ -5,6 +5,7 @@
 :root {
   --header-height: 3.5rem;
   /*========== Colors ==========*/
+  --primary-color: hsl(215, 20%, 40%);
   --first-color: hsl(242, 35%, 19%); /* Light green */
   --text-color: hsl(30, 20%, 30%); /* Brown */
             --text-color-light: hsl(215, 20%, 40%); /* Lighter brown */
@@ -178,6 +179,34 @@ body.dark-theme {
   width: 60px;
   height: 1px;
   background-color: var(--first-color);
+}
+
+/*=============== User Name ===============*/
+.UserName {
+  display: inline-block;
+  margin-right: 0;
+}
+
+.user-profile {
+  font-family: Arial, sans-serif;
+  color: #333;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border-radius: 5px;
+  background-color: transparent;
+
+}
+
+
+
+.user-profile span {
+  margin-right: 8px;
+}
+
+.user-profile i {
+  font-size: 20px;
+  color: var(--primary-color);
 }
 
 /*======= HEADER & NAV ===========*/
