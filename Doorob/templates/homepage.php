@@ -2,7 +2,9 @@
 include 'config.php'; // Include the database connection
 include 'session.php';
 // Query to get the first 21 places
-$sql = "SELECT id, place_name, is_restaurant, categories, granular_category, average_rating FROM riyadhplaces_doroob LIMIT 21";
+
+$sql = "SELECT id, place_name, is_restaurant, categories, granular_category, average_rating, place_id FROM riyadhplaces_doroob LIMIT 21";
+
 $result = $conn->query($sql);
 // Store places in an array
 $places = [];
@@ -72,6 +74,30 @@ if ($response === false) {
     }
 }
 ?>
+<?php
+foreach ($places as &$place) {
+    // For each place, send a request to the external API to get the image URL
+    $api_image_url = 'http://api.example.com/get-image/' . $place['place_id'];  // Replace with your actual API URL
+    
+    // Use cURL to fetch the image URL
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $api_image_url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    // Assume the response contains the image URL
+    $image_data = json_decode($response, true);
+    if (json_last_error() === JSON_ERROR_NONE && isset($image_data['image_url'])) {
+        $place['image_url'] = $image_data['image_url'];  // Add the image URL to the place data
+    } else {
+        $place['image_url'] = 'default-image.jpg';  // Use a fallback image if no image is found
+    }
+}
+
+
+?>
+
 
 
 <!DOCTYPE html>
@@ -95,9 +121,12 @@ if ($response === false) {
 
 <!--======== WEBSITE ICON ========-->
 <link rel="shortcut icon" href="imgs/logo.png" type="image/x-icon">
+
+
+
        
 </head>
-<body>
+
 
 <!--============ Header =============-->
 <header class="header" id="header">
@@ -275,7 +304,10 @@ if ($response === false) {
     <div class="places-container" id="placesContainer">
         <!-- Dynamically inject places -->
 
+
     </div>
+
+
     
     <!-- Left Arrow -->
     <button class="nav-btn left" id="AllLeftArrow" onclick="navigate(-1)">&lt;</button>
@@ -302,6 +334,37 @@ if ($response === false) {
 
 
 </div> 
+
+<!-- Modal Structure -->
+<div id="detailsModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <i class="fas fa-map-marker-alt name-icon"></i>
+    <h2 id="placeName"></h2>
+    <hr> <!-- Line under the name -->
+    <div class="info-row">
+      <div class="left-section">
+        <p><strong>Category:</strong> <span id="placeCategory"></span></p>
+        <p><strong>Granular Category:</strong> <span id="placeGranularCategory"></span></p><br>
+        <button class="favorite-btn"><i class="fas fa-heart"></i> Favorite This Place</button>
+      </div>
+      <div class="divider"></div>
+      <div class="right-section">
+        <p><strong>Rating:</strong> <span id="placeRating"></span></p><br>
+        <button class="rate-btn"><i class="fas fa-star"></i> Rate This Place</button>
+      </div>
+    </div>
+    <hr>
+
+    <!-- Photo Carousel Section -->
+    <div id="photoCarousel" class="carousel">
+      <!-- Photos will be inserted here by JavaScript -->
+    </div>
+    <!-- Dots for navigation -->
+    <div id="carouselDots" class="carousel-dots"></div>
+  </div>
+</div>
+
 
 
 
@@ -377,6 +440,9 @@ if ($response === false) {
 <script src="scripts/homepage-js.js"></script>
 
 <script>
+
+// abeer
+
 // Initialize variables
 let currentIndex = 0; // Initialize current index
     const places = <?php echo json_encode($places); ?>; // Convert PHP array to JavaScript array
@@ -396,9 +462,14 @@ let currentIndex = 0; // Initialize current index
                 <h3>${place.place_name}</h3>
                 <p>Category: ${place.granular_category}</p>
                 <p>Rating: ${'★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))}</p>
-                <button class="details-btn" data-id="${place.id}">More Details</button>
+                            <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}" >More Details</button>
+
             `;
             placesContainer.appendChild(placeDiv);
+                // Attach click event to "More Details" button
+    placeDiv.querySelector('.details-btn').addEventListener('click', function() {
+        showDetails(place.id);
+    });
         }
 
         // Disable arrows based on the current index
@@ -440,7 +511,7 @@ for (let i = currentIndexCFRS; i < currentIndexCFRS + 3 && i < recommendations.l
         <h3>${place.place_name}</h3>
         <p>Category: ${place.granular_category}</p>
         <p>Rating: ${ratingDisplay}</p> <!-- Use the calculated rating display here -->
-        <button class="details-btn" data-id="${place.id}">More Details</button>
+         <button class="details-btn" data-id="${place.id}" >More Details</button>
     `;
     
     cfrsPlacesContainer.appendChild(placeDiv);
@@ -461,9 +532,249 @@ for (let i = currentIndexCFRS; i < currentIndexCFRS + 3 && i < recommendations.l
     // Initial rendering of CFRS places
     renderCFRSPlaces();
 
+    document.querySelectorAll('.details-btn').forEach(button => {
+    button.addEventListener('click', function () {
+        // Get place_id from data-id attribute
+        const placeId = this.getAttribute('data-id');
+        // Call showDetails function with the placeId
+        showDetails(placeId);
+    });
+});
+
+/*
+    //me
+
+    function showDetails(placeId) {
+    // Fetch details from the server
+    fetch(`get_place_details.php?id=${placeId}`)
+        .then(response => response.json())
+        .then(data => {
+            // Populate modal content with place details
+            document.getElementById('placeName').innerText = data.place_name;
+            document.getElementById('placeCategory').innerText = data.categories;
+            document.getElementById('placeGranularCategory').innerText = data.granular_category;
+            document.getElementById('placeRating').innerText = data.average_rating;
+
+            // Fetch photos from Google Places API
+            fetch(`get_photos_proxy.php?place_id=${placeId}`)
+                .then(response => response.json())
+                .then(photoData => {
+                    const photos = photoData.result.photos || [];
+                    const maxPhotos = Math.min(photos.length, 5); // Limit to 5 photos
+                    const carouselContainer = document.getElementById('photoCarousel');
+                    const dotsContainer = document.getElementById('carouselDots');
+
+                    // Clear previous photos and dots
+                    carouselContainer.innerHTML = '';
+                    dotsContainer.innerHTML = '';
+
+                    if (maxPhotos > 0) {
+                        photos.slice(0, maxPhotos).forEach((photo, index) => {
+                            // Create an image element for each photo
+                            const img = document.createElement('img');
+                            img.src = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g`;
+                            img.className = 'carousel-photo';
+                            img.style.display = index === 0 ? 'block' : 'none'; // Show only the first photo initially
+
+                            // Add image to the carousel container
+                            carouselContainer.appendChild(img);
+
+                            // Create a dot for each photo
+                            const dot = document.createElement('span');
+                            dot.className = 'dot';
+                            dot.classList.toggle('active', index === 0); // Make the first dot active
+                            dot.addEventListener('click', () => showSlide(index));
+                            dotsContainer.appendChild(dot);
+                        });
+
+                        // Initialize the first slide
+                        let currentSlide = 0;
+
+                        // Show slide function for navigating the carousel
+                        function showSlide(n) {
+                            const slides = carouselContainer.querySelectorAll('.carousel-photo');
+                            const dots = dotsContainer.querySelectorAll('.dot');
+
+                            if (n >= slides.length) currentSlide = 0;
+                            if (n < 0) currentSlide = slides.length - 1;
+
+                            slides.forEach((slide, index) => {
+                                slide.style.display = index === n ? 'block' : 'none';
+                            });
+                            dots.forEach((dot, index) => {
+                                dot.classList.toggle('active', index === n);
+                            });
+
+                            currentSlide = n;
+                        }
+                    } else {
+                        // If no photos available, display a message
+                        carouselContainer.innerHTML = '<p>No photos available for this place.</p>';
+                    }
+                })
+                .catch(error => console.error('Error fetching photos:', error));
+
+            // Show the modal
+            document.getElementById('detailsModal').style.display = "block";
+        })
+        .catch(error => console.error('Error fetching place details:', error));
+}
+function closeModal() {
+    document.getElementById('detailsModal').style.display = "none";
+}
+*/
+// Event listener for detail buttons
+document.querySelectorAll('.details-btn').forEach(button => {
+    button.addEventListener('click', function () {
+        const placeId = this.getAttribute('data-id');
+        const lat = this.getAttribute('data-lat');  // Ensure lat is set in the button's data attribute
+        const lng = this.getAttribute('data-lng');  // Ensure lng is set in the button's data attribute
+
+        showDetails(placeId, lat, lng);
+    });
+});
+
+function showDetails(placeId, lat = null, lng = null) {
+    fetch(`get_place_details.php?id=${placeId}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('placeName').innerText = data.place_name;
+            document.getElementById('placeCategory').innerText = data.categories;
+            document.getElementById('placeGranularCategory').innerText = data.granular_category;
+            document.getElementById('placeRating').innerText = data.average_rating;
+
+            // Attempt to fetch photos by placeId; fallback to lat/lng if no photos are found
+            fetchPhotosByPlaceId(placeId, lat, lng);
+
+            document.getElementById('detailsModal').style.display = "block";
+        })
+        .catch(error => console.error('Error fetching place details:', error));
+}
+
+function fetchPhotosByPlaceId(placeId, lat, lng) {
+    fetch(`get_photos_proxy.php?place_id=${placeId}`)
+        .then(response => response.json())
+        .then(photoData => {
+            const photos = photoData.result.photos || [];
+
+            if (photos.length > 0) {
+                displayPhotos(photos);
+            } else if (lat && lng) {
+                // Fallback to nearby search if no photos found by place_id
+                fetchNearbyPhotos(lat, lng);
+            } else {
+                displayNoPhotosMessage();
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching photos by place_id:', error);
+            if (lat && lng) fetchNearbyPhotos(lat, lng); // Fallback to nearby search
+        });
+}
+
+function fetchNearbyPhotos(lat, lng) {
+    const radius = 500; // Radius in meters
+    const nearbyUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radius}&key=AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g`;
+
+    fetch(nearbyUrl)
+        .then(response => response.json())
+        .then(data => {
+            if (data.results.length > 0 && data.results[0].photos) {
+                displayPhotos(data.results[0].photos);
+            } else {
+                displayNoPhotosMessage();
+            }
+        })
+        .catch(error => console.error('Error fetching nearby photos:', error));
+}
+
+function displayPhotos(photos) {
+    const maxPhotos = Math.min(photos.length, 5);
+    const carouselContainer = document.getElementById('photoCarousel');
+    const dotsContainer = document.getElementById('carouselDots');
+
+    carouselContainer.innerHTML = '';
+    dotsContainer.innerHTML = '';
+
+    photos.slice(0, maxPhotos).forEach((photo, index) => {
+        const img = document.createElement('img');
+        img.src = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g`;
+        img.className = 'carousel-photo';
+        img.style.display = index === 0 ? 'block' : 'none';
+
+        carouselContainer.appendChild(img);
+
+        const dot = document.createElement('span');
+        dot.className = 'dot';
+        dot.classList.toggle('active', index === 0);
+        dot.addEventListener('click', () => showSlide(index));
+        dotsContainer.appendChild(dot);
+    });
+}
+
+function displayNoPhotosMessage() {
+    document.getElementById('photoCarousel').innerHTML = '<p>No photos available for this place.</p>';
+}
+
+function closeModal() {
+    document.getElementById('detailsModal').style.display = "none";
+}
 
 </script>
+<?php
+function fetchPhotos($place_id, $lat = null, $lng = null) {
+    $photos = fetchPhotosByPlaceId($place_id);
 
-   
+    if (!empty($photos)) {
+        return $photos;
+    }
+
+    if ($lat && $lng) {
+        $photos = fetchPhotosByLatLng($lat, $lng);
+        if (!empty($photos)) {
+            return $photos;
+        }
+    }
+
+    if ($lat && $lng) {
+        $related_place_id = findRelatedPlaceIdByLatLng($lat, $lng);
+        if ($related_place_id) {
+            $photos = fetchPhotosByPlaceId($related_place_id);
+            if (!empty($photos)) {
+                return $photos;
+            }
+        }
+    }
+
+    return [];
+}
+
+function findRelatedPlaceIdByLatLng($lat, $lng) {
+    $apiKey = 'AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g';
+    $radius = 1000;
+    $url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=$lat,$lng&radius=$radius&key=$apiKey";
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    $response = curl_exec($ch);
+    if ($response === false) {
+        error_log("Error with cURL: " . curl_error($ch));
+        curl_close($ch);
+        return null;
+    }
+    curl_close($ch);
+
+    $data = json_decode($response, true);
+
+    if (!empty($data['results'])) {
+        return $data['results'][0]['place_id'];
+    }
+
+    return null;
+}
+
+?>
   </body>
   </html>

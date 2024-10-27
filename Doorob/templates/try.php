@@ -106,13 +106,13 @@ if (file_exists($csvFile) && is_readable($csvFile)) {
         const response = await fetch(url);
         const data = await response.json();
         console.log(data); // Log the entire response to see what's returned
-        if (data.result && data.result.photos && data.result.photos.length > 0) {
+       if(data.result && data.result.photos && data.result.photos.length > 0) {
             const photoReference = data.result.photos[0].photo_reference;
             const apiKey = 'AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g';
             const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?photoreference=${photoReference}&key=${apiKey}&maxwidth=400`;
             displayPhotos(photoUrl);
         } else {
-            console.log('No photos found for this place.');
+           console.log('No photos found for this place.');
         }
     } catch (error) {
         console.error('Error fetching photos:', error);
