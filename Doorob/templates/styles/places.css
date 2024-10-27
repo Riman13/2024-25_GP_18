@@ -152,11 +152,10 @@
 
 /* Place name styling */
 .place h3 {
-    font-size: 1.5em;
+    font-size: 1.2em;
     margin-bottom: 10px;
     color: #333;
-    font-family: 'Playfair Display', serif;
-
+    font-family: var(--body-font);
 }
 
 /* Category and rating */
@@ -164,7 +163,7 @@
     font-size: 0.75em;
     color: #777;
     margin: 5px 0;
-    font-family: 'Playfair Display', serif;
+    font-family: var(--body-font);
 }
 
 
@@ -224,13 +223,16 @@
 }
 
 .place button {
-    padding: 8px 12px;
-    background-color: #0056b3;
+    transition: background-color 0.3s ease;
+    font-weight: 400; 
+    padding: 8px 20px;
+    background-color:var(--text-color-light);
+    border: 1px solid #ddd;
+    border-radius: 50px; 
+    box-sizing: border-box;
     color: white;
-    border: none;
-    border-radius: 5px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .place button:hover {
