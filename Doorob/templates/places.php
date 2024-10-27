@@ -92,36 +92,36 @@ if ($result && $result->num_rows > 0) {
     </div>
 </div>
  <!--============ Filter =============-->
-<div class="filter-container">
+ <div class="filter-container">
     <h2>What are you looking for?</h2>
     <div class="filter-boxes">
-        <div class="filter-box">
+        <div class="filter-box" data-category="restaurants" onclick="filterPlaces('restaurants')">
             <i class="fas fa-utensils"></i>
-            <p>Restaurants</p>
+            <p>Restaurants & Cafes</p>
         </div>
-        <div class="filter-box">
+        <div class="filter-box" data-category="hotel" onclick="filterPlaces('hotel')">
             <i class="fas fa-hotel"></i>
             <p>Hotels</p>
         </div>
-        <div class="filter-box">
-            <i class="fas fa-coffee"></i>
-            <p>Cafes</p>
-        </div>
-        <div class="filter-box">
-            <i class="fas fa-spa"></i>
-            <p>Beauty</p>
-        </div>
-        <div class="filter-box">
-            <i class="fas fa-tree"></i>
-            <p>Parks</p>
-        </div>
-        <div class="filter-box">
+        <div class="filter-box" data-category="shopping_mall" onclick="filterPlaces('shopping_mall')">
             <i class="fas fa-shopping-bag"></i>
             <p>Malls</p>
         </div>
-        <div class="filter-box">
+        <div class="filter-box" data-category="beauty" onclick="filterPlaces('beauty')">
+            <i class="fas fa-spa"></i>
+            <p>Beauty</p>
+        </div>
+        <div class="filter-box" data-category="park" onclick="filterPlaces('park')">
+            <i class="fas fa-tree"></i>
+            <p>Parks</p>
+        </div>
+        <div class="filter-box" data-category="art_gallery" onclick="filterPlaces('art_gallery')">
             <i class="fas fa-palette"></i>
             <p>Art Gallery</p>
+        </div>
+        <div class="filter-box" data-category="zoo" onclick="filterPlaces('zoo')">
+            <i class="fas fa-hippo"></i>
+            <p>Zoo</p>
         </div>
     </div>
     <div class="search-bar">
@@ -133,6 +133,7 @@ if ($result && $result->num_rows > 0) {
         </div>
     </div>
 </div>
+
 
  <!--============ All Destinations =============-->
 <div ></div>
@@ -219,20 +220,19 @@ if ($result && $result->num_rows > 0) {
 <!--========== JS ==========-->
 <script src="scripts/scripts-fh.js"></script>
 <script src="https://unpkg.com/scrollreveal"></script>
-
 <script>
 // Initialize variables
 let places = <?php echo json_encode($places); ?>;
+let filteredPlaces = places; // Use this for filtering
 let currentIndex = 0;
-const placesPerPage = 12; 
+const placesPerPage = 12;
 
 // Function to render places
 function renderPlaces() {
     const placesContainer = document.getElementById('placesContainer');
     placesContainer.innerHTML = ''; // Clear previous content
 
-    // Get the next places to display
-    const displayedPlaces = places.slice(currentIndex, currentIndex + placesPerPage);
+    const displayedPlaces = filteredPlaces.slice(currentIndex, currentIndex + placesPerPage);
 
     displayedPlaces.forEach((place) => {
         const placeDiv = document.createElement('div');
@@ -240,7 +240,7 @@ function renderPlaces() {
         placeDiv.innerHTML = `
             <img src='imgs/Riyadh.jpg' alt='${place.place_name}'>
             <h3>${place.place_name}</h3>
-            <p>Category: ${ place.granular_category}</p>
+            <p>Category: ${place.granular_category}</p>
             <p>Rating: ${'★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))}</p>
             <i class="fas fa-heart favorite" onclick="toggleFavorite(${place.id})"></i>
             <button onclick="window.location.href='placedetails.php?id=${place.id}'">More Details</button>
@@ -248,20 +248,24 @@ function renderPlaces() {
         placesContainer.appendChild(placeDiv);
     });
 
-    // Update pagination
     document.getElementById('currentPage').innerText = Math.floor(currentIndex / placesPerPage) + 1;
 }
 
 // Function to navigate through pages
 function navigate(direction) {
     const newIndex = currentIndex + direction * placesPerPage;
-    if (newIndex >= 0 && newIndex < places.length) {
+    if (newIndex >= 0 && newIndex < filteredPlaces.length) {
         currentIndex = newIndex;
         renderPlaces();
     }
 }
 
-
+// Function to filter places by category
+function filterPlaces(category) {
+    filteredPlaces = places.filter(place => place.granular_category === category);
+    currentIndex = 0; // Reset to the first page
+    renderPlaces();
+}
 
 // Initial render
 renderPlaces();
