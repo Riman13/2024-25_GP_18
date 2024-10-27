@@ -128,6 +128,7 @@ foreach ($places as &$place) {
 
        
 </head>
+<body>
 
 
 <!--============ Header =============-->
@@ -393,6 +394,7 @@ foreach ($places as &$place) {
   
     <span class="footer__copy">Doorob &#169;All rigths reserved</span>
   </footer>
+
   
 <!--========== JS ==========-->
 <script src="scripts/scripts-fh.js"></script>

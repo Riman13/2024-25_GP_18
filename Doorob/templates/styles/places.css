@@ -90,6 +90,7 @@
 
 
 .filter-container {
+    margin-top: 6rem;
     text-align: center;
     padding: 40px 20px;
     background-color: var(--text-color-light);

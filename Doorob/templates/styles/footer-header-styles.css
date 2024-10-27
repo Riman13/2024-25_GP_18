@@ -40,6 +40,15 @@
   /*========== z index ==========*/
  
   --z-fixed: 100;
+  /*========== homebage ==========*/
+  --primary-color-dark: hsl(215, 30%, 50%);
+  --text-dark: #333333;
+  --text-light: #767268;
+  --white: #ffffff;
+  --max-width: 1200px;
+  --header-fonts: "Bebas Neue", sans-serif;
+
+
 }
 .nav__logo-img {
   width: 35px; 
