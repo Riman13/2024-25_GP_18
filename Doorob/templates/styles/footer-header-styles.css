@@ -184,7 +184,7 @@ body.dark-theme {
 .header {
   width: 100%;
   background: transparent;
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   z-index: var(--z-fixed);

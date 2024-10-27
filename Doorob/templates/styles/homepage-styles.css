@@ -206,58 +206,7 @@ body {
     }
 }
 
-/*=============== Search ===============*/
 
-.search-bar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    margin-top: 20px;
-}
-
-.search-input-container {
-    position: relative;
-    width: 75%;
-    display: flex;
-    margin: 0 auto;
-}
-
-.search-input-container input {
-    padding: 10px 40px 10px 20px;
-    width: 100%;
-    border: 1px solid #ddd;
-    border-radius: 50px;
-    box-sizing: border-box;
-}
-
-.search-input-container button {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-}
-
-.search-input-container button i {
-    color: var(--text-color-light);
-    font-size: 18px;
-}
-
-.search-input-container input:focus {
-    outline: none;
-    border-color: #aaa;
-}
-
-/*=============== Body Container ===============*/
-.body-container {
-    max-width: 100%;
-    margin: 5vh auto;
-    padding: 20px;
-    border-radius: 10px;
-}
 /*=============== Mission Values===============*/
 .mission-values {
     display: flex;
@@ -277,6 +226,7 @@ body {
     margin: 0;
     flex-basis: 25%;
     text-align: left;
+    font-family: var(--body-font);
 }
 
 .key-pillars {
@@ -305,53 +255,6 @@ body {
     font-size: 3em;
 }
 
-/*=============== Filter===============*/
-
-.filter-container {
-    text-align: center;
-    padding: 40px 20px;
-    background-color: var(--text-color-light);
-    color: white;
-    border-radius: 10px;
-}
-
-.filter-container h2 {
-    font-size: 2.2em;
-    margin-bottom: 30px;
-    font-family: 'Playfair Display', serif;
-}
-
-.filter-boxes {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.filter-box {
-    background-color: rgba(255, 255, 255, 0.1);
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    width: 150px;
-    transition: transform 0.3s;
-    color: white;
-}
-
-.filter-box:hover {
-    transform: scale(1.05);
-}
-
-.filter-box i {
-    font-size: 3em;
-}
-
-.filter-box p {
-    margin-top: 10px;
-    font-size: 1.2em;
-}
-
-
 /*=============== All Destinations===============*/
 
 .destinations {
@@ -368,7 +271,7 @@ body {
     font-size: 2.5em; 
     margin-bottom: 5%;
     color: #555; 
-    font-family: 'Playfair Display', serif;
+    font-family: var(--body-font);
 
 }
 
@@ -386,18 +289,29 @@ body {
     border-radius: 10px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     margin: 0 15px;
-    padding: 20px;
+    padding: 15px;
     transition: transform 0.3s ease;
-    font-family: 'Arial', sans-serif;
+    font-family: var(--body-font);
     text-align: center;
     width: 320px; 
     height: 340px;
+    position: relative;
+    cursor: pointer;
+    justify-content: space-between;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1); 
+    
     
 }
+.place:hover {
+    transform: scale(1.05); 
+    box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.2); 
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+}
+
 
 /* Middle place (larger) */
 .place.large {
-    width: 360px; /* Larger size for the middle place */
+    width: 340px; /* Larger size for the middle place */
     transform: scale(1.1);
     height: 350px;
 }
@@ -405,53 +319,57 @@ body {
 /* Image inside the place card */
 .place img {
     width: 100%;
-    height: 40%;
-    border-radius: 8px;
+    height: 175px;
+    border-radius: 10px;
     margin-bottom: 15px;
+    object-fit: cover;
 }
 
 /* Place name styling */
 .place h3 {
-    font-size: 1.5em;
+    font-size: 1.2em;
     margin-bottom: 10px;
     color: #333;
-    font-family: 'Playfair Display', serif;
+    font-family: var(--body-font);
 
 }
 
 /* Category and rating */
 .place p {
-    font-size: 1em;
+    font-size: 0.75em;
     color: #777;
     margin: 5px 0;
-    font-family: 'Playfair Display', serif;
+    font-family: var(--body-font);
 }
 
 /* Button styling */
-.place button {
+.place  button {
     transition: background-color 0.3s ease;
-    font-family: 'Playfair Display', serif;
-    font-weight: 600; 
-    padding: 10px 20px;
-    background-color: var(--text-color-light);
+    font-weight: 400; 
+    padding: 8px 20px;
+    background-color:var(--text-color-light);
     border: 1px solid #ddd;
     border-radius: 50px; 
     box-sizing: border-box;
     color: white;
     cursor: pointer;
+    font-size: 12px;
 }
 
 
 .place button:hover {
-    background-color: #0056b3;
+    background-color: var(--primary-color-dark);
 }
+
+
+
 
 /* Navigation buttons for sliding through places */
 .nav-btn {
     background-color: var(--text-color-light);
     color: white;
     border: none;
-    padding: 10px 15px;
+    padding: 8px 20px;
     border-radius: 50%;
     font-size: 1.5em;
     cursor: pointer;
@@ -474,7 +392,7 @@ body {
 
 /* Button hover effect */
 .nav-btn:hover {
-    background-color: #0056b3;
+    background-color: var(--primary-color-dark);
 }
 
 /* Smooth sliding of the places */
@@ -485,11 +403,10 @@ body {
 /* Show More button */
 .show-more {
     margin-top: 30px;
-    padding: 10px 20px;
-    font-size: 1.2em;
+    padding: 8px 20px;
+    font-size: 12px;
     transition: background-color 0.3s ease;
-    font-family: 'Playfair Display', serif;
-    font-weight: 600; 
+    font-weight: 400; 
     padding: 10px 20px;
     background-color: var(--text-color-light);
     border: 1px solid #ddd;
@@ -500,7 +417,7 @@ body {
 }
 
 .show-more:hover {
-    background-color: #0056b3;
+    background-color: var(--primary-color-dark);
 }
 
 
@@ -523,7 +440,7 @@ section .gallrey h3 {
     font-size: 2.5rem;
     font-weight: bold;
     text-align: left;
-    font-family: var(--header-fonts);
+    font-family: var(--body-font);
 }
 
 section .gallrey p {
