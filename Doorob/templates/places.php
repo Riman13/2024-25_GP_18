@@ -81,9 +81,11 @@ if ($result && mysqli_num_rows($result) > 0) {
   
       <div class="nav__btns">
      
-        <i class='bx bx-moon change-theme' id="theme-button"></i>
+        <!--<i class='bx bx-moon change-theme' id="theme-button"></i>-->
         <i class='bx bxs-bell nav__notification' id="notification-button"></i>
-        <i class='bx bx bx-log-out nav__sign-out' id="signout-button"></i>
+        <a href="logout.php">
+    <i class='bx bx-log-out nav__sign-out' id="signout-button"></i>
+</a>
   
        
         <div class="nav__toggle" id="nav-toggle">
