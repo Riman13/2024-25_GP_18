@@ -1,5 +1,4 @@
-<?php include 'session.php';
-include 'config.php';  ?>
+<?php include 'session.php'; include 'config.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,10 +24,18 @@ include 'config.php';  ?>
 
     <script>
         const locationBtn = document.getElementById('locationBtn');
+        
         locationBtn.addEventListener('click', function() {
             if (locationBtn.innerText === 'Turn On') {
-                locationBtn.innerText = 'Turn Off';
-                locationBtn.classList.add('active');
+                navigator.geolocation.getCurrentPosition(
+                    () => {
+                        locationBtn.innerText = 'Turn Off';
+                        locationBtn.classList.add('active');
+                    },
+                    () => {
+                        locationBtn.innerText = 'Turn On';
+                    }
+                );
             } else {
                 locationBtn.innerText = 'Turn On';
                 locationBtn.classList.remove('active');
@@ -36,11 +43,24 @@ include 'config.php';  ?>
         });
 
         const cameraBtn = document.getElementById('cameraBtn');
+        let cameraStream;
+
         cameraBtn.addEventListener('click', function() {
             if (cameraBtn.innerText === 'Turn On') {
-                cameraBtn.innerText = 'Turn Off';
-                cameraBtn.classList.add('active');
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then((stream) => {
+                        cameraStream = stream;
+                        cameraBtn.innerText = 'Turn Off';
+                        cameraBtn.classList.add('active');
+                    })
+                    .catch(() => {
+                        cameraBtn.innerText = 'Turn On';
+                    });
             } else {
+                if (cameraStream) {
+                    cameraStream.getTracks().forEach(track => track.stop());
+                    cameraStream = null;
+                }
                 cameraBtn.innerText = 'Turn On';
                 cameraBtn.classList.remove('active');
             }
