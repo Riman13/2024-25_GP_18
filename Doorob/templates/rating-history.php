@@ -9,9 +9,7 @@ $user_id = $_SESSION['userID'];
 $sql = "SELECT r.rating, p.place_name, r.placeID 
         FROM ratings r
         JOIN riyadhplaces_doroob p ON r.placeID = p.ID
-        WHERE r.userID = ?
-        AND r.ID = (SELECT MAX(r2.ID) FROM ratings r2 WHERE r2.userID = r.userID AND r2.placeID = r.placeID)
-        ORDER BY r.ID DESC";
+        WHERE r.userID = ?";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
