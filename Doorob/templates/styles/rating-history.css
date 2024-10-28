@@ -98,16 +98,45 @@ h1, h2, h3, h4 {
 }
 
 
-.rating-list {
-    border: 1px dashed #ccc;
-    padding: 20px;
-    border-radius: 10px;
-    margin: 10px auto;
-    min-height: 250px;
-}
+
 
 .empty-message {
     font-size: 16px;
     color: #888;
     margin-top: 10px;
+}
+
+
+
+
+.rating h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: left;
+}
+
+.rating-list ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.rating-list li {
+  background-color: #f3f3f3;
+  margin-bottom: 10px;
+  padding: 15px;
+  border-radius: 5px;
+  color: #333;
+  line-height: 1.6;
+}
+
+.rating-list li strong {
+  color: var(--title-color);
+}
+
+.empty-message {
+  color: #999;
+  font-size: 16px;
+  text-align: center;
 }

@@ -339,9 +339,20 @@ function fetchPhotosByLatLng($lat, $lng) {
       </div>
       <div class="divider"></div>
       <div class="right-section">
-        <p><strong>Rating:</strong> <span id="placeRating"></span></p><br>
-        <button class="rate-btn"><i class="fas fa-star"></i> Rate This Place</button>
-      </div>
+    <p><strong>Rating:</strong> <span id="placeRating"></span></p><br>
+    <div class="right-section">
+    <p><strong>Rate This Place:</strong></p>
+    <select id="ratingDropdown">
+        <option value="" disabled selected>Select your rating</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+    </select>
+    <button class="submit-rating-btn" onclick="submitRating()">Submit</button>
+</div>
+</div>
     </div>
     <hr>
 
@@ -542,10 +553,47 @@ for (let i = currentIndexCFRS; i < currentIndexCFRS + 3 && i < recommendations.l
 
 
     //reman -api photos
-   
+    function submitRating() {
+    const ratingDropdown = document.getElementById('ratingDropdown');
+    const selectedRating = parseInt(ratingDropdown.value);
 
+    if (!selectedRating) {
+        alert("Please select a rating before submitting.");
+        return;
+    }
+
+    const placeId = document.getElementById('placeName').getAttribute('data-id');
+
+    const requestData = {
+        userId: <?php echo $user_id; ?>,
+        placeId: placeId,
+        rating: selectedRating
+    };
+    console.log("Request Data:", requestData);
+
+    fetch('save_rating.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Server Response:", data);
+        if (data.success) {
+            alert("Rating submitted successfully!");
+            closeModal();
+        } else {
+            alert("Error submitting rating: " + data.error);
+        }
+    })
+    .catch(error => {
+        console.error("Error submitting rating:", error);
+        alert("An error occurred. Please try again.");
+    });
+}
  
     function showDetails(placeId) {
+        
     // Fetch details from the server
     fetch(`get_place_details.php?id=${placeId}`)
         .then(response => response.text())  // Get raw text
@@ -553,6 +601,7 @@ for (let i = currentIndexCFRS; i < currentIndexCFRS + 3 && i < recommendations.l
             console.log('Place Details Response:', data);  // Log the raw response
             try {
                 const jsonData = JSON.parse(data);  // Parse JSON here
+                document.getElementById('placeName').setAttribute('data-id', placeId);
                 document.getElementById('placeName').innerText = jsonData.place_name;
                 //document.getElementById('placeCategory').innerText = jsonData.categories;
                 document.getElementById('placeGranularCategory').innerText = jsonData.granular_category;

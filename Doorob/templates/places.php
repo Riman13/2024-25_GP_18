@@ -1,7 +1,7 @@
 <?php
 include 'config.php'; 
 include 'session.php';
-$sql = "SELECT id, place_name, is_restaurant, granular_category, average_rating , place_id FROM  riyadhplaces_doroob";
+$sql = "SELECT id, place_name, granular_category, average_rating , place_id FROM  riyadhplaces_doroob";
 $result = $conn->query($sql);
 // Store places in an array
 $places = [];

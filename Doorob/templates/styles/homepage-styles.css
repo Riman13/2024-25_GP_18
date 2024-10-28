@@ -635,3 +635,16 @@ section .gallrey p {
     height: 200px; /* Adjust as needed */
     width: auto;
 }
+.submit-rating-btn {
+    padding: 8px 20px;
+    font-size: 12px;
+    transition: background-color 0.3s ease;
+    font-weight: 400; 
+    padding: 10px 20px;
+    background-color: var(--primary-color);
+    border: 1px solid #ddd;
+    border-radius: 50px; 
+    box-sizing: border-box;
+    color: white;
+    cursor: pointer;
+}
