@@ -1,7 +1,0 @@
-tensorflow==2.10.0          # For deep learning and facial recognition (using DeepFace)
-deepface==0.0.75            # For facial emotion recognition
-flask==2.1.0                # For building the backend API
-
-
-
-pip freeze > requirements.txt
