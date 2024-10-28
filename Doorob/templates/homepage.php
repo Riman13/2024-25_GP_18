@@ -297,18 +297,61 @@ if ($response === false) {
       <div class="right-section">
     <p><strong>Rating:</strong> <span id="placeRating"></span></p><br>
     <div class="right-section">
-    <p><i class="fas fa-star"></i><strong>Rate This Place:</strong></p>
-    <select id="ratingDropdown">
-        <option value="" disabled selected>Select your rating</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-    </select>
+   
+    <button id="rateThisPlaceBtn" class="rate-btn" onclick="toggleRating()"> <p><i class="fas fa-star"></i><strong>Rate This Place:</strong></p></button>
+
+<div id="rate-btn" class="rt" display: none;>
+    <div id="starRating">
+        <!-- Stars will be filled by JavaScript dynamically -->
+        <span class="star" data-value="1">&#9733;</span>
+        <span class="star" data-value="2">&#9733;</span>
+        <span class="star" data-value="3">&#9733;</span>
+        <span class="star" data-value="4">&#9733;</span>
+        <span class="star" data-value="5">&#9733;</span>
+    </div><br>
     <button class="submit-rating-btn" onclick="submitRating()">Submit</button>
+    </div>  
 </div>
 </div>
+<script>
+    const stars = document.querySelectorAll('#starRating .star');
+    let currentRating = 0; // Store the current rating
+    
+    // Add hover and click event listeners to each star
+    stars.forEach((star, index) => {
+        // Hover: turn stars gold up to the hovered star
+        star.addEventListener('mouseover', () => {
+            updateStarDisplay(index + 1);
+        });
+
+        // Mouseout: reset stars based on the current rating
+        star.addEventListener('mouseout', () => {
+            updateStarDisplay(currentRating);
+        });
+
+        // Click: set the rating and fix the display
+        star.addEventListener('click', () => {
+            currentRating = index + 1;
+            updateStarDisplay(currentRating);
+        });
+    });
+
+    // Function to update the display based on the rating
+    function updateStarDisplay(rating) {
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.classList.add('gold'); // Turn star gold
+        } else {
+            star.classList.remove('gold'); // Turn star grey
+        }
+    });
+}
+function toggleRating() {
+    const ratingContainer = document.getElementById('rate-btn');
+    // Toggle display between 'none' and 'block'
+    ratingContainer.style.display = ratingContainer.style.display === 'none' ? 'block' : 'none';
+}
+</script>
     </div>
     <hr>
 
@@ -610,22 +653,12 @@ renderCFRSPlaces();
 
     //reman -api photos
     function submitRating() {
-    const ratingDropdown = document.getElementById('ratingDropdown');
-    const selectedRating = parseInt(ratingDropdown.value);
-
-    if (!selectedRating) {
-        alert("Please select a rating before submitting.");
-        return;
-    }
-
     const placeId = document.getElementById('placeName').getAttribute('data-id');
-
     const requestData = {
         userId: <?php echo $user_id; ?>,
         placeId: placeId,
-        rating: selectedRating
+        rating: currentRating
     };
-    console.log("Request Data:", requestData);
 
     fetch('save_rating.php', {
         method: 'POST',
@@ -634,20 +667,15 @@ renderCFRSPlaces();
     })
     .then(response => response.json())
     .then(data => {
-        console.log("Server Response:", data);
         if (data.success) {
-            alert("Rating submitted successfully!");
+            alert("Rating saved successfully!");
             closeModal();
         } else {
-            alert("Error submitting rating: " + data.error);
+            alert("Error saving rating: " + data.error);
         }
     })
-    .catch(error => {
-        console.error("Error submitting rating:", error);
-        alert("An error occurred. Please try again.");
-    });
+    .catch(error => console.error("Error submitting rating:", error));
 }
- 
     function showDetails(placeId) {
         
     // Fetch details from the server
@@ -662,6 +690,16 @@ renderCFRSPlaces();
                 //document.getElementById('placeCategory').innerText = jsonData.categories;
                 document.getElementById('placeGranularCategory').innerText = jsonData.granular_category;
                 document.getElementById('placeRating').innerText = jsonData.average_rating;
+                // Fetch and display previous rating if available
+              // Fetch and display previous rating if available
+              fetch('get_user_rating.php?userId=<?php echo $user_id; ?>&placeId=' + placeId)
+    .then(response => response.json())
+    .then(data => {
+        console.log("Previous rating data:", data); // Debugging line
+        currentRating = data.rating || 0; // Set to previous rating or 0 if none
+        updateStarDisplay(currentRating);
+    })
+    .catch(error => console.error("Error fetching previous rating:", error));
                 document.getElementById('detailsModal').style.display = "block";
 
                   // Populate photo carousel

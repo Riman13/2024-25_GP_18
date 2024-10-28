@@ -4,16 +4,8 @@ include 'session.php';
 
 header('Content-Type: application/json');
 
-// Read and decode JSON input
 $input = json_decode(file_get_contents('php://input'), true);
 
-// Check if JSON parsing was successful
-if (json_last_error() !== JSON_ERROR_NONE) {
-    echo json_encode(['success' => false, 'error' => 'Invalid JSON input: ' . json_last_error_msg()]);
-    exit;
-}
-
-// Validate input fields
 if (!isset($input['userId'], $input['placeId'], $input['rating'])) {
     echo json_encode(['success' => false, 'error' => 'Missing required fields']);
     exit;
@@ -23,24 +15,29 @@ $userId = $input['userId'];
 $placeId = $input['placeId'];
 $rating = $input['rating'];
 
-// Debug: Log the values being used for the SQL statement
-error_log("User ID: $userId, Place ID: $placeId, Rating: $rating");
+// Check if a rating already exists for this user and place
+$stmt = $conn->prepare("SELECT ID FROM ratings WHERE userID = ? AND placeID = ?");
+$stmt->bind_param("ii", $userId, $placeId);
+$stmt->execute();
+$stmt->store_result();
 
-// Prepare and execute the SQL statement
-$stmt = $conn->prepare("INSERT INTO ratings (userID, placeID, Rating) VALUES (?, ?, ?)");
-if (!$stmt) {
-    echo json_encode(['success' => false, 'error' => 'Prepare statement failed: ' . $conn->error]);
-    exit;
-}
-
-$stmt->bind_param("iii", $userId, $placeId, $rating);
-
-if ($stmt->execute()) {
-    echo json_encode(['success' => true]);
+if ($stmt->num_rows > 0) {
+    // Update existing rating
+    $stmt->close();
+    $updateStmt = $conn->prepare("UPDATE ratings SET Rating = ? WHERE userID = ? AND placeID = ?");
+    $updateStmt->bind_param("iii", $rating, $userId, $placeId);
+    $success = $updateStmt->execute();
+    $updateStmt->close();
 } else {
-    echo json_encode(['success' => false, 'error' => 'Execute failed: ' . $stmt->error]);
+    // Insert new rating
+    $stmt->close();
+    $insertStmt = $conn->prepare("INSERT INTO ratings (userID, placeID, Rating) VALUES (?, ?, ?)");
+    $insertStmt->bind_param("iii", $userId, $placeId, $rating);
+    $success = $insertStmt->execute();
+    $insertStmt->close();
 }
 
-$stmt->close();
 $conn->close();
+
+echo json_encode(['success' => $success]);
 ?>

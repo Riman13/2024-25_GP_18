@@ -573,7 +573,7 @@ section .gallrey p {
     transform: scale(1.2);
     color: #ff4a4a;
   }
-  
+
   button.rate-btn i {
     color: #FFD700;
   }
@@ -647,4 +647,18 @@ section .gallrey p {
     box-sizing: border-box;
     color: white;
     cursor: pointer;
+}
+.star {
+    font-size: 1.5em;
+    color: grey;
+    cursor: pointer;
+}
+
+/* Gold color for selected stars */
+.star.gold {
+    color: gold;
+    
+}
+rt {
+    display: none; /* Ensures it's hidden by default */
 }
