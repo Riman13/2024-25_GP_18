@@ -56,10 +56,10 @@ if(isset($_GET['error'])){
                 <input type="email" placeholder="Email" id="email"  name="email" required/>
                 <input type="password" placeholder="Password" id="password" name="password" required/>
                 <button id="signin1">Sign In</button>
-                <label for="resetPassword">
-                 <a href="resetPassword.html" class="reset-password-link">
+             <!--   <label for="resetPassword">
+                 <a href="resetPass.php" class="reset-password-link">
                         Reset Password <i class="fas fa-arrow-right"></i></a>
-                </label>
+                </label>-->
             </form>
         </div>
 
