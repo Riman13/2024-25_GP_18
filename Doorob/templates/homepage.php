@@ -385,7 +385,7 @@ function fetchPhotosByLatLng($lat, $lng) {
   
             <ul class="footer__links">
                 <li>
-                    <a href="#" class="footer__link">Contact Us</a>
+                <a href="profile.php?iframe=iframe5" class="footer__link">Contact Us</a>
                 </li>
              
                 <li>

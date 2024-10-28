@@ -228,7 +228,6 @@ if ($result && mysqli_num_rows($result) > 0) {
       
                 <ul class="footer__links">
                     <li>
-                        <a href="#" class="footer__link">Contact Us</a>
                     </li>
                  
                     <li>
