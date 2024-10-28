@@ -1,4 +1,3 @@
-
 import logging
 import sys
 
@@ -28,17 +27,18 @@ TEST_SIZE = 0.2 # 20% for testing, 80% for training
 
 RANDOM_SEED = 42
 
-PLACES_DATA_PATH = 'riyadh_places_8836x9.csv'          
-RATINGS_DATA_PATH = 'modified_ratings.csv' 
+PLACES_DATA_PATH = 'doroob_places.csv'          
+RATINGS_DATA_PATH = 'generated_ratings_with_numeric_place_ids.csv' 
+
 # Load your datasets
 ratings_df = pd.read_csv(RATINGS_DATA_PATH)
 places_df = pd.read_csv(PLACES_DATA_PATH)
 
 # PREPROCESSING
 places_df = places_df.rename(columns={'id': 'place_id'})
-essential_place_columns = ['place_id', 'place_name', 'is_restaurant', 'categories', 
-                           'average_rating', 'rate_count', 'granular_category', 
-                           'latitude', 'longitude']
+essential_place_columns = ['place_id', 'place_name', 
+                           'average_rating', 'granular_category', 
+                           'lat', 'lng']
 places_df = places_df.dropna(subset=essential_place_columns)
 
 essential_rating_columns = ['user_id', 'place_id', 'rating']
@@ -51,13 +51,10 @@ ratings_df['place_id'] = ratings_df['place_id'].astype(int)
 
 # Additional type conversions
 places_df['place_name'] = places_df['place_name'].astype(str)
-places_df['is_restaurant'] = places_df['is_restaurant'].astype(bool)
-places_df['categories'] = places_df['categories'].astype(str)
 places_df['average_rating'] = places_df['average_rating'].astype(float)
-places_df['rate_count'] = places_df['rate_count'].astype(int)
 places_df['granular_category'] = places_df['granular_category'].astype(str)
-places_df['latitude'] = places_df['latitude'].astype(float)
-places_df['longitude'] = places_df['longitude'].astype(float)
+places_df['lat'] = places_df['lat'].astype(float)
+places_df['lng'] = places_df['lng'].astype(float)
 
 ratings_df['rating'] = ratings_df['rating'].astype(float)
 ratings_df = ratings_df.drop_duplicates(subset=['user_id', 'place_id'])
@@ -143,7 +140,7 @@ def get_recommendations_by_id(user_id):
         recommended_places_details = recommended_places.merge(places_df, on='place_id')
 
         # Prepare the response, excluding the score
-        response = recommended_places_details[['place_id', 'place_name', 'is_restaurant', 'categories', 'average_rating', 'rate_count', 'granular_category', 'latitude', 'longitude']].to_dict(orient='records')
+        response = recommended_places_details[['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng']].to_dict(orient='records')
 
         print("Response:", response)  # Log the response for debugging
         return jsonify(response)
