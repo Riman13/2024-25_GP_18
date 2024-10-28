@@ -8,7 +8,7 @@ include 'config.php'; // Include your database connection file
 if (isset($_GET['id'])) {
     $placeId = intval($_GET['id']);
     
-    $stmt = $conn->prepare("SELECT place_name, categories, granular_category, average_rating, place_id FROM riyadhplaces_doroob WHERE id = ?");
+    $stmt = $conn->prepare("SELECT place_name,  granular_category, average_rating, place_id, lat, lng FROM riyadhplaces_doroob WHERE id = ?");
     $stmt->bind_param("i", $placeId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -48,4 +48,20 @@ function fetchPhotos($placeId) {
     } else {
         return [];
     }
+}
+
+
+// Function to fetch a new place_id based on latitude and longitude
+function fetchNewPlaceIdByLatLng($lat, $lng) {
+    $apiKey = 'AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g';
+    $radius = 500; // Adjust as needed
+    $url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={$lat},{$lng}&radius={$radius}&key={$apiKey}";
+
+    $response = file_get_contents($url);
+    $data = json_decode($response, true);
+    
+    if ($data['status'] === 'OK' && !empty($data['results'])) {
+        return $data['results'][0]['place_id']; // Return the first place_id found
+    }
+    return null;
 }
