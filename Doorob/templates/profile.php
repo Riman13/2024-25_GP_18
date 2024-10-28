@@ -89,7 +89,9 @@ if ($result && mysqli_num_rows($result) > 0) {
                 <button onclick="showIframe('iframe1')"><i class="fas fa-user"></i> Personal Information</button>
                 <button onclick="showIframe('iframe2')"><i class="fas fa-lock"></i> Privacy Settings</button>
                 <button onclick="showIframe('iframe3')"><i class="fas fa-history"></i> Rating History</button>
-                <button onclick="showIframe('iframe4')"><i class="fas fa-heart"></i> Favorite Places</button>
+                <button onclick="showIframe('iframe4')"><i class="fas fa-heart"></i> Saved Places</button>
+                <!-- New Contact Us button -->
+                <button onclick="showIframe('iframe5')"><i class="fas fa-envelope"></i> Contact Us</button>
             </div>
 
             <div class="content1">
@@ -97,6 +99,10 @@ if ($result && mysqli_num_rows($result) > 0) {
                 <iframe id="iframe2" class="iframe" src="privacy-settings.php" style="display: none;"></iframe>
                 <iframe id="iframe3" class="iframe" src="rating-history.php" style="display: none;"></iframe>
                 <iframe id="iframe4" class="iframe" src="favorite-list.php" style="display: none;"></iframe>
+                 <!-- New iframe for Contact Us -->
+                 <iframe id="iframe5" class="iframe" src="contact-us.php" style="display: none;"></iframe>
+            </div>
+        </div>
             </div>
         </div>
     </div>
