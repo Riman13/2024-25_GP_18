@@ -117,6 +117,8 @@ if ($result && mysqli_num_rows($result) > 0) {
     <div class="filter-boxes">
     <div class="filter-box" data-category="all" onclick="filterPlaces('all')">
             <i class="fas fa-list"></i>
+            <p>Show All</p>
+        </div>
         <div class="filter-box" data-category="restaurant" onclick="filterPlaces('restaurant')">
             <i class="fas fa-utensils"></i>
             <p>Restaurants</p>
@@ -137,10 +139,10 @@ if ($result && mysqli_num_rows($result) > 0) {
             <i class="fas fa-tree"></i>
             <p>Parks</p>
         </div>
-        <div class="filter-box" data-category="art_gallery" onclick="filterPlaces('art_gallery')">
+      <div class="filter-box" data-category="art_gallery" onclick="filterPlaces('art_gallery')">
             <i class="fas fa-palette"></i>
             <p>Art Gallery</p>
-        </div>
+        </div> 
         <div class="filter-box" data-category="zoo" onclick="filterPlaces('zoo')">
             <i class="fas fa-hippo"></i>
             <p>Zoo</p>
@@ -369,6 +371,12 @@ function navigate(direction) {
 // Function to filter places by category
 function filterPlaces(category) {
     if (category === 'all') {
+        // If "Show All" is selected, reset filteredPlaces to all places
+        filteredPlaces = places; // Show all places
+    } else {
+        // Filter based on the selected category
+        filteredPlaces = places.filter(place => place.granular_category === category);
+    }
     currentIndex = 0; // Reset to the first page
     renderPlaces(); // Update the displayed places
 }
