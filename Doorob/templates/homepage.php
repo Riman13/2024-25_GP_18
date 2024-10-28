@@ -270,10 +270,10 @@ if ($response === false) {
         <!-- Dynamically inject CFRS recommendations -->
 
     </div>
-    <!-- Left Arrow -->
+    <!-- Left Arrow 
     <button class="nav-btn left" id="cfrsLeftArrow" onclick="navigateCFRS(-1)">&lt;</button>
-    <!-- Right Arrow -->
-    <button class="nav-btn right" id="cfrsRightArrow" onclick="navigateCFRS(1)">&gt;</button>
+     Right Arrow 
+    <button class="nav-btn right" id="cfrsRightArrow" onclick="navigateCFRS(1)">&gt;</button>-->
 
 </div>
 
@@ -466,8 +466,13 @@ function renderPlaces() {
             <img id="place-img-${place.id}" src="imgs/logo.png" alt="${place.place_name}">
             <h3>${place.place_name}</h3>
             <p>Category: ${place.granular_category}</p>
-            <p>Rating: ${'★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))}</p>
-            <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}">More Details</button>
+<p>
+  Rating: ${
+    place.average_rating === 'N\\A'
+      ? '★★★☆☆'
+      : '★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))
+  }
+</p>            <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}">More Details</button>
         `;
         
         placesContainer.appendChild(placeDiv);
