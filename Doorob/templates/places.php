@@ -182,13 +182,13 @@ if ($result && mysqli_num_rows($result) > 0) {
       <div class="left-section">
       <!--  <p><strong>Category:</strong> <span id="placeCategory"></span></p>-->
         <p><strong>Granular Category:</strong> <span id="placeGranularCategory"></span></p><br>
-        <button class="favorite-btn"><i class="fas fa-heart"></i> Favorite This Place</button>
+        <button class="favorite-btn"><i class="fas fa-bookmark"></i> Bookmark This Place</button>
       </div>
       <div class="divider"></div>
       <div class="right-section">
     <p><strong>Rating:</strong> <span id="placeRating"></span></p><br>
     <div class="right-section">
-    <p><strong>Rate This Place:</strong></p>
+    <p><i class="fas fa-star"></i><strong>Rate This Place:</strong></p>
     <select id="ratingDropdown">
         <option value="" disabled selected>Select your rating</option>
         <option value="1">1</option>
