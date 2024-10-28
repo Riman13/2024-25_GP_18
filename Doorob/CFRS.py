@@ -21,9 +21,9 @@ CORS(app)  # Enable CORS for all routes
 
 
 # Top K items to recommend
-TOP_K = 20
+TOP_K = 10
 
-TEST_SIZE = 0.2  # 20% for testing, 80% for training
+TEST_SIZE = 0.2 # 20% for testing, 80% for training
 
 RANDOM_SEED = 42
 
