@@ -67,7 +67,7 @@ data = ratings_df
 data["rating"] = data["rating"].astype(np.float32)
 
 # Train-test split
-train, test = python_stratified_split(data, ratio=0.75, col_user="user_id", col_item="place_id", seed=42)
+train, test = python_stratified_split(data, ratio=0.80, col_user="user_id", col_item="place_id", seed=42)
 
 # Create the SAR model
 model = SAR(
