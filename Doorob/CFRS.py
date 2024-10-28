@@ -21,14 +21,14 @@ CORS(app)  # Enable CORS for all routes
 
 
 # Top K items to recommend
-TOP_K = 5
+TOP_K = 20
 
 TEST_SIZE = 0.2  # 20% for testing, 80% for training
 
 RANDOM_SEED = 42
 
 PLACES_DATA_PATH = 'doroob_places.csv'          
-RATINGS_DATA_PATH = 'synthetic_ratings_riyadh_places.csv' 
+RATINGS_DATA_PATH = 'generated_ratings_with_numeric_place_ids.csv' 
 
 # Load your datasets
 ratings_df = pd.read_csv(RATINGS_DATA_PATH)
