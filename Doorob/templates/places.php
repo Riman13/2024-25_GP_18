@@ -116,6 +116,7 @@ if ($result && mysqli_num_rows($result) > 0) {
     <h2>What are you looking for?</h2>
     <div class="filter-boxes">
     <div class="filter-box" data-category="all" onclick="filterPlaces('all')">
+            <i class="fas fa-list"></i>
         <div class="filter-box" data-category="restaurant" onclick="filterPlaces('restaurant')">
             <i class="fas fa-utensils"></i>
             <p>Restaurants</p>
@@ -367,7 +368,9 @@ function navigate(direction) {
 
 // Function to filter places by category
 function filterPlaces(category) {
+    if (category === 'all') {
     currentIndex = 0; // Reset to the first page
+    renderPlaces(); // Update the displayed places
 }
 
 // Initial render

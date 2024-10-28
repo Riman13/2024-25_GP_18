@@ -80,51 +80,7 @@ if ($response === false) {
     }
 }
 ?>
-<?php
-foreach ($places as &$place) {
-    // For each place, send a request to the external API to get the image URL
-    $api_image_url = 'http://api.example.com/get-image/' . $place['place_id'];  // Replace with your actual API URL
-    
-    // Use cURL to fetch the image URL
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $api_image_url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $response = curl_exec($ch);
-    curl_close($ch);
 
-    // Assume the response contains the image URL
-    $image_data = json_decode($response, true);
-    if (json_last_error() === JSON_ERROR_NONE && isset($image_data['image_url'])) {
-        $place['image_url'] = $image_data['image_url'];  // Add the image URL to the place data
-    } else {
-        $place['image_url'] = 'default-image.jpg';  // Use a fallback image if no image is found
-    }
-}
-function fetchPhotosByLatLng($lat, $lng) {
-    $apiKey = 'AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g';
-    $radius = 1000; // Adjust the radius as needed
-    $url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=$lat,$lng&radius=$radius&key=$apiKey";
-
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-    $response = curl_exec($ch);
-    curl_close($ch);
-
-    $data = json_decode($response, true);
-
-    // Fetch photos for the first place result
-    if (!empty($data['results'])) {
-        $firstPlaceId = $data['results'][0]['place_id'];
-        return fetchPhotosByPlaceId($firstPlaceId);
-    }
-
-    return [];
-}
-
-
-?>
 
 
 
