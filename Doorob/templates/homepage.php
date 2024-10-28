@@ -610,7 +610,7 @@ function fetchCFRSPlaceImage(placeId) {
                     cfrsPlaceImageCache[placeId] = imageUrl;
                 } else {
                     // No photos available, use default image
-                    const defaultImage = 'imgs/Riyadh.jpg';
+                    const defaultImage = 'imgs/logo.png';
                     placeImage.src = defaultImage;
                     cfrsPlaceImageCache[placeId] = defaultImage;
                 }

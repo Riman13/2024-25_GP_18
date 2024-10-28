@@ -288,30 +288,71 @@ let filteredPlaces = places; // Use this for filtering
 let currentIndex = 0;
 const placesPerPage = 12;
 
-// Function to render places
+const placeImageCache = {};
+
+// Function to render places based on the current index
 function renderPlaces() {
     const placesContainer = document.getElementById('placesContainer');
-    placesContainer.innerHTML = ''; // Clear previous content
+    placesContainer.innerHTML = ''; // Clear current places
 
+    // Display the next set of places
     const displayedPlaces = filteredPlaces.slice(currentIndex, currentIndex + placesPerPage);
-
-    displayedPlaces.forEach((place) => {
+    displayedPlaces.forEach((place, index) => {
         const placeDiv = document.createElement('div');
         placeDiv.className = 'place';
+        
         placeDiv.innerHTML = `
-            <img src='imgs/Riyadh.jpg' alt='${place.place_name}'>
+            <img id="place-img-${place.id}" src="imgs/logo.png" alt="${place.place_name}">
             <h3>${place.place_name}</h3>
             <p>Category: ${place.granular_category}</p>
             <p>Rating: ${'★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))}</p>
-            <i class="fas fa-heart favorite" onclick="toggleFavorite(${place.id})"></i>
-            <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}" >More Details</button>
+            <button class="details-btn" data-id="${place.place_id}" data-lat="${place.latitude}" data-lng="${place.longitude}">More Details</button>
         `;
+        
         placesContainer.appendChild(placeDiv);
+
+        // Attach click event to "More Details" button
         placeDiv.querySelector('.details-btn').addEventListener('click', function() {
-            showDetails(place.id); })
+            showDetails(place.id);
+        });
+
+        // Load the image for this place (check cache first)
+        if (placeImageCache[place.id]) {
+            // Use cached image
+            document.getElementById(`place-img-${place.id}`).src = placeImageCache[place.id];
+        } else {
+            // Fetch image details and cache it
+            fetchPlaceImage(place.id);
+        }
     });
 
     document.getElementById('currentPage').innerText = Math.floor(currentIndex / placesPerPage) + 1;
+}
+
+// Function to fetch place image and cache it
+function fetchPlaceImage(placeId) {
+    fetch(`get_place_details.php?id=${placeId}`)
+        .then(response => response.json()) // Get JSON response
+        .then(data => {
+            const placeImage = document.getElementById(`place-img-${placeId}`);
+            
+            if (data.photos && data.photos.length > 0) {
+                // Use the first photo in the list
+                const firstPhoto = data.photos[0];
+                const imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${firstPhoto.photo_reference}&key=AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g`;
+                placeImage.src = imageUrl;
+                // Cache the image URL
+                placeImageCache[placeId] = imageUrl;
+            } else {
+                // No photos available, use default image
+                placeImage.src = 'imgs/logo.png'; // Fallback image
+                placeImageCache[placeId] = 'imgs/logo.png'; // Cache the fallback
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching place details:', error);
+            document.getElementById(`place-img-${placeId}`).src = 'imgs/logo.png'; // Fallback in case of error
+        });
 }
 
 // Function to navigate through pages
@@ -319,7 +360,7 @@ function navigate(direction) {
     const newIndex = currentIndex + direction * placesPerPage;
     if (newIndex >= 0 && newIndex < filteredPlaces.length) {
         currentIndex = newIndex;
-        renderPlaces();
+        renderPlaces(); // Update the displayed places
     }
 }
 
