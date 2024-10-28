@@ -4,9 +4,9 @@
 import pandas as pd
 
 
-file_path = r'C:\Users\riman\Desktop\combined_updated_places.csv'
+file_path = r'C:\Users\riman\Downloads\translated_riyadh_places_dataset.csv'
 
-df = pd.read_csv(file_path, encoding='utf-8-sig', skiprows=8838)
+df = pd.read_csv(file_path, encoding='utf-8-sig')
 
 
 print(df.head())

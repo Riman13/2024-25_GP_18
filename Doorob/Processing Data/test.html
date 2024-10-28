@@ -22,55 +22,48 @@
         let totalFetchedPlaces = 0;
         const riyadhLocations = [
     // Central Riyadh
-    { lat: 24.7139, lng: 46.6739 },  // Al Murabba
-    { lat: 24.7010, lng: 46.6790 },  // King Abdullah Financial District
-    { lat: 24.6944, lng: 46.6777 },  // Al Olaya
-    { lat: 24.6885, lng: 46.7101 },  // Al Malaz
-    { lat: 24.6957, lng: 46.7178 },  // King Abdulaziz Historical Center
-    { lat: 24.6888, lng: 46.6753 },  // Al Batha
-    
+    { lat: 24.7266, lng: 46.7118 },  // Al Muruj
+    { lat: 24.7174, lng: 46.6752 },  // Salah Al Din
+    { lat: 24.7185, lng: 46.6821 },  // Al Zahra
+    { lat: 24.7182, lng: 46.6894 },  // Al Wizarat
+    { lat: 24.7124, lng: 46.6815 },  // Al Futah
+
     // Northern Riyadh
-    { lat: 24.8528, lng: 46.7174 },  // Al Sahafa
-    { lat: 24.8670, lng: 46.6340 },  // Al Malqa
-    { lat: 24.9069, lng: 46.5882 },  // Al Narjis
-    { lat: 24.9359, lng: 46.6762 },  // Al Munsiyah
-    { lat: 24.8760, lng: 46.6940 },  // Hittin
-    { lat: 24.8356, lng: 46.6548 },  // Al Aqiq
-    { lat: 24.8910, lng: 46.6160 },  // Al Yasmin
-    
+    //{ lat: 24.8702, lng: 46.7167 },  // Al Yasmin
+    { lat: 24.8565, lng: 46.7020 },  // Al Rabi
+    { lat: 24.8576, lng: 46.7231 },  // Al Khalidiyah
+    //{ lat: 24.8655, lng: 46.7299 },  // Hittin
+    { lat: 24.8890, lng: 46.6863 },  // An Narjis
+
     // Southern Riyadh
-    { lat: 24.6204, lng: 46.7739 },  // Al Aziziyah
-    { lat: 24.6026, lng: 46.7384 },  // Al Shifa
-    { lat: 24.5902, lng: 46.7024 },  // Al Suwaidi
-    { lat: 24.5704, lng: 46.7247 },  // Al Manfuhah
-    { lat: 24.5750, lng: 46.7462 },  // Al Misfalah
-    { lat: 24.5581, lng: 46.7557 },  // Al Dirab
-    
+    { lat: 24.5768, lng: 46.6845 },  // Al Faisaliah
+    { lat: 24.5637, lng: 46.6768 },  // Al Rimal
+    { lat: 24.5896, lng: 46.7047 },  // Al Shifa
+    { lat: 24.5991, lng: 46.7141 },  // Al Arid
+    { lat: 24.5775, lng: 46.7038 },  // Ad Dar Al Baida
+
     // Eastern Riyadh
-    { lat: 24.7555, lng: 46.8450 },  // Al Nahda
-    { lat: 24.7699, lng: 46.8647 },  // Al Khaleej
-    { lat: 24.7915, lng: 46.8354 },  // Al Hamra
-    { lat: 24.7798, lng: 46.8403 },  // Al Rawdah
-    { lat: 24.7573, lng: 46.8224 },  // Granada
-    { lat: 24.7717, lng: 46.8589 },  // Al Qadisiyah
-    { lat: 24.7891, lng: 46.8930 },  // Al Rabwah
-    
+    { lat: 24.7884, lng: 46.7912 },  // Qurtubah
+    { lat: 24.7989, lng: 46.8204 },  // Ash Shuhada
+    { lat: 24.7764, lng: 46.8355 },  // Al Manar
+    { lat: 24.7628, lng: 46.8397 },  // Al Maizilah
+    { lat: 24.7515, lng: 46.8152 },  // Al Dar Al Baida
+
     // Western Riyadh
-    { lat: 24.7104, lng: 46.5495 },  // Al Diriyah
-    { lat: 24.6872, lng: 46.5795 },  // Al Uraija
-    { lat: 24.6621, lng: 46.5923 },  // Al Qirawan
-    { lat: 24.6585, lng: 46.5408 },  // Al Shubra
-    { lat: 24.6756, lng: 46.6149 },  // Laban
-    { lat: 24.6801, lng: 46.5623 },  // Al Rayyan
-    
+    { lat: 24.6825, lng: 46.5706 },  // Al Shubra
+    { lat: 24.6928, lng: 46.5549 },  // Al Qirawan
+    { lat: 24.6744, lng: 46.5933 },  // Al Mansuriyah
+    { lat: 24.6831, lng: 46.5614 },  // Al Murabbaa
+    { lat: 24.6768, lng: 46.5438 },  // Dhahrat Laban
+
     // Outskirts of Riyadh
-    { lat: 24.9437, lng: 46.9900 },  // Al Janadriyah
-    { lat: 24.9651, lng: 46.9051 },  // Thumamah Desert
-    { lat: 24.5438, lng: 46.6401 },  // Al Kharj
-    { lat: 24.5520, lng: 46.7470 },  // Hotat Bani Tamim
-    { lat: 24.7400, lng: 46.9900 },  // Dirab Farms
-    { lat: 24.7123, lng: 46.9600 },  // East Outskirts
+   // { lat: 24.9428, lng: 47.0955 },  // Diriyah
+    { lat: 24.9753, lng: 47.0386 },  // Al Hayer
+    { lat: 24.8235, lng: 46.9171 },  // Janadriyah
+    { lat: 24.8839, lng: 46.9146 },  // Thumamah
+    { lat: 24.9661, lng: 46.6748 },  // Ar Rawabi
 ];
+
 
 
 
@@ -85,7 +78,7 @@
         }
 
         function fetchPlaces() {
-            const types = ['restaurant', 'cafe', 'park', 'hotel' ];
+            const types = ['restaurant', 'cafe' ];
 
             riyadhLocations.forEach(location => {
                 types.forEach(type => {
