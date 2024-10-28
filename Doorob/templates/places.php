@@ -115,9 +115,9 @@ if ($result && mysqli_num_rows($result) > 0) {
  <div class="filter-container">
     <h2>What are you looking for?</h2>
     <div class="filter-boxes">
-        <div class="filter-box" data-category="restaurants" onclick="filterPlaces('restaurants')">
+        <div class="filter-box" data-category="restaurant" onclick="filterPlaces('restaurant')">
             <i class="fas fa-utensils"></i>
-            <p>Restaurants & Cafes</p>
+            <p>Restaurants</p>
         </div>
         <div class="filter-box" data-category="hotel" onclick="filterPlaces('hotel')">
             <i class="fas fa-hotel"></i>
@@ -127,9 +127,9 @@ if ($result && mysqli_num_rows($result) > 0) {
             <i class="fas fa-shopping-bag"></i>
             <p>Malls</p>
         </div>
-        <div class="filter-box" data-category="beauty" onclick="filterPlaces('beauty')">
-            <i class="fas fa-spa"></i>
-            <p>Beauty</p>
+        <div class="filter-box" data-category="cafe" onclick="filterPlaces('cafe')">
+            <i class="fas fa-coffee"></i>
+            <p>Cafes</p>
         </div>
         <div class="filter-box" data-category="park" onclick="filterPlaces('park')">
             <i class="fas fa-tree"></i>
@@ -170,6 +170,46 @@ if ($result && mysqli_num_rows($result) > 0) {
     <button onclick="navigate(1)">&#8250;</button> <!-- Next button -->
 </div>
 
+<!-- Modal Structure -->
+<div id="detailsModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <i class="fas fa-map-marker-alt name-icon"></i>
+    <h2 id="placeName"></h2>
+    <hr> <!-- Line under the name -->
+    <div class="info-row">
+      <div class="left-section">
+      <!--  <p><strong>Category:</strong> <span id="placeCategory"></span></p>-->
+        <p><strong>Granular Category:</strong> <span id="placeGranularCategory"></span></p><br>
+        <button class="favorite-btn"><i class="fas fa-heart"></i> Favorite This Place</button>
+      </div>
+      <div class="divider"></div>
+      <div class="right-section">
+    <p><strong>Rating:</strong> <span id="placeRating"></span></p><br>
+    <div class="right-section">
+    <p><strong>Rate This Place:</strong></p>
+    <select id="ratingDropdown">
+        <option value="" disabled selected>Select your rating</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+    </select>
+    <button class="submit-rating-btn" onclick="submitRating()">Submit</button>
+</div>
+</div>
+    </div>
+    <hr>
+    
+    <!-- Photo Carousel Section -->
+    <div id="photoCarousel" class="carousel">
+      <!-- Photos will be inserted here by JavaScript -->
+    </div>
+    <!-- Dots for navigation -->
+    <div id="carouselDots" class="carousel-dots"></div>
+  </div>
+</div>
 
  <!--============ FOOTER =============-->
  <footer class="footer section">
@@ -264,9 +304,11 @@ function renderPlaces() {
             <p>Category: ${place.granular_category}</p>
             <p>Rating: ${'★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))}</p>
             <i class="fas fa-heart favorite" onclick="toggleFavorite(${place.id})"></i>
-            <button onclick="window.location.href='placedetails.php?id=${place.id}'">More Details</button>
+            <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}" >More Details</button>
         `;
         placesContainer.appendChild(placeDiv);
+        placeDiv.querySelector('.details-btn').addEventListener('click', function() {
+            showDetails(place.id); })
     });
 
     document.getElementById('currentPage').innerText = Math.floor(currentIndex / placesPerPage) + 1;
@@ -290,6 +332,109 @@ function filterPlaces(category) {
 
 // Initial render
 renderPlaces();
+
+    //reman -api photos
+    function submitRating() {
+    const ratingDropdown = document.getElementById('ratingDropdown');
+    const selectedRating = parseInt(ratingDropdown.value);
+
+    if (!selectedRating) {
+        alert("Please select a rating before submitting.");
+        return;
+    }
+
+    const placeId = document.getElementById('placeName').getAttribute('data-id');
+
+    const requestData = {
+        userId: <?php echo $user_id; ?>,
+        placeId: placeId,
+        rating: selectedRating
+    };
+    console.log("Request Data:", requestData);
+
+    fetch('save_rating.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Server Response:", data);
+        if (data.success) {
+            alert("Rating submitted successfully!");
+            closeModal();
+        } else {
+            alert("Error submitting rating: " + data.error);
+        }
+    })
+    .catch(error => {
+        console.error("Error submitting rating:", error);
+        alert("An error occurred. Please try again.");
+    });
+}
+ 
+    function showDetails(placeId) {
+        
+    // Fetch details from the server
+    fetch(`get_place_details.php?id=${placeId}`)
+        .then(response => response.text())  // Get raw text
+        .then(data => {
+            console.log('Place Details Response:', data);  // Log the raw response
+            try {
+                const jsonData = JSON.parse(data);  // Parse JSON here
+                document.getElementById('placeName').setAttribute('data-id', placeId);
+                document.getElementById('placeName').innerText = jsonData.place_name;
+                //document.getElementById('placeCategory').innerText = jsonData.categories;
+                document.getElementById('placeGranularCategory').innerText = jsonData.granular_category;
+                document.getElementById('placeRating').innerText = jsonData.average_rating;
+                document.getElementById('detailsModal').style.display = "block";
+
+                  // Populate photo carousel
+                  const photoCarousel = document.getElementById('photoCarousel');
+                photoCarousel.innerHTML = ''; // Clear previous photos if any
+
+                if (jsonData.photos && jsonData.photos.length > 0) {
+                    // Add photos to carousel if available
+                    jsonData.photos.forEach(photo => {
+                        const img = document.createElement('img');
+                        img.src = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g`;
+                        img.alt = 'Place photo';
+                        img.classList.add('carousel-item'); // Optional: add CSS class for styling
+                        photoCarousel.appendChild(img);
+                    });
+                } else if (jsonData.lat && jsonData.lng) {
+                    // Fallback: Fetch photos based on lat/lng if no photos available
+                    fetch(`get_photos_by_location.php?lat=${jsonData.lat}&lng=${jsonData.lng}`)
+                        .then(response => response.json())
+                        .then(locationPhotosData => {
+                            if (locationPhotosData.photos && locationPhotosData.photos.length > 0) {
+                                locationPhotosData.photos.forEach(photo => {
+                                    const img = document.createElement('img');
+                                    img.src = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g`;
+                                    img.alt = 'Place photo';
+                                    img.classList.add('carousel-item');
+                                    photoCarousel.appendChild(img);
+                                });
+                            } else {
+                                const defaultMessage = document.createElement('p');
+                                defaultMessage.innerText = "No photos available for this place.";
+                                photoCarousel.appendChild(defaultMessage);
+                            }
+                        })
+                        .catch(error => console.error('Error fetching location-based photos:', error));
+                }
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+            }
+        })
+        .catch(error => console.error('Error fetching place details:', error));
+}
+
+function closeModal() {
+    document.getElementById('detailsModal').style.display = "none";
+}
+
+
 </script>
 
    
