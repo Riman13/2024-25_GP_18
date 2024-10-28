@@ -506,6 +506,9 @@ for (let i = currentIndexCFRS; i < currentIndexCFRS + 3 && i < recommendations.l
     `;
     
     cfrsPlacesContainer.appendChild(placeDiv);
+    placeDiv.querySelector('.details-btn').addEventListener('click', function() {
+        showDetails(place.id); })
+    
 }
 
 

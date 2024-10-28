@@ -267,3 +267,150 @@
     font-size: 20px;
     margin: 0 15px;
 }
+
+
+/* Modal Background */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  /* Modal Content */
+  .modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 50%;
+    max-width: 600px;
+  }
+  
+  .close {
+    float: right;
+    font-size: 24px;
+    cursor: pointer;
+  }
+
+
+  /* Modal and HR line */
+.modal-content hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 10px 0;
+  }
+  
+  .info-row {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    font-size: 16px;
+    margin-top: 10px;
+  }
+  
+  .left-section, .right-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  /* Button styling */
+  button.favorite-btn, button.rate-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, color 0.3s ease;
+  }
+  
+  button.favorite-btn i, button.rate-btn i {
+    font-size: 18px;
+    transition: color 0.3s ease, transform 0.2s ease;
+  }
+  
+  button.favorite-btn:hover, button.rate-btn:hover {
+    transform: scale(1.05);
+    color: #ff6b6b;
+  }
+  
+  button.favorite-btn i {
+    color: #ff6b6b;
+  }
+  
+  button.favorite-btn:hover i {
+    transform: scale(1.2);
+    color: #ff4a4a;
+  }
+  
+  button.rate-btn i {
+    color: #FFD700;
+  }
+  
+  button.rate-btn:hover i {
+    transform: rotate(20deg) scale(1.2);
+    color: #ffc107;
+  }
+  
+  /* General adjustments */
+  .info-row p {
+    margin: 0;
+  }
+  .right-section p {
+    margin-left: 0; /* Remove extra left margin */
+  }
+
+/* Divider styling */
+.divider {
+    width: 1px;
+    background-color: #ddd;
+    height: auto;
+   
+    align-self: stretch;
+  }  
+  /* Carousel Image Styling */
+.carousel img {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+  }
+  
+  /* Dot Styling */
+  .carousel-dots {
+    text-align: center;
+    margin-top: 10px;
+  }
+  
+  .carousel-dots .dot {
+    height: 10px;
+    width: 10px;
+    margin: 0 5px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    cursor: pointer;
+  }
+  
+  .carousel-dots .active {
+    background-color: #717171;
+  }
+  #photoCarousel {
+    display: flex;
+    overflow-x: scroll;
+}
+
+#photoCarousel img {
+    margin-right: 10px;
+    height: 200px; /* Adjust as needed */
+    width: auto;
+}
