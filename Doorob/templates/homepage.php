@@ -453,7 +453,7 @@ let currentIndex = 0; // Initialize current index
                 <h3>${place.place_name}</h3>
                 <p>Category: ${place.granular_category}</p>
                 <p>Rating: ${'★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))}</p>
-                            <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}" >More Details</button>
+                <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}" >More Details</button>
 
             `;
             placesContainer.appendChild(placeDiv);
@@ -502,7 +502,7 @@ for (let i = currentIndexCFRS; i < currentIndexCFRS + 3 && i < recommendations.l
         <h3>${place.place_name}</h3>
         <p>Category: ${place.granular_category}</p>
         <p>Rating: ${ratingDisplay}</p> <!-- Use the calculated rating display here -->
-         <button class="details-btn" data-id="${place.id}" >More Details</button>
+        <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}" >More Details</button>
     `;
     
     cfrsPlacesContainer.appendChild(placeDiv);
