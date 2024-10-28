@@ -115,6 +115,7 @@ if ($result && mysqli_num_rows($result) > 0) {
  <div class="filter-container">
     <h2>What are you looking for?</h2>
     <div class="filter-boxes">
+    <div class="filter-box" data-category="all" onclick="filterPlaces('all')">
         <div class="filter-box" data-category="restaurant" onclick="filterPlaces('restaurant')">
             <i class="fas fa-utensils"></i>
             <p>Restaurants</p>
@@ -228,6 +229,7 @@ if ($result && mysqli_num_rows($result) > 0) {
       
                 <ul class="footer__links">
                     <li>
+                    <a href="profile.php?iframe=iframe5" class="footer__link">Contact Us</a>
                     </li>
                  
                     <li>
@@ -365,9 +367,7 @@ function navigate(direction) {
 
 // Function to filter places by category
 function filterPlaces(category) {
-    filteredPlaces = places.filter(place => place.granular_category === category);
     currentIndex = 0; // Reset to the first page
-    renderPlaces();
 }
 
 // Initial render
