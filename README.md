@@ -8,16 +8,29 @@ It uses a hybrid recommendation system incorporating facial emotion recognition 
 ## Technology Stack
 - Python (Backend and Machine Learning)
 - TensorFlow & DeepFace (Facial Emotion Recognition)
-- Firebase (Authentication and Database)
 - HTML, CSS, JavaScript (Frontend)
 - GitHub (Version Control)
 - Jira (agile project management tool)
-
+-Anaconda
   
 ## Launch Instructions
-1. Clone the repository: `git clone https://github.com/Riman13/2024-25_GP_18.git`
-2. Navigate to the project directory: `cd 2024-25_GP_18`
-3. Install dependencies: `pip install -r requirements.txt`
-4. Run the application:
-   - For the backend: `python appFER.py`
-   - For the frontend, open `index.html` in a web browser.
+
+Instructions for Setting Up and Running the Doroob System
+1. Install Anaconda
+2. Import a Doroob  Environment
+•	Open Anaconda interface 
+•	Go to Environment section
+•	Click on import
+•	Download CF_environment.yml from github in your desktop
+•	From local drive choose the path of CF_environment.yml 
+•	Give the name as CF_Environment 
+•	Then click on import
+3. After successfully importing from home section on Anaconda interface install and lunch the powershell
+4.then run your server mamp or xmamp and To connect to the MySQL server you should modify config.php file based on your server information
+5.import doroob.sql in phpMyAdmin.
+6.After you running the server you can open the doroob system
+7. then open the powershell and write the following:
+•	conda activate CF_Environment 
+•	then write cd <path_of_Doroob_system_folder> ex.C:\Users\UserName\OneDrive\سطح المكتب\2024-25_GP_18\Doorob
+•	write python CFRS.py, then you can see the recommendation in the homepage website and you can see the evaluation in the powershell
+
