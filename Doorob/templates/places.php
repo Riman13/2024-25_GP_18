@@ -356,8 +356,13 @@ function renderPlaces() {
             <img id="place-img-${place.id}" src="imgs/logo.png" alt="${place.place_name}">
             <h3>${place.place_name}</h3>
             <p>Category: ${place.granular_category}</p>
-            <p>Rating: ${'★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))}</p>
-            <button class="details-btn" data-id="${place.place_id}" data-lat="${place.latitude}" data-lng="${place.longitude}">More Details</button>
+<p>
+  Rating: ${
+    place.average_rating === 'N\\A'
+      ? '★★★☆☆'
+      : '★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))
+  }
+</p>             <button class="details-btn" data-id="${place.place_id}" data-lat="${place.latitude}" data-lng="${place.longitude}">More Details</button>
         `;
         
         placesContainer.appendChild(placeDiv);

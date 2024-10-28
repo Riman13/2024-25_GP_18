@@ -16,7 +16,7 @@
         
     </style>
 
-    <title>Doroob Index</title>
+    <title>Doroob</title>
   </head>
   <body>
    
@@ -29,7 +29,7 @@
         <a href="#" class="nav__logo">
        
        <img src="imgs/logo.png" alt="Logo" class="nav__logo-img">
-       Doorob
+       Doroob
      
    </a>
    <div class="login">
@@ -113,7 +113,7 @@
 
           <ul class="footer__links">
               <li>
-                  <a href="#" class="footer__link">Contact Us</a>
+                  <a href="registration.php" class="footer__link">Contact Us</a>
               </li>
            
               <li>

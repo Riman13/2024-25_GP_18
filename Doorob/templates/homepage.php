@@ -472,7 +472,8 @@ function renderPlaces() {
       ? '★★★☆☆'
       : '★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))
   }
-</p>            <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}">More Details</button>
+</p>  
+          <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}">More Details</button>
         `;
         
         placesContainer.appendChild(placeDiv);
