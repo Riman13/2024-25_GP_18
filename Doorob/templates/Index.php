@@ -17,8 +17,6 @@
     </style>
 
     <title>Doroob Index</title>
-
-    <title>Doroob Index</title>
   </head>
   <body>
    

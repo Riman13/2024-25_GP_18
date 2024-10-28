@@ -16,7 +16,7 @@
       <a href="#" class="nav__logo">
        
           <img src="imgs/logo.png" alt="Logo" class="nav__logo-img">
-          Doorob
+          Doroob
         
       </a>
       <div class="nav__menu" id="nav-menu">
@@ -28,7 +28,7 @@
   
       <div class="nav__btns">
      
-        <i class='bx bx-moon change-theme' id="theme-button"></i>
+        <!--<i class='bx bx-moon change-theme' id="theme-button"></i>-->
 
   
         
@@ -124,7 +124,7 @@ if(isset($_GET['error'])){
                     </li>
                  
                     <li>
-                        <a href="#" class="footer__link">About Us</a>
+                        <a href="Index.php" class="footer__link">About Us</a>
                     </li>
                     
                 </ul>

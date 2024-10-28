@@ -142,7 +142,7 @@ if ($result && mysqli_num_rows($result) > 0) {
                 </li>
              
                 <li>
-                    <a href="#" class="footer__link">About Us</a>
+                <a href="Index.php" class="footer__link">About Us</a>
                 </li>
                 
             </ul>

@@ -7,6 +7,8 @@
   --text-light:  hsl(30, 20%, 30%);
   --white:  hsl(30, 20%, 90%);
   --max-width: 1400px;
+  --primary-color-2: hsl(215, 20%, 40%);
+  --primary-color-dark: hsl(215, 30%, 50%);
   /*/////////*/
 }
 
@@ -28,7 +30,7 @@
   font-family: "Montserrat", sans-serif;
   background: linear-gradient(
       to right,
-      rgba(10, 66, 149, 0.9),
+      var(--primary-color-dark),
       rgba(255, 255, 255, 0)
     ),
     url("../imgs/RdhWall.png");

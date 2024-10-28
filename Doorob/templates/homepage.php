@@ -378,7 +378,7 @@ function fetchPhotosByLatLng($lat, $lng) {
                 </li>
              
                 <li>
-                    <a href="#" class="footer__link">About Us</a>
+                <a href="Index.php" class="footer__link">About Us</a>
                 </li>
                 
             </ul>
