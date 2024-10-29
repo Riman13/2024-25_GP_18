@@ -172,23 +172,7 @@ if ($result && mysqli_num_rows($result) > 0) {
             </ul>
         </div>
   
-        <div class="footer__content">
-            <h3 class="footer__title section__title">Social</h3>
-  
-            <ul class="footer__social">
-                <a href="https://www.facebook.com/" target="_blank" class="footer__social-link">
-                    <i class='bx bxl-facebook'></i>
-                </a>
-  
-                <a href="https://twitter.com/" target="_blank" class="footer__social-link">
-                    <i class='bx bxl-twitter' ></i>
-                </a>
-  
-                <a href="https://www.instagram.com/" target="_blank" class="footer__social-link">
-                    <i class='bx bxl-instagram' ></i>
-                </a>
-            </ul>
-        </div>
+        
     </div>
   
     <span class="footer__copy">Doorob &#169;All rigths reserved</span>
