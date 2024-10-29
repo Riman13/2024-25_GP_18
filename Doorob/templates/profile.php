@@ -89,7 +89,7 @@ if ($result && mysqli_num_rows($result) > 0) {
                 <button onclick="showIframe('iframe1')"><i class="fas fa-user"></i> Personal Information</button>
                 <button onclick="showIframe('iframe2')"><i class="fas fa-lock"></i> Privacy Settings</button>
                 <button onclick="showIframe('iframe3')"><i class="fas fa-history"></i> Rating History</button>
-                <button onclick="showIframe('iframe4')"><i class="fas fa-heart"></i> Saved Places</button>
+                <button onclick="showIframe('iframe4')"><i class="fas fa-bookmark"></i> Saved Places</button>
                 <!-- New Contact Us button -->
                 <button onclick="showIframe('iframe5')"><i class="fas fa-envelope"></i> Contact Us</button>
             </div>
