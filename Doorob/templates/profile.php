@@ -125,6 +125,16 @@ if ($result && mysqli_num_rows($result) > 0) {
     if (iframeToShow) {
         showIframe(iframeToShow);
     }
+
+    window.addEventListener('message', (event) => {
+    if (event.data.action === 'updateUserInfo') {
+        const updatedName = event.data.name;
+        document.querySelector('.UserName .user-profile').innerHTML = `
+            <span><i class="ri-user-3-fill"></i></span>
+            ${updatedName}
+        `;
+    }
+});
     </script>
 </div>
 

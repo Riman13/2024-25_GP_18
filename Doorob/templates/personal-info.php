@@ -101,6 +101,7 @@ $user = $result->fetch_assoc();
                 if (data.success) {
                     alert('Information updated successfully!');
                     location.reload();
+                    window.parent.postMessage({ action: 'updateUserInfo', name: name }, '*');
                 } else {
                     alert('Failed to update information: ' + data.error);
                 }
