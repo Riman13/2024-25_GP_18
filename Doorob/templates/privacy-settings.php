@@ -24,47 +24,53 @@
 
     <script>
         const locationBtn = document.getElementById('locationBtn');
-        
-        locationBtn.addEventListener('click', function() {
-            if (locationBtn.innerText === 'Turn On') {
-                navigator.geolocation.getCurrentPosition(
-                    () => {
-                        locationBtn.innerText = 'Turn Off';
-                        locationBtn.classList.add('active');
-                    },
-                    () => {
-                        locationBtn.innerText = 'Turn On';
-                    }
-                );
-            } else {
+
+locationBtn.addEventListener('click', function() {
+    if (locationBtn.innerText === 'Turn On') {
+        navigator.geolocation.getCurrentPosition(
+            () => {
+                locationBtn.innerText = 'Turn Off';
+                locationBtn.classList.add('active');
+                locationBtn.classList.add('pressed'); // Add pressed class
+            },
+            () => {
                 locationBtn.innerText = 'Turn On';
-                locationBtn.classList.remove('active');
             }
-        });
+        );
+    } else {
+        locationBtn.innerText = 'Turn On';
+        locationBtn.classList.remove('active');
+        locationBtn.classList.remove('pressed'); // Remove pressed class
+    }
+});
 
-        const cameraBtn = document.getElementById('cameraBtn');
-        let cameraStream;
+const cameraBtn = document.getElementById('cameraBtn');
+let cameraStream;
 
-        cameraBtn.addEventListener('click', function() {
-            if (cameraBtn.innerText === 'Turn On') {
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then((stream) => {
-                        cameraStream = stream;
-                        cameraBtn.innerText = 'Turn Off';
-                        cameraBtn.classList.add('active');
-                    })
-                    .catch(() => {
-                        cameraBtn.innerText = 'Turn On';
-                    });
-            } else {
-                if (cameraStream) {
-                    cameraStream.getTracks().forEach(track => track.stop());
-                    cameraStream = null;
-                }
+cameraBtn.addEventListener('click', function() {
+    if (cameraBtn.innerText === 'Turn On') {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                cameraStream = stream;
+                cameraBtn.innerText = 'Turn Off';
+                cameraBtn.classList.add('active');
+                cameraBtn.classList.add('pressed'); // Add pressed class
+            })
+            .catch(() => {
                 cameraBtn.innerText = 'Turn On';
-                cameraBtn.classList.remove('active');
-            }
-        });
+            });
+    } else {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+        }
+        cameraBtn.innerText = 'Turn On';
+        cameraBtn.classList.remove('active');
+        cameraBtn.classList.remove('pressed'); // Remove pressed class
+    }
+});
+
+                    
     </script>
 </body>
 </html>
