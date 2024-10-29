@@ -186,7 +186,7 @@ if ($result && mysqli_num_rows($result) > 0) {
       <div class="left-section">
       <!--  <p><strong>Category:</strong> <span id="placeCategory"></span></p>-->
         <p><strong>Granular Category:</strong> <span id="placeGranularCategory"></span></p><br>
-        <button class="favorite-btn"><i class="fas fa-bookmark"></i> Bookmak This Place</button>
+        <button class="favorite-btn"><i class="fas fa-bookmark"></i> Save This Place</button>
       </div>
       <div class="divider"></div>
       <div class="right-section">
