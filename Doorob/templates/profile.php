@@ -89,7 +89,7 @@ if ($result && mysqli_num_rows($result) > 0) {
                 <button onclick="showIframe('iframe1')"><i class="fas fa-user"></i> Personal Information</button>
                 <button onclick="showIframe('iframe2')"><i class="fas fa-lock"></i> Privacy Settings</button>
                 <button onclick="showIframe('iframe3')"><i class="fas fa-history"></i> Rating History</button>
-                <button onclick="showIframe('iframe4')"><i class="fas fa-heart"></i> Saved Places</button>
+                <button onclick="showIframe('iframe4')"><i class="fas fa-bookmark"></i> Bookmarked Places</button>
                 <!-- New Contact Us button -->
                 <button onclick="showIframe('iframe5')"><i class="fas fa-envelope"></i> Contact Us</button>
             </div>
@@ -125,6 +125,16 @@ if ($result && mysqli_num_rows($result) > 0) {
     if (iframeToShow) {
         showIframe(iframeToShow);
     }
+
+    window.addEventListener('message', (event) => {
+    if (event.data.action === 'updateUserInfo') {
+        const updatedName = event.data.name;
+        document.querySelector('.UserName .user-profile').innerHTML = `
+            <span><i class="ri-user-3-fill"></i></span>
+            ${updatedName}
+        `;
+    }
+});
     </script>
 </div>
 
@@ -172,23 +182,7 @@ if ($result && mysqli_num_rows($result) > 0) {
             </ul>
         </div>
   
-        <div class="footer__content">
-            <h3 class="footer__title section__title">Social</h3>
-  
-            <ul class="footer__social">
-                <a href="https://www.facebook.com/" target="_blank" class="footer__social-link">
-                    <i class='bx bxl-facebook'></i>
-                </a>
-  
-                <a href="https://twitter.com/" target="_blank" class="footer__social-link">
-                    <i class='bx bxl-twitter' ></i>
-                </a>
-  
-                <a href="https://www.instagram.com/" target="_blank" class="footer__social-link">
-                    <i class='bx bxl-instagram' ></i>
-                </a>
-            </ul>
-        </div>
+        
     </div>
   
     <span class="footer__copy">Doorob &#169;All rigths reserved</span>

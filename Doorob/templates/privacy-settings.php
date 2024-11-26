@@ -23,6 +23,7 @@
     </div>
 
     <script>
+<<<<<<< HEAD
 const locationBtn = document.getElementById('locationBtn');
 
 locationBtn.addEventListener('click', function () {
@@ -87,30 +88,56 @@ function sendToBackend(data) {
             alert('Failed to save location. Please try again later.');
         });
 }
+=======
+        const locationBtn = document.getElementById('locationBtn');
 
-        const cameraBtn = document.getElementById('cameraBtn');
-        let cameraStream;
-
-        cameraBtn.addEventListener('click', function() {
-            if (cameraBtn.innerText === 'Turn On') {
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then((stream) => {
-                        cameraStream = stream;
-                        cameraBtn.innerText = 'Turn Off';
-                        cameraBtn.classList.add('active');
-                    })
-                    .catch(() => {
-                        cameraBtn.innerText = 'Turn On';
-                    });
-            } else {
-                if (cameraStream) {
-                    cameraStream.getTracks().forEach(track => track.stop());
-                    cameraStream = null;
-                }
-                cameraBtn.innerText = 'Turn On';
-                cameraBtn.classList.remove('active');
+locationBtn.addEventListener('click', function() {
+    if (locationBtn.innerText === 'Turn On') {
+        navigator.geolocation.getCurrentPosition(
+            () => {
+                locationBtn.innerText = 'Turn Off';
+                locationBtn.classList.add('active');
+                locationBtn.classList.add('pressed'); // Add pressed class
+            },
+            () => {
+                locationBtn.innerText = 'Turn On';
             }
-        });
+        );
+    } else {
+        locationBtn.innerText = 'Turn On';
+        locationBtn.classList.remove('active');
+        locationBtn.classList.remove('pressed'); // Remove pressed class
+    }
+});
+>>>>>>> 43d361715a2e1dec5f6b1b49d5207d3981dc9c61
+
+const cameraBtn = document.getElementById('cameraBtn');
+let cameraStream;
+
+cameraBtn.addEventListener('click', function() {
+    if (cameraBtn.innerText === 'Turn On') {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                cameraStream = stream;
+                cameraBtn.innerText = 'Turn Off';
+                cameraBtn.classList.add('active');
+                cameraBtn.classList.add('pressed'); // Add pressed class
+            })
+            .catch(() => {
+                cameraBtn.innerText = 'Turn On';
+            });
+    } else {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+        }
+        cameraBtn.innerText = 'Turn On';
+        cameraBtn.classList.remove('active');
+        cameraBtn.classList.remove('pressed'); // Remove pressed class
+    }
+});
+
+                    
     </script>
 </body>
 </html>

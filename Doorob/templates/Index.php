@@ -16,7 +16,7 @@
         
     </style>
 
-    <title>Doroob Index</title>
+    <title>Doroob</title>
   </head>
   <body>
    
@@ -29,7 +29,7 @@
         <a href="#" class="nav__logo">
        
        <img src="imgs/logo.png" alt="Logo" class="nav__logo-img">
-       Doorob
+       Doroob
      
    </a>
    <div class="login">
@@ -113,7 +113,7 @@
 
           <ul class="footer__links">
               <li>
-                  <a href="#" class="footer__link">Contact Us</a>
+                  <a href="registration.php" class="footer__link">Contact Us</a>
               </li>
            
               <li>
@@ -135,23 +135,6 @@
           </ul>
       </div>
 
-      <div class="footer__content">
-          <h3 class="footer__title section__title">Social</h3>
-
-          <ul class="footer__social">
-              <a href="https://www.facebook.com/" target="_blank" class="footer__social-link">
-                  <i class='bx bxl-facebook'></i>
-              </a>
-
-              <a href="https://twitter.com/" target="_blank" class="footer__social-link">
-                  <i class='bx bxl-twitter' ></i>
-              </a>
-
-              <a href="https://www.instagram.com/" target="_blank" class="footer__social-link">
-                  <i class='bx bxl-instagram' ></i>
-              </a>
-          </ul>
-      </div>
   </div>
 
   <span class="footer__copy">Doorob &#169;All rigths reserved</span>

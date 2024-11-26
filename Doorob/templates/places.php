@@ -186,7 +186,7 @@ if ($result && mysqli_num_rows($result) > 0) {
       <div class="left-section">
       <!--  <p><strong>Category:</strong> <span id="placeCategory"></span></p>-->
         <p><strong>Granular Category:</strong> <span id="placeGranularCategory"></span></p><br>
-        <button class="favorite-btn"><i class="fas fa-bookmark"></i> Bookmak This Place</button>
+        <button class="favorite-btn"><i class="fas fa-bookmark"></i> Save This Place</button>
       </div>
       <div class="divider"></div>
       <div class="right-section">
@@ -307,23 +307,7 @@ function toggleRating() {
             </ul>
         </div>
       
-            <div class="footer__content">
-                <h3 class="footer__title section__title">Social</h3>
-      
-                <ul class="footer__social">
-                    <a href="https://www.facebook.com/" target="_blank" class="footer__social-link">
-                        <i class='bx bxl-facebook'></i>
-                    </a>
-      
-                    <a href="https://twitter.com/" target="_blank" class="footer__social-link">
-                        <i class='bx bxl-twitter' ></i>
-                    </a>
-      
-                    <a href="https://www.instagram.com/" target="_blank" class="footer__social-link">
-                        <i class='bx bxl-instagram' ></i>
-                    </a>
-                </ul>
-            </div>
+    
         </div>
       
         <span class="footer__copy">Doorob &#169;All rigths reserved</span>
@@ -356,8 +340,13 @@ function renderPlaces() {
             <img id="place-img-${place.id}" src="imgs/logo.png" alt="${place.place_name}">
             <h3>${place.place_name}</h3>
             <p>Category: ${place.granular_category}</p>
-            <p>Rating: ${'★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))}</p>
-            <button class="details-btn" data-id="${place.place_id}" data-lat="${place.latitude}" data-lng="${place.longitude}">More Details</button>
+<p>
+  Rating: ${
+    place.average_rating === 'N\\A'
+      ? '★★★☆☆'
+      : '★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))
+  }
+</p>             <button class="details-btn" data-id="${place.place_id}" data-lat="${place.latitude}" data-lng="${place.longitude}">More Details</button>
         `;
         
         placesContainer.appendChild(placeDiv);

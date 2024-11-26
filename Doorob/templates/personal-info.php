@@ -46,13 +46,13 @@ $user = $result->fetch_assoc();
             <input type="email" id="email" value="<?php echo htmlspecialchars($user['email']); ?>" readonly>
         </div>
 
-        <div class="info-group">
+    <!--    <div class="info-group">
             <label for="resetPassword">
                 <a href="resetPassword.html" target="_top" class="reset-password-link">
                     Reset Password <i class="fas fa-arrow-right"></i>
                 </a>
             </label>
-        </div>
+        </div>-->
 
        
 
@@ -101,6 +101,7 @@ $user = $result->fetch_assoc();
                 if (data.success) {
                     alert('Information updated successfully!');
                     location.reload();
+                    window.parent.postMessage({ action: 'updateUserInfo', name: name }, '*');
                 } else {
                     alert('Failed to update information: ' + data.error);
                 }

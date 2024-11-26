@@ -141,7 +141,7 @@ if(isset($_GET['error'])){
                 </ul>
             </div>
       
-            <div class="footer__content">
+        <!--    <div class="footer__content">
                 <h3 class="footer__title section__title">Social</h3>
       
                 <ul class="footer__social">
@@ -157,7 +157,7 @@ if(isset($_GET['error'])){
                         <i class='bx bxl-instagram' ></i>
                     </a>
                 </ul>
-            </div>
+            </div>-->
         </div>
       
         <span class="footer__copy">Doorob &#169;All rigths reserved</span>
