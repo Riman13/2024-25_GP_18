@@ -23,7 +23,6 @@
     </div>
 
     <script>
-<<<<<<< HEAD
 const locationBtn = document.getElementById('locationBtn');
 
 locationBtn.addEventListener('click', function () {
@@ -88,28 +87,8 @@ function sendToBackend(data) {
             alert('Failed to save location. Please try again later.');
         });
 }
-=======
-        const locationBtn = document.getElementById('locationBtn');
 
-locationBtn.addEventListener('click', function() {
-    if (locationBtn.innerText === 'Turn On') {
-        navigator.geolocation.getCurrentPosition(
-            () => {
-                locationBtn.innerText = 'Turn Off';
-                locationBtn.classList.add('active');
-                locationBtn.classList.add('pressed'); // Add pressed class
-            },
-            () => {
-                locationBtn.innerText = 'Turn On';
-            }
-        );
-    } else {
-        locationBtn.innerText = 'Turn On';
-        locationBtn.classList.remove('active');
-        locationBtn.classList.remove('pressed'); // Remove pressed class
-    }
-});
->>>>>>> 43d361715a2e1dec5f6b1b49d5207d3981dc9c61
+
 
 const cameraBtn = document.getElementById('cameraBtn');
 let cameraStream;
