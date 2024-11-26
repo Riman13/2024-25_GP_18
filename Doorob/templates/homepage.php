@@ -5,8 +5,8 @@ error_reporting(E_ALL);
 
 include 'config.php'; // Include the database connection
 include 'session.php';
-// Query to get the first 21 places
 
+// Query to get the first 21 places for Discover Section
 
 $sql = "SELECT id, place_name,  granular_category, average_rating, place_id FROM riyadhplaces_doroob  LIMIT 21";
 
@@ -21,6 +21,9 @@ if ($result && $result->num_rows > 0) {
 } else {
     echo "<p>No places found!</p>";
 }
+// Query to get the first 21 places for Discover Section END HERE
+
+
 
 // Retrieve the user_id from the session
 $user_id = $_SESSION['userID'];
@@ -36,10 +39,11 @@ if ($result && mysqli_num_rows($result) > 0) {
 } else {
     $username = "Guest";
 }
+// END HERE
 
 
 // ====================
-// 2. Communicate with Flask API
+// 2. Communicate with Flask API FOR CF
 // ====================
 
 // Define the Flask API URL
@@ -158,7 +162,7 @@ if ($response === false) {
     </div>
 </div>
       </nav>
-    </header>
+</header>
 
 
 <div class="intro-container">
@@ -194,9 +198,6 @@ if ($response === false) {
 
 
 
-<div class="body-container">
-
- 
 <!--============ Mission & Values Section =============-->
 <div class="mission-values">
     <h1>MISSION & VALUES</h1>
@@ -208,6 +209,7 @@ if ($response === false) {
         <div><i class="fas fa-compass"></i><br>Adventure Awaits</div>
     </div>
 </div>
+<!--============ Mission & Values Section End Here =============-->
 
 
  <!--============ Gallrey =============-->
@@ -240,47 +242,56 @@ if ($response === false) {
 
     </div>
 </section>
+<!--============ Gallrey End Here =============-->
 
+<!-- Recommendation -->
+<!-- Discover our destenation -->
+<section class="product"> 
+        <h2 class="product-category">Discover our destenation</h2>
+        <button class="pre-btn"><img src="imgs/arrow.png" alt=""></button>
+        <button class="nxt-btn"><img src="imgs/arrow.png" alt=""></button>
+        <div class="product-container" id="product-container">
 
- <!--============ All Destinations =============-->
-
- <div class="destinations" id="destinations">
-    <h2>Discover Your Destination</h2>
-    <div class="places-container" id="placesContainer">
-        <!-- Dynamically inject places -->
-
-
+        </div>
+</section>
+<!-- CF -->
+<section class="product" id="cf-section"> 
+    <h2 class="product-category">Recommended Destinations Based on What Others Like</h2>
+    <button class="pre-btn"><img src="imgs/arrow.png" alt=""></button>
+    <button class="nxt-btn"><img src="imgs/arrow.png" alt=""></button>
+    <div class="product-container" id="CFproduct-container">
     </div>
+</section>
 
-
-    
-    <!-- Left Arrow -->
-    <button class="nav-btn left" id="AllLeftArrow" onclick="navigate(-1)">&lt;</button>
-    <!-- Right Arrow -->
-    <button class="nav-btn right" id="AllRightArrow" onclick="navigate(1)">&gt;</button>
-    
-    <!-- Show More button -->
-    <button class="show-more" onclick="window.location.href='places.php'">Show More</button>
-</div>
-
-
-<div class="destinations">
-    <h2>You might like this</h2>
-    <div class="places-container" id="cfrsPlacesContainer">
-        <!-- Dynamically inject CFRS recommendations -->
-
+<!-- Content -->
+<section class="product" id="content-section"> 
+    <h2 class="product-category">Discover Destinations Tailored to Your Interests</h2>
+    <button class="pre-btn"><img src="imgs/arrow.png" alt=""></button>
+    <button class="nxt-btn"><img src="imgs/arrow.png" alt=""></button>
+    <div class="product-container" id="CNproduct-container">
     </div>
-    <!-- Left Arrow 
-    <button class="nav-btn left" id="cfrsLeftArrow" onclick="navigateCFRS(-1)">&lt;</button>
-     Right Arrow 
-    <button class="nav-btn right" id="cfrsRightArrow" onclick="navigateCFRS(1)">&gt;</button>-->
+</section>
 
-</div>
+<!-- Context -->
+<section class="product" id="context-section"> 
+    <h2 class="product-category">Best Places for You Based on Your Location</h2>
+    <button class="pre-btn"><img src="imgs/arrow.png" alt=""></button>
+    <button class="nxt-btn"><img src="imgs/arrow.png" alt=""></button>
+    <div class="product-container" id="CXproduct-container">
+    </div>
+</section>
 
+<!-- Hybrid -->
+<section class="product" id="hybrid-section"> 
+    <h2 class="product-category">Personalized Destinations Just for You</h2>
+    <button class="pre-btn"><img src="imgs/arrow.png" alt=""></button>
+    <button class="nxt-btn"><img src="imgs/arrow.png" alt=""></button>
+    <div class="product-container" id="HYproduct-container">
+    </div>
+</section>
+<!-- Recommendation End Here -->
 
-</div> 
-
-<!-- Modal Structure -->
+<!-- Place Details Modal Structure -->
 <div id="detailsModal" class="modal">
   <div class="modal-content">
     <span class="close" onclick="closeModal()">&times;</span>
@@ -352,8 +363,8 @@ function toggleRating() {
     ratingContainer.style.display = ratingContainer.style.display === 'none' ? 'block' : 'none';
 }
 </script>
-    </div>
-    <hr>
+</div>
+<hr>
 
     <!-- Photo Carousel Section -->
     <div id="photoCarousel" class="carousel">
@@ -363,6 +374,8 @@ function toggleRating() {
     <div id="carouselDots" class="carousel-dots"></div>
   </div>
 </div>
+
+<!-- Place Details End Here -->
 
 
 
@@ -423,41 +436,47 @@ function toggleRating() {
 <script src="scripts/scripts-fh.js"></script>
 <script src="https://unpkg.com/scrollreveal"></script>
 <script src="scripts/homepage-js.js"></script>
+<script src="scripts/script.js"></script>
 
 <script>
 
-// abeer
+//Discover Destenation Section Start Here
 
-// Initialize variables
-let currentIndex = 0; // Initialize current index
+
 const places = <?php echo json_encode($places); ?>; // Convert PHP array to JavaScript array
 
 // Cache to store fetched place images
 const placeImageCache = {};
+let currentIndex = 0;
 
 // Function to render places based on the current index
 function renderPlaces() {
-    const placesContainer = document.getElementById('placesContainer');
+    const placesContainer = document.getElementById('product-container');
     placesContainer.innerHTML = ''; // Clear current places
 
+
     // Display the next set of places (3 at a time)
-    for (let i = currentIndex; i < currentIndex + 3 && i < places.length; i++) {
+    for (let i = currentIndex; i < places.length; i++) {
         const place = places[i];
         const placeDiv = document.createElement('div');
-        placeDiv.className = i === currentIndex + 1 ? 'place large' : 'place small';
-        
-        placeDiv.innerHTML = `
-            <img id="place-img-${place.id}" src="imgs/logo.png" alt="${place.place_name}">
-            <h3>${place.place_name}</h3>
-            <p>Category: ${place.granular_category}</p>
-<p>
+        placeDiv.className = 'product-card'; // Apply uniform style
+
+        placeDiv.innerHTML = `<div class="product-image">
+            <img id="place-img-${place.id}" src="imgs/logo.png" alt="${place.place_name} class="product-thumb" ">
+            <button class="card-btn">Bookmark This Place</button>
+            </div>
+            <div class="product-info">
+            <h2 class="product-brand">${place.place_name}</h2>
+            <p class="product-short-description">Category: ${place.granular_category}</p>
+
+<p class="price">
   Rating: ${
     place.average_rating === 'N\\A'
       ? '★★★☆☆'
       : '★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))
   }
-</p>  
-          <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}">More Details</button>
+</p>
+          <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}">More Details</button></div>
         `;
         
         placesContainer.appendChild(placeDiv);
@@ -477,9 +496,6 @@ function renderPlaces() {
         }
     }
 
-    // Disable arrows based on the current index
-    document.getElementById('AllLeftArrow').disabled = currentIndex === 0;
-    document.getElementById('AllRightArrow').disabled = currentIndex + 3 >= places.length;
 }
 
 // Function to fetch place image and cache it
@@ -513,82 +529,85 @@ function fetchPlaceImage(placeId) {
         });
 }
 
-// Function to navigate through places
-function navigate(direction) {
-    const newIndex = currentIndex + direction;
-    
-    // Ensure the new index is within bounds
-    if (newIndex >= 0 && newIndex + 3 <= places.length) {
-        currentIndex = newIndex;
-        renderPlaces(); // Update the displayed places
-    }
-}
-
 // Initial rendering of places
 renderPlaces();
+
+//Discover Destenation Section END Here
+
+//CF Section Start Here
+
 
 // Initialize variables
 let currentIndexCFRS = 0; // Initialize current index for CFRS
 const recommendations = <?php echo json_encode($recommendations); ?>; // Convert PHP array to JavaScript array
 
-// Cache to store fetched place images
-const cfrsPlaceImageCache = {};
+// Check if recommendations have data
+if (recommendations && recommendations.length > 0) {
+    // Show the CF section if there are recommendations
+    const cfSection = document.getElementById('cf-section'); // Get the CF section by ID
+    if (cfSection) {
+        cfSection.style.display = 'block'; // Make the CF section visible
+    }
+}
+
+        
 
 // Function to render CFRS recommendations based on the current index
 function renderCFRSPlaces() {
-    const cfrsPlacesContainer = document.getElementById('cfrsPlacesContainer');
+    const cfrsPlacesContainer = document.getElementById('CFproduct-container');
     cfrsPlacesContainer.innerHTML = ''; // Clear current recommendations
 
     // Display the next set of recommendations (3 at a time)
-    for (let i = currentIndexCFRS; i < currentIndexCFRS + 3 && i < recommendations.length; i++) {
+    for (let i = currentIndexCFRS; i < recommendations.length; i++) {
         const place = recommendations[i];
         const placeDiv = document.createElement('div');
-        placeDiv.className = i === currentIndexCFRS + 1 ? 'place large' : 'place small';
+        placeDiv.className = 'product-card'; // Apply uniform style
 
-        // Calculate the average rating for display
-        const averageRating = parseFloat(place.average_rating); // Ensure to parse the rating as a float
-        const filledStars = '★'.repeat(Math.floor(averageRating)); // Filled stars based on the rating
-        const emptyStars = '☆'.repeat(5 - Math.floor(averageRating)); // Empty stars to fill up to 5
-        const ratingDisplay = filledStars + emptyStars; // Combine filled and empty stars
+        placeDiv.innerHTML = `<div class="product-image">
+            <img id="place-img-${place.id}" src="imgs/logo.png" alt="${place.place_name} class="product-thumb" ">
+            <button class="card-btn">Bookmark This Place</button>
+            </div>
+            <div class="product-info">
+            <h2 class="product-brand">${place.place_name}</h2>
+            <p class="product-short-description">Category: ${place.granular_category}</p>
 
-        placeDiv.innerHTML = `
-            <img id="cfrs-place-img-${place.place_id}" src='imgs/logo.png' alt='${place.place_name}'>
-            <h3>${place.place_name}</h3>
-            <p>Category: ${place.granular_category}</p>
-            <p>Rating: ${ratingDisplay}</p> <!-- Use the calculated rating display here -->
-            <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}">More Details</button>
+<p class="price">
+  Rating: ${
+    place.average_rating === 'N\\A'
+      ? '★★★☆☆'
+      : '★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))
+  }
+</p>
+          <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}">More Details</button></div>
         `;
         
         cfrsPlacesContainer.appendChild(placeDiv);
 
         // Attach click event to "More Details" button
         placeDiv.querySelector('.details-btn').addEventListener('click', function() {
-            showDetails(place.place_id); // Fixed to use place.place_id instead of place.id
+            showDetails(place.id);
         });
 
         // Load the image for this place (check cache first)
-        if (cfrsPlaceImageCache[place.place_id]) {
+        if (placeImageCache[place.id]) {
             // Use cached image
-            document.getElementById(`cfrs-place-img-${place.place_id}`).src = cfrsPlaceImageCache[place.place_id];
+            document.getElementById(`place-img-${place.id}`).src = placeImageCache[place.id];
         } else {
             // Fetch image details and cache it
-            fetchCFRSPlaceImage(place.place_id);
+            fetchPlaceImage(place.id);
         }
     }
 
-    // Disable arrows based on the current index
-    document.getElementById('cfrsLeftArrow').disabled = currentIndexCFRS === 0;
-    document.getElementById('cfrsRightArrow').disabled = currentIndexCFRS + 3 >= recommendations.length;
 }
 
 // Function to fetch place image and cache it
-function fetchCFRSPlaceImage(placeId) {
+function fetchPlaceImage(placeId) {
     fetch(`get_place_details.php?id=${placeId}`)
         .then(response => response.text())  // Get raw text
         .then(data => {
             try {
                 const jsonData = JSON.parse(data);  // Parse JSON
-                const placeImage = document.getElementById(`cfrs-place-img-${placeId}`);
+                const placeImage = document.getElementById(`place-img-${placeId}`);
                 
                 if (jsonData.photos && jsonData.photos.length > 0) {
                     // Use the first photo in the list
@@ -596,12 +615,12 @@ function fetchCFRSPlaceImage(placeId) {
                     const imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${firstPhoto.photo_reference}&key=AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g`;
                     placeImage.src = imageUrl;
                     // Cache the image URL
-                    cfrsPlaceImageCache[placeId] = imageUrl;
+                    placeImageCache[placeId] = imageUrl;
                 } else {
                     // No photos available, use default image
                     const defaultImage = 'imgs/logo.png';
                     placeImage.src = defaultImage;
-                    cfrsPlaceImageCache[placeId] = defaultImage;
+                    placeImageCache[placeId] = defaultImage;
                 }
             } catch (error) {
                 console.error('Error parsing JSON:', error);
@@ -610,17 +629,6 @@ function fetchCFRSPlaceImage(placeId) {
         .catch(error => {
             console.error('Error fetching place details:', error);
         });
-}
-
-// Function to navigate through CFRS recommendations
-function navigateCFRS(direction) {
-    const newIndex = currentIndexCFRS + direction;
-    
-    // Ensure the new index is within bounds
-    if (newIndex >= 0 && newIndex + 3 <= recommendations.length) {
-        currentIndexCFRS = newIndex;
-        renderCFRSPlaces(); // Update the displayed recommendations
-    }
 }
 
 // Initial rendering of CFRS places
