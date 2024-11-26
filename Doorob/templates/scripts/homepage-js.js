@@ -53,3 +53,9 @@ ScrollReveal().reveal(".intro-image-card5", {
     interval: 500,
     delay: 3000,
 });
+
+// To show a specific section dynamically
+document.getElementById("context-section").style.display = "none"; 
+document.getElementById("content-section").style.display = "none";  
+document.getElementById("cf-section").style.display = "none"; 
+document.getElementById("hybrid-section").style.display = "none"; 
