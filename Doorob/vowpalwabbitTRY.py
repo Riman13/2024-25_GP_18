@@ -1,166 +1,172 @@
 import logging
+import os
 
 import numpy as np
 import pandas as pd
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
+from recommenders.evaluation.python_evaluation import (exp_var, map, ndcg_at_k,
+                                                       precision_at_k,
+                                                       recall_at_k, rsquared)
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from vowpalwabbit import pyvw
-
-# Logging setup
-logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 CORS(app)
 
-# Load datasets
+# Paths to your datasets
 PLACES_DATA_PATH = 'DATADATA.csv'
 RATINGS_DATA_PATH = 'modified_ratings.csv'
+
+# Load datasets
 places_df = pd.read_csv(PLACES_DATA_PATH)
 ratings_df = pd.read_csv(RATINGS_DATA_PATH)
 
-# Preprocess datasets
+# Preprocess places data
 places_df = places_df.rename(columns={'id': 'place_id'})
-places_df = places_df[['place_id', 'place_name', 'average_rating', 'granular_category']].dropna()
+essential_place_columns = ['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng']
+places_df = places_df.dropna(subset=essential_place_columns)
 places_df['place_id'] = places_df['place_id'].astype(int)
 places_df['average_rating'] = pd.to_numeric(places_df['average_rating'], errors='coerce').fillna(3.0)
 
-# Add review count
-places_df['review_count'] = ratings_df.groupby('place_id')['rating'].transform('count').fillna(0)
+# Preprocess ratings data
+ratings_df = ratings_df.dropna(subset=['user_id', 'place_id', 'rating'])
+ratings_df['user_id'] = ratings_df['user_id'].astype(int)
+ratings_df['place_id'] = ratings_df['place_id'].astype(int)
+ratings_df['rating'] = ratings_df['rating'].astype(float)
 
-# Normalize numerical features
-scaler = MinMaxScaler()
-places_df[['average_rating', 'review_count']] = scaler.fit_transform(places_df[['average_rating', 'review_count']])
+# Train-test split
+train = ratings_df.sample(frac=0.9, random_state=42)
+test = ratings_df.drop(train.index)
 
-# Prepare data for Vowpal Wabbit
-def prepare_vw_data_based_on_high_ratings(ratings_df, places_df, user_id):
-    """
-    Prepare the dataset for Vowpal Wabbit based on high ratings (>= 4) and favorite categories of the user.
-    """
-    data = []
-    
-    # Filter places rated highly by the user (rating >= 4)
-    user_rated_places = ratings_df[(ratings_df['user_id'] == user_id) & (ratings_df['rating'] >= 4)]
-    
-    if user_rated_places.empty:
-        print(f"User {user_id} has not rated any places highly.")
-        return None
-
-    # Merge user ratings with places to get features
-    user_rated_places = user_rated_places.merge(places_df, on='place_id')
-
-    # Extract the most frequent categories the user prefers
-    user_preference_categories = user_rated_places['granular_category'].value_counts().head(3).index.tolist()
-
-    # Create the Vowpal Wabbit input for each rated place
-    for _, row in user_rated_places.iterrows():
-        weighted_avg_rating = row['average_rating'] * 2  # Weighted by rating
-        weighted_review_count = row['review_count'] * 1.5  # Weighted by review count
-        interaction = weighted_avg_rating * weighted_review_count  # Interaction feature
-
-        # Build the features string for Vowpal Wabbit
-        features = (
-            f"|features avg_rating:{weighted_avg_rating} "
-            f"review_count:{weighted_review_count} "
-            f"interaction:{interaction} "
-        )
-
-        # Include the top categories the user prefers as additional features
-        for category in user_preference_categories:
-            features += f"category_{category}:1 "  # One-hot encoding for top categories
-
+# Utility function to prepare Vowpal Wabbit data
+def prepare_vw_data(data, places_df):
+    vw_data = []
+    data = data.merge(places_df, on='place_id')
+    for _, row in data.iterrows():
+        features = (f"|features avg_rating:{row['average_rating']} "
+                    f"granular_category_{row['granular_category']}:1 "
+                    )
         label = row['rating']
-        data.append(f"{label} '{row['user_id']}_{row['place_id']} {features}")
-    
-    return data, user_preference_categories  # Return user preference categories as well
+        vw_data.append(f"{label} '{row['user_id']}_{row['place_id']} {features}")
+    return vw_data
 
-# Prepare Vowpal Wabbit data for a specific user
-user_id = 999 # Replace with an actual user ID
-vw_data, user_preference_categories = prepare_vw_data_based_on_high_ratings(ratings_df, places_df, user_id)
+# Prepare training and testing data
+train_data = prepare_vw_data(train, places_df)
+test_data = prepare_vw_data(test, places_df)
 
 # Train Vowpal Wabbit model
-if vw_data:
-    vw_model = pyvw.vw("--loss_function squared --l2 0.001 --learning_rate 0.3 --bit_precision 25")
-    
-    # Train the model with the prepared data
-    for row in vw_data:
+vw_model = pyvw.vw("--loss_function squared --l2 0.00001 --learning_rate 0.3 --bit_precision 25")
+for _ in range(5):  
+    for row in train_data:
         vw_model.learn(row)
 
-# Evaluate the model on the test data
-def evaluate_vw_model(model, test_data):
+logging.info("Model trained.")
+
+def evaluate_model(vw_model, test_data, test, k=5):
     """
-    Evaluate the model using Mean Squared Error (MSE) and Root Mean Squared Error (RMSE).
+    Evaluate VW model using metrics from the recommenders library.
     """
-    predictions = []
-    actuals = []
-    
+    predictions, actuals, place_ids = [], [], []
+
     for row in test_data:
-        parts = row.split(" ", 1)
-        actual = float(parts[0])  # The true rating
-        actuals.append(actual)
-        prediction = model.predict(parts[1])  # The predicted rating
-        predictions.append(prediction)
-    
-    # Calculate MSE and RMSE
-    mse = np.mean((np.array(actuals) - np.array(predictions)) ** 2)
-    rmse = np.sqrt(mse)
-    
-    print(f"Mean Squared Error (MSE): {mse:.4f}")
-    print(f"Root Mean Squared Error (RMSE): {rmse:.4f}")
-    
-    return mse, rmse
+        try:
+            # Split row to extract label and features
+            label, features = row.split(" ", 1)
+            actual = float(label)
+            prediction = vw_model.predict(features)
 
-# Split data for testing (using a smaller portion of the data for testing)
-train_data, test_data = train_test_split(vw_data, test_size=0.05, random_state=42)
+            # Extract place_id safely
+            if "'" in row:
+                id_part = row.split("'")[1]
+                if "_" in id_part:
+                    place_id = id_part.split("_")[1].split(" ")[0]
+                    place_ids.append(int(place_id))
+                    actuals.append(actual)
+                    predictions.append(prediction)
+                else:
+                    logging.warning(f"Skipping row due to malformed id_part: {id_part}")
+            else:
+                logging.warning(f"Skipping row due to missing or malformed place_id: {row}")
+        except (IndexError, ValueError) as e:
+            logging.warning(f"Skipping row due to parsing error: {row}. Error: {e}")
+            continue
 
-# Train the model on the training data
-for row in train_data:
-    vw_model.learn(row)
+    # Ensure arrays are not empty
+    if not predictions or not actuals or not place_ids:
+        logging.error("Empty predictions, actuals, or place_ids. Cannot compute metrics.")
+        return None
 
-# Now, evaluate the model on the test data
-evaluate_vw_model(vw_model, test_data)
+    # Prepare DataFrames for evaluation
+    rating_true = pd.DataFrame({
+        'user_id': test['user_id'].iloc[:len(actuals)],  # Align with actuals length
+        'item_id': place_ids,
+        'rating': actuals
+    })
 
-# Recommend places based on content-based filtering using Vowpal Wabbit
-def recommend_places_based_on_high_ratings_and_category(user_id, places_df, ratings_df, model, top_k=5, user_preference_categories=None):
-    """
-    Recommend places for a given user based on the categories of places they rated highly.
-    """
-    if user_preference_categories is None:
-        return []
+    rating_pred = pd.DataFrame({
+        'user_id': test['user_id'].iloc[:len(predictions)],
+        'item_id': place_ids,
+        'prediction': predictions
+    })
 
-    rated_places = ratings_df[ratings_df['user_id'] == user_id]['place_id'].tolist()
-    unrated_places = places_df[~places_df['place_id'].isin(rated_places)]
-    
-    recommendations = []
+    # Compute evaluation metrics
+    rmse_val = mean_squared_error(actuals, predictions, squared=False)
+    mae_val = mean_absolute_error(actuals, predictions)
+    r2_val = rsquared(rating_true, rating_pred, col_user="user_id", col_item="item_id", col_rating="rating", col_prediction="prediction")
+    ndcg = ndcg_at_k(rating_true, rating_pred, col_user="user_id", col_item="item_id", col_rating="rating", col_prediction="prediction", k=k)
+    precision = precision_at_k(rating_true, rating_pred, col_user="user_id", col_item="item_id", col_rating="rating", col_prediction="prediction", k=k)
+    recall = recall_at_k(rating_true, rating_pred, col_user="user_id", col_item="item_id", col_rating="rating", col_prediction="prediction", k=k)
 
-    for _, place in unrated_places.iterrows():
-        weighted_avg_rating = place['average_rating'] * 2  # Weighted by rating
-        weighted_review_count = place['review_count'] * 1.5  # Weighted by review count
-        interaction = weighted_avg_rating * weighted_review_count  # Interaction feature
+    # Log metrics
+    logging.info(f"Evaluation Metrics:\nRMSE: {rmse_val:.4f}\nMAE: {mae_val:.4f}\nR-squared: {r2_val:.4f}\n"
+                 f"NDCG@{k}: {ndcg:.4f}\nPrecision@{k}: {precision:.4f}\nRecall@{k}: {recall:.4f}")
 
-        # Build features string for Vowpal Wabbit
-        features = (
-            f"|features avg_rating:{weighted_avg_rating} "
-            f"review_count:{weighted_review_count} "
-            f"interaction:{interaction} "
-        )
+    # Return metrics
+    return {
+        "rmse": rmse_val,
+        "mae": mae_val,
+        "r2": r2_val,
+        "ndcg": ndcg,
+        "precision": precision,
+        "recall": recall
+    }
 
-        # Include the top categories the user prefers as additional features
-        for category in user_preference_categories:
-            features += f"category_{category}:1 "
-        
-        score = model.predict(features)  # Get prediction score
-        recommendations.append((place['place_name'], score))
 
-    # Sort recommendations based on score and return top K
-    recommendations = sorted(recommendations, key=lambda x: x[1], reverse=True)[:top_k]
-    return recommendations
+# API Endpoint for recommendations
+@app.route('/api/recommendations/<int:user_id>', methods=['GET'])
+def get_recommendations_by_id(user_id):
+    try:
+        # Get unrated places for the user
+        rated_places = ratings_df[ratings_df['user_id'] == user_id]['place_id'].tolist()
+        unrated_places = places_df[~places_df['place_id'].isin(rated_places)]
 
-# Get top 5 recommendations for a user
-recommended_places = recommend_places_based_on_high_ratings_and_category(user_id, places_df, ratings_df, vw_model, top_k=5, user_preference_categories=user_preference_categories)
+        # Generate recommendations
+        recommendations = []
+        for _, place in unrated_places.iterrows():
+            features = (f"|features avg_rating:{place['average_rating']} "
+                        f"granular_category_{place['granular_category']}:1 ")
+            score = vw_model.predict(features)
+            recommendations.append((place['place_id'], place['place_name'], score, place['granular_category']))
 
-# Display recommended places
-print("Recommended Places:")
-for place, score in recommended_places:
-    print(f"Place: {place}, Score: {score:.4f}")
+        recommendations = sorted(recommendations, key=lambda x: x[2], reverse=True)[:5]
+        response = [{"place_id": r[0], "place_name": r[1], "predicted_rating": r[2], "category": r[3]} for r in recommendations]
+
+        return jsonify(response)
+
+    except Exception as e:
+        logging.error(f"Error generating recommendations: {e}")
+        return jsonify({"error": "Unable to generate recommendations"}), 500
+
+if __name__ == '__main__':
+    # Compute evaluation metrics
+    metrics = evaluate_model(vw_model, test_data, test, k=5)
+
+    if metrics:
+        print("\nEvaluation Metrics:")
+        for metric, value in metrics.items():
+            print(f"{metric.upper()}: {value:.4f}")
+    else:
+        print("Evaluation metrics could not be computed.")
+
+    app.run(debug=True)
