@@ -1,6 +1,4 @@
 import logging
-# ======== Part 3: Content-Based Recommendations ========
-# ======== Part 3: Content-Based Recommendations with Vowpal Wabbit ========
 import os
 import pickle
 
@@ -134,11 +132,6 @@ def collaborative_filtering_recommendations(user_id, top_k=5):
         logging.error(f"Error in SVD recommendations: {str(e)}")
         return pd.DataFrame()
 
-
-
-# Logging setup
-logging.basicConfig(level=logging.DEBUG)
-
 # ========Content Based ========
 # Utility Functions
 def prepare_vw_data(ratings_df, places_df, user_id):
@@ -190,13 +183,13 @@ def train_and_evaluate_vw_model(ratings_df, places_df, user_id=None):
         logging.warning("No data available for training.")
         return None, None
 
-    # Split vw_data into training and testing sets manually
+    # Split vw_data into training and testing 
     split_idx = int(len(vw_data) * 0.9)
     train_data = vw_data[:split_idx]
     test_data = vw_data[split_idx:]
 
     # Train the VW model
-    vw_model = pyvw.vw("--loss_function squared --l2 0.00000000001 --learning_rate 0.4 --bit_precision 25")
+    vw_model = pyvw.vw("--loss_function squared --l2 0.001 --learning_rate 0.5 --bit_precision 25")
     for row in train_data:
         vw_model.learn(row)
 

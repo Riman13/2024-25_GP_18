@@ -15,12 +15,6 @@ from sklearn.preprocessing import MinMaxScaler
 from surprise import SVD, Dataset, Reader, accuracy
 from surprise.model_selection import cross_validate, train_test_split
 
-# Logging setup
-logging.basicConfig(level=logging.DEBUG)
-
-app = Flask(__name__)
-CORS(app)
-
 # Load datasets
 PLACES_DATA_PATH = 'DATADATA.csv'
 RATINGS_DATA_PATH = 'modified_ratings.csv'
@@ -37,7 +31,7 @@ def evaluate_content_based(user_id, top_k=5, weight_similarity=0.7, weight_ratin
     Evaluate content-based recommendation system by identifying the user's most preferred category
     based on the number of 5-star ratings.
     """
-    # Step 1: Filter places rated 5 by the user
+    #Filter places rated 5 by the user
     user_rated_5_places = ratings_df[(ratings_df['user_id'] == user_id) & (ratings_df['rating'] == 5)]
 
     if user_rated_5_places.empty:
@@ -116,7 +110,7 @@ def evaluate_content_based(user_id, top_k=5, weight_similarity=0.7, weight_ratin
 
     # Return recommendations and evaluation metrics
     return recommended_places, precision, recall, f1_score, map_score
-user_id = 999# Replace with an actual user ID
+user_id = 999
 top_k = 5
 recommended_places, precision, recall, f1_score, map_score = evaluate_content_based(user_id, top_k=top_k)
 
