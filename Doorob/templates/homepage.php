@@ -471,8 +471,8 @@ function renderPlaces() {
 
 <p class="price">
   Rating: ${
-    place.average_rating === 'N\\A'
-      ? '★★★☆☆'
+    place.average_rating === 'Not rated'
+      ? '☆☆☆☆☆'
       : '★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))
   }
 </p>

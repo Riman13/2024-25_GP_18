@@ -1,17 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration</title>
-    <link rel="stylesheet" href="styles/registration.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <title>Reset Password</title>
+    <link rel="stylesheet" href="styles/reset-password.css">
     <link rel="stylesheet" href="styles/footer-header-styles.css">
+    <!--======== ICONS ========-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+     <!--======== WEBSITEICON ========-->
      <link rel="shortcut icon" href="imgs/logo.png" type="image/x-icon">
 </head>
-<body>
-  <header class="header" id="header">
+<div>
+
+<header class="header" id="header">
     <nav class="nav container">
       <a href="#" class="nav__logo">
        
@@ -38,72 +40,67 @@
       </div>
     </nav>
   </header>
+  <div style="height: 40px;"></div> 
+ 
+  <div class="reset">
+    <div class="container2">
+<div class="form-container2 reset-password-container2">
+    <h1>Reset Password</h1>
 
-  <div style="height: 100px;"></div> 
-    <div class="registration">
-    <div style="display: flex; justify-content: center; align-items: center;">
-<?php
-if(isset($_GET['error'])){
-    echo '<script type="text/javascript">alert("'.$_GET['error'].'");</script>';
-}
-?>
+    <form id="resetPasswordForm" method="post">
+        <div class="form-group">
+            <label for="email">Please enter your email to send a password reset link</label>
+            <input type="email" name="email" id="email" required placeholder="Enter your email">
+        </div>
+        <button type="submit" class="submit-btn">Send</button>
+    </form>
+
+    <div class="message" id="message"></div>
 </div>
-    <div class="container1" id="container1">
-        <div class="form-container1 sign-in-container1">
-            <form action="login.php" method="post">
-                <h1>Sign In</h1>
-                <span>Welcome Back!</span>
-                <input type="email" placeholder="Email" id="email"  name="email" required/>
-                <input type="password" placeholder="Password" id="password" name="password" required/>
-                <button id="signin1">Sign In</button>
-                <label for="resetPassword">
-                 <a href="resetPass.php" class="reset-password-link">
-                        Reset Password <i class="fas fa-arrow-right"></i></a>
-                </label>
-            </form>
-        </div>
-
-        <div class="form-container1 sign-up-container1">
-            <form action="signup.php" method="post">
-                <h1>Create Account</h1>
-                <span>Please enter your details below</span>
-                <input type="text" placeholder="Name" id="name" name="name" required />
-                <input type="email" placeholder="Email" id="eml" name="eml" required />
-                <input type="password" placeholder="Password" id="pass" name="pass" required />
-                <button id="signUp1">Sign Up</button>
-            </form>
-        </div>
-
-        <div class="overlay-container1">
-            <div class="overlay">
-                <div class="overlay-panel overlay-left">
-                    <h1>You Already Have An Account?</h1>
-                    <p>Login to continue your journey with us</p>
-                    <button class="ghost" id="signIn">Sign In</button>
-                </div>
-                <div class="overlay-panel overlay-right">
-                    <h1>New Here?</h1>
-                    <p>Sign Up and start your journey with us</p>
-                    <button class="ghost" id="signUp">Sign Up</button>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <script>
-        const signUpButton = document.getElementById('signUp');
-        const signInButton = document.getElementById('signIn');
-        const container = document.getElementById('container1');
+<script>
+    const form = document.getElementById('resetPasswordForm');
+    const messageDiv = document.getElementById('message');
+    const emailInput = form.email;
 
-        signUpButton.addEventListener('click', () => {
-            container.classList.add("right-panel-active");
-        });
 
-        signInButton.addEventListener('click', () => {
-            container.classList.remove("right-panel-active");
+    form.addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent default form submission
+
+        const email = form.email.value; // Get email value
+
+        // Send the email to the PHP script using Fetch API
+        fetch('send-password-reset.php', { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }) // Send the email as a JSON object
+        })
+        .then(response => response.json()) // Parse response as JSON
+        .then(data => {
+            // Check for success response from PHP
+            if (data.success) {
+                messageDiv.textContent = 'Message sent, please check your inbox.';
+                messageDiv.style.color = 'green';
+            } else {
+                messageDiv.textContent = 'The entered email does not exist.';
+                messageDiv.style.color = 'red';
+            }
+        })
+        .catch(error => {
+            messageDiv.textContent = 'An error occurred. Please try again.';
+            messageDiv.style.color = 'red';
         });
-    </script>
+    });
+
+        // Clear the message when the user focuses on the email input
+        emailInput.addEventListener('focus', function() {
+        messageDiv.textContent = ''; // Clear the message
+    });
+</script>
+
 </div>
+
     <footer class="footer section">
         <div class="footer__container container grid">
             <div class="footer__content">
@@ -167,4 +164,3 @@ if(isset($_GET['error'])){
        <script src="scripts/scripts-fh.js"></script>
 </body>
 </html>
-

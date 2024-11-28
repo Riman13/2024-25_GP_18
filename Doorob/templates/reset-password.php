@@ -1,17 +1,50 @@
+<?php
+
+include 'config.php'; 
+
+$token = $_GET["token"];
+
+$token_hash = hash("sha256", $token);
+
+
+$sql = "SELECT * FROM users
+        WHERE reset_token_hash = ?";
+
+$stmt = $conn->prepare($sql);
+
+$stmt->bind_param("s", $token_hash);
+
+$stmt->execute();
+
+$result = $stmt->get_result();
+
+$user = $result->fetch_assoc();
+
+if ($user === null) {
+    die("token not found");
+}
+
+if (strtotime($user["reset_token_expires_at"]) <= time()) {
+    die("token has expired");
+}
+
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration</title>
-    <link rel="stylesheet" href="styles/registration.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <title>Reset Password</title>
+    <link rel="stylesheet" href="styles/reset-password.css">
     <link rel="stylesheet" href="styles/footer-header-styles.css">
+    <!--======== ICONS ========-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+     <!--======== WEBSITEICON ========-->
      <link rel="shortcut icon" href="imgs/logo.png" type="image/x-icon">
 </head>
-<body>
-  <header class="header" id="header">
+<div>
+
+<header class="header" id="header">
     <nav class="nav container">
       <a href="#" class="nav__logo">
        
@@ -39,71 +72,30 @@
     </nav>
   </header>
 
-  <div style="height: 100px;"></div> 
-    <div class="registration">
-    <div style="display: flex; justify-content: center; align-items: center;">
-<?php
-if(isset($_GET['error'])){
-    echo '<script type="text/javascript">alert("'.$_GET['error'].'");</script>';
-}
-?>
-</div>
-    <div class="container1" id="container1">
-        <div class="form-container1 sign-in-container1">
-            <form action="login.php" method="post">
-                <h1>Sign In</h1>
-                <span>Welcome Back!</span>
-                <input type="email" placeholder="Email" id="email"  name="email" required/>
-                <input type="password" placeholder="Password" id="password" name="password" required/>
-                <button id="signin1">Sign In</button>
-                <label for="resetPassword">
-                 <a href="resetPass.php" class="reset-password-link">
-                        Reset Password <i class="fas fa-arrow-right"></i></a>
-                </label>
-            </form>
-        </div>
+  <div style="height: 40px;"></div> 
+<body>
+    <div class="reset">
+    <div class="container2">
+        <div class="form-container2 reset-password-container2">
+            <h1>Reset Password</h1>
 
-        <div class="form-container1 sign-up-container1">
-            <form action="signup.php" method="post">
-                <h1>Create Account</h1>
-                <span>Please enter your details below</span>
-                <input type="text" placeholder="Name" id="name" name="name" required />
-                <input type="email" placeholder="Email" id="eml" name="eml" required />
-                <input type="password" placeholder="Password" id="pass" name="pass" required />
-                <button id="signUp1">Sign Up</button>
-            </form>
-        </div>
+    <form method="post" action="process-reset-password.php" id="resetPasswordForm">
 
-        <div class="overlay-container1">
-            <div class="overlay">
-                <div class="overlay-panel overlay-left">
-                    <h1>You Already Have An Account?</h1>
-                    <p>Login to continue your journey with us</p>
-                    <button class="ghost" id="signIn">Sign In</button>
-                </div>
-                <div class="overlay-panel overlay-right">
-                    <h1>New Here?</h1>
-                    <p>Sign Up and start your journey with us</p>
-                    <button class="ghost" id="signUp">Sign Up</button>
-                </div>
-            </div>
+        <input type="hidden" name="token" value="<?= htmlspecialchars($token) ?>">
+
+        <label for="password">New password</label>
+        <input type="password" id="password" name="password" required placeholder="Enter new password">
+
+        <label for="password_confirmation">Confirm password</label>
+        <input type="password" id="password_confirmation" name="password_confirmation" required placeholder="Confirm new password">
+
+        <button type="submit" class="submit-btn">Reset Password</button>
+            </form>
+            <div class="message" id="message"></div>
         </div>
     </div>
+    </div>
 
-    <script>
-        const signUpButton = document.getElementById('signUp');
-        const signInButton = document.getElementById('signIn');
-        const container = document.getElementById('container1');
-
-        signUpButton.addEventListener('click', () => {
-            container.classList.add("right-panel-active");
-        });
-
-        signInButton.addEventListener('click', () => {
-            container.classList.remove("right-panel-active");
-        });
-    </script>
-</div>
     <footer class="footer section">
         <div class="footer__container container grid">
             <div class="footer__content">
@@ -167,4 +159,3 @@ if(isset($_GET['error'])){
        <script src="scripts/scripts-fh.js"></script>
 </body>
 </html>
-

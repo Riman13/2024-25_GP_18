@@ -342,8 +342,8 @@ function renderPlaces() {
             <p>Category: ${place.granular_category}</p>
 <p>
   Rating: ${
-    place.average_rating === 'N\\A'
-      ? '★★★☆☆'
+    place.average_rating === 'Not rated'
+      ? '☆☆☆☆☆'
       : '★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))
   }
 </p>             <button class="details-btn" data-id="${place.place_id}" data-lat="${place.latitude}" data-lng="${place.longitude}">More Details</button>
