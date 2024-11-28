@@ -27,7 +27,7 @@ places_df = places_df.rename(columns={'id': 'place_id'})
 essential_place_columns = ['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng']
 places_df = places_df.dropna(subset=essential_place_columns)
 places_df['place_id'] = places_df['place_id'].astype(int)
-places_df['average_rating'] = pd.to_numeric(places_df['average_rating'], errors='coerce').fillna(3.0)
+places_df['average_rating'] = pd.to_numeric(places_df['average_rating'], errors='coerce').fillna(0.0)
 
 # Preprocess ratings data
 ratings_df = ratings_df.dropna(subset=['user_id', 'place_id', 'rating'])
@@ -42,7 +42,7 @@ test = ratings_df.drop(train.index)
 # User locations (in-memory storage)
 user_locations = {}
 
-# Prepare Vowpal Wabbit data with location features
+# Prepare Vowpal Wabbit data 
 def prepare_vw_data(data, places_df, user_locations):
     """
     Prepare VW formatted data with additional location-based features.
