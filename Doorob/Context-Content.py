@@ -154,44 +154,71 @@ def save_user_location():
 
 @app.route('/api/recommendations/<int:user_id>', methods=['GET'])
 def get_recommendations_by_id(user_id):
+    """
+    Generate content-based recommendations for a specific user, considering location if available.
+    """
     try:
+        # Retrieve user ratings
         user_data = ratings_df[ratings_df['user_id'] == user_id]
         if user_data.empty:
+            # Global recommendations if no user data
             global_recommendations = places_df.sort_values(by='average_rating', ascending=False).head(5)
-            response = [{"place_id": row['place_id'], "place_name": row['place_name'], "predicted_rating": row['average_rating']} for _, row in global_recommendations.iterrows()]
+            response = global_recommendations[['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng']].to_dict(orient='records')
+            print(f"Global Recommendations: {response}")  # Debugging/Monitoring
             return jsonify(response)
 
+        # Get user location if available
         user_location = user_locations.get(user_id)
         train_data = prepare_vw_data(user_data, places_df, user_locations)
 
+        # Train user-specific model
         user_model = pyvw.vw("--loss_function squared --l2 0.00001 --learning_rate 0.3 --bit_precision 25")
         for row in train_data:
             user_model.learn(row)
 
+        # Filter out places the user has already rated
         rated_places = user_data['place_id'].tolist()
         unrated_places = places_df[~places_df['place_id'].isin(rated_places)]
 
+        # Generate recommendations
         recommendations = []
         for _, place in unrated_places.iterrows():
+            # Calculate distance if user location is available
             if user_location:
                 distance = geodesic(user_location, (place['lat'], place['lng'])).kilometers
             else:
                 distance = 0.0
 
+            # Prepare VW feature string
             features = (f"|features user_{user_id}:1 "
                         f"avg_rating:{place['average_rating']} "
                         f"granular_category_{place['granular_category']}:1 "
                         f"distance:{distance:.2f} ")
             score = user_model.predict(features)
-            recommendations.append((place['place_id'], place['place_name'], score, place['granular_category'], distance))
 
-        recommendations = sorted(recommendations, key=lambda x: (x[2], -x[4]), reverse=True)[:5]
-        response = [{"place_id": r[0], "place_name": r[1], "predicted_rating": r[2], "category": r[3], "distance_km": r[4]} for r in recommendations]
+            # Print predicted rating and distance to terminal
+            print(f"Predicted Rating for Place {place['place_name']} (ID: {place['place_id']}): {score:.2f}")
+            print(f"Distance to Place {place['place_name']}: {distance:.2f} km")
+
+            recommendations.append((place['place_id'], place['place_name'], place['average_rating'], place['granular_category'], place['lat'], place['lng'], score))
+
+        # Sort recommendations by predicted score
+        recommendations = sorted(recommendations, key=lambda x: x[6], reverse=True)[:5]
+
+        # Create DataFrame for recommended places
+        recommended_places_details = pd.DataFrame(recommendations, columns=['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng', 'predicted_rating'])
+
+        # Prepare the response
+        response = recommended_places_details[['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng']].to_dict(orient='records')
+
+        # Print response to terminal for debugging
+        print(f"Recommended Places Response: {response}")
         return jsonify(response)
 
     except Exception as e:
         logging.error(f"Error generating recommendations for user {user_id}: {e}")
         return jsonify({"error": "Unable to generate recommendations"}), 500
+
 
 if __name__ == '__main__':
     metrics = evaluate_model(vw_model, test_data, test, k=5)
