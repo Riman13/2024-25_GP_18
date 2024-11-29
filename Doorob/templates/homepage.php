@@ -802,7 +802,7 @@ function fetchPlaceImage(placeId) {
 // Initial rendering of CFRS places
 renderCFRSPlaces();
 renderCXPlaces();
-renderHybridPlaces()
+renderHybridPlaces();
 
     document.querySelectorAll('.details-btn').forEach(button => {
     button.addEventListener('click', function () {
