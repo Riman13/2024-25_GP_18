@@ -46,80 +46,59 @@ $user = $result->fetch_assoc();
             <input type="email" id="email" value="<?php echo htmlspecialchars($user['email']); ?>" readonly>
         </div>
 
-       <div class="info-group">
+        <div class="info-group">
             <label for="resetPassword">
                 <a href="resetPassword.html" target="_top" class="reset-password-link">
                     Reset Password <i class="fas fa-arrow-right"></i>
                 </a>
             </label>
         </div>
-
-       
-
-
-
-
     </div>
 
     <script>
         let isEditing = false;
-// editing user info
+
+        // Function to toggle editing for the name field only
         function toggleEdit() {
             isEditing = !isEditing;
-            const fields = ['name', 'email'];
+            const nameField = document.getElementById('name');
             const editSaveBtn = document.getElementById('editSaveBtn');
 
-            fields.forEach(field => {
-                const inputField = document.getElementById(field);
-                if (isEditing) {
-                    inputField.removeAttribute('readonly');
-                    inputField.focus();
-                    editSaveBtn.innerHTML = '<i class="fas fa-save"></i> Save';
-                    editSaveBtn.classList.replace('edit-btn', 'save-btn');
-                } else {
-                    inputField.setAttribute('readonly', 'readonly');
-                    editSaveBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
-                    editSaveBtn.classList.replace('save-btn', 'edit-btn');
-                    saveChanges();
-                }
-            });
+            if (isEditing) {
+                nameField.removeAttribute('readonly');
+                nameField.focus();
+                editSaveBtn.innerHTML = '<i class="fas fa-save"></i> Save';
+                editSaveBtn.classList.replace('edit-btn', 'save-btn');
+            } else {
+                nameField.setAttribute('readonly', 'readonly');
+                editSaveBtn.innerHTML = '<i class="fas fa-edit"></i> Edit';
+                editSaveBtn.classList.replace('save-btn', 'edit-btn');
+                saveChanges();
+            }
         }
 
+        // Function to save changes (name only)
         function saveChanges() {
             const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
 
             fetch('update_user.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ name, email }),
+                body: JSON.stringify({ name }),
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Information updated successfully!');
+                    alert('Name updated successfully!');
                     location.reload();
                     window.parent.postMessage({ action: 'updateUserInfo', name: name }, '*');
                 } else {
-                    alert('Failed to update information: ' + data.error);
+                    alert('Failed to update name: ' + data.error);
                 }
             });
         }
-
-
-     
-
-       
-
-
-
     </script>
 </body>
 </html>
-
-<?php
-$stmt->close();
-$conn->close();
-?>
