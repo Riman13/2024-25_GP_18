@@ -111,17 +111,17 @@ if ($context_response && $context_http_status == 200) {
 $hybrid_api_url = 'http://127.0.0.1:5003/api/recommendations_hybrid/' . $user_id;
 
 // Initialize cURL session
-$ch_context = curl_init();
-curl_setopt($ch_context, CURLOPT_URL, $hybrid_api_url);
-curl_setopt($ch_context, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch_context, CURLOPT_HTTPGET, true);
-curl_setopt($ch_context, CURLOPT_CONNECTTIMEOUT, 5);
-curl_setopt($ch_context, CURLOPT_TIMEOUT, 10); // Adjusted timeout
+$ch_hybrid = curl_init();
+curl_setopt($ch_hybrid, CURLOPT_URL, $hybrid_api_url);
+curl_setopt($ch_hybrid, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch_hybrid, CURLOPT_HTTPGET, true);
+curl_setopt($ch_hybrid, CURLOPT_CONNECTTIMEOUT, 5);
+curl_setopt($ch_hybrid, CURLOPT_TIMEOUT, 10); // Adjusted timeout
 
 // Execute the cURL request
-$hybrid_response = curl_exec($ch_context);
-$hybrid_http_status = curl_getinfo($ch_context, CURLINFO_HTTP_CODE);
-curl_close($ch_context);
+$hybrid_response = curl_exec($ch_hybrid );
+$hybrid_http_status = curl_getinfo($ch_hybrid, CURLINFO_HTTP_CODE);
+curl_close($ch_hybrid);
 
 // Process the API response
 $hybrid_recommendations = [];
