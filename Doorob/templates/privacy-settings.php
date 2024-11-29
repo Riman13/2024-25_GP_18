@@ -75,12 +75,13 @@ function sendToBackend(data) {
     })
         .then((response) => {
             if (!response.ok) {
-                throw new Error('Failed to save location');
+                throw new Error(`Failed to save location: ${response.statusText}`);
             }
             return response.json();
         })
         .then((result) => {
             console.log('Location saved:', result);
+            alert('Location saved successfully!');
         })
         .catch((error) => {
             console.error('Error sending location data:', error);

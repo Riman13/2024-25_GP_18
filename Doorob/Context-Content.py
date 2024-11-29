@@ -197,8 +197,8 @@ def get_recommendations_by_id(user_id):
             score = user_model.predict(features)
 
             # Print predicted rating and distance to terminal
-            print(f"Predicted Rating for Place {place['place_name']} (ID: {place['place_id']}): {score:.2f}")
-            print(f"Distance to Place {place['place_name']}: {distance:.2f} km")
+            logging.info(f"Predicted Rating for Place {place['place_name']} (ID: {place['place_id']}): {score:.2f}")
+            logging.info(f"Distance to Place {place['place_name']}: {distance:.2f} km")
 
             recommendations.append((place['place_id'], place['place_name'], place['average_rating'], place['granular_category'], place['lat'], place['lng'], score))
 
@@ -213,9 +213,10 @@ def get_recommendations_by_id(user_id):
         response = recommended_places_details[['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng']].to_dict(orient='records')
 
         # Print response to terminal for debugging
-        print(f"Recommended Places Response: {response}")
-        
-        return jsonify(response)
+        logging.info(f"Recommended Places Response: {response}")
+        return jsonify(response), 200
+
+
 
     except Exception as e:
         logging.error(f"Error generating recommendations for user {user_id}: {e}")
@@ -225,9 +226,9 @@ def get_recommendations_by_id(user_id):
 if __name__ == '__main__':
     metrics = evaluate_model(vw_model, test_data, test, k=5)
     if metrics:
-        print("\nEvaluation Metrics:")
+        logging.info("\nEvaluation Metrics:")
         for metric, value in metrics.items():
-            print(f"{metric.upper()}: {value:.4f}")
+            logging.info(f"{metric.upper()}: {value:.4f}")
     else:
-        print("Evaluation metrics could not be computed.")
+       logging.info("Evaluation metrics could not be computed.")
     app.run(debug=True)
