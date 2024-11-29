@@ -184,8 +184,10 @@ def get_recommendations_by_id(user_id):
             # Calculate distance if user location is available
             if user_location:
                 distance = geodesic(user_location, (place['lat'], place['lng'])).kilometers
+                adjusted_distance = 1 / distance if distance > 0 else 0.0
             else:
                 distance = 0.0
+                adjusted_distance = 0.0
 
             # Prepare VW feature string
             features = (f"|features user_{user_id}:1 "
