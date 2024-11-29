@@ -156,7 +156,7 @@ def save_user_location():
 
 
 
-@app.route('/api/recommendations/<int:user_id>', methods=['GET'])
+@app.route('/api/recommendations_context/<int:user_id>', methods=['GET'])
 def get_recommendations_by_id(user_id):
     """
     Generate content-based recommendations for a specific user, considering location if available.
@@ -231,4 +231,4 @@ if __name__ == '__main__':
             logging.info(f"{metric.upper()}: {value:.4f}")
     else:
        logging.info("Evaluation metrics could not be computed.")
-    app.run(debug=True)
+    app.run(debug=True, threaded=True, port=5002)

@@ -47,7 +47,7 @@ if ($result && mysqli_num_rows($result) > 0) {
 // ====================
 
 // Define the Flask API URL
-$api_url = 'http://127.0.0.1:5000/api/recommendations/' . $user_id;
+$api_url = 'http://127.0.0.1:5001/api/recommendations/' . $user_id;
 
 // Initialize cURL session
 $ch = curl_init();
@@ -83,6 +83,31 @@ if ($response === false) {
         $recommendations = [];
     }
 }
+// Fetch context-based recommendations from Flask API
+$context_api_url = 'http://127.0.0.1:5002/api/recommendations_context/' . $user_id;
+
+// Initialize cURL session
+$ch_context = curl_init();
+curl_setopt($ch_context, CURLOPT_URL, $context_api_url);
+curl_setopt($ch_context, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch_context, CURLOPT_HTTPGET, true);
+curl_setopt($ch_context, CURLOPT_CONNECTTIMEOUT, 5);
+curl_setopt($ch_context, CURLOPT_TIMEOUT, 10); // Adjusted timeout
+
+// Execute the cURL request
+$context_response = curl_exec($ch_context);
+$context_http_status = curl_getinfo($ch_context, CURLINFO_HTTP_CODE);
+curl_close($ch_context);
+
+// Process the API response
+$context_recommendations = [];
+if ($context_response && $context_http_status == 200) {
+    $context_recommendations = json_decode($context_response, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        $context_recommendations = []; // Fallback if JSON decoding fails
+    }
+}
+
 ?>
 
 
@@ -550,6 +575,8 @@ if (recommendations && recommendations.length > 0) {
     }
 }
 
+
+
         
 
 // Function to render CFRS recommendations based on the current index
@@ -582,6 +609,64 @@ function renderCFRSPlaces() {
         `;
         
         cfrsPlacesContainer.appendChild(placeDiv);
+
+        // Attach click event to "More Details" button
+        placeDiv.querySelector('.details-btn').addEventListener('click', function() {
+            showDetails(place.id);
+        });
+
+        // Load the image for this place (check cache first)
+        if (placeImageCache[place.id]) {
+            // Use cached image
+            document.getElementById(`place-img-${place.id}`).src = placeImageCache[place.id];
+        } else {
+            // Fetch image details and cache it
+            fetchPlaceImage(place.id);
+        }
+    }
+
+}
+
+let currentIndexCx= 0; // Initialize current index for CFRS
+const context_recommendations = <?php echo json_encode($context_recommendations); ?> ;// Convert PHP array to JavaScript array
+
+// Check if recommendations have data
+if (context_recommendations && context_recommendations.length > 0) {
+    // Show the CF section if there are recommendations
+    const cxSection = document.getElementById('context-section'); // Get the CF section by ID
+    if (cxSection) {
+        cxSection.style.display = 'block'; // Make the CF section visible
+    }
+}
+function renderCXPlaces() {
+    const cxPlacesContainer = document.getElementById('CXproduct-container');
+    cxPlacesContainer.innerHTML = ''; // Clear current recommendations
+
+    // Display the next set of recommendations (3 at a time)
+    for (let i = currentIndexCx; i < context_recommendations.length; i++) {
+        const place = context_recommendations[i];
+        const placeDiv = document.createElement('div');
+        placeDiv.className = 'product-card'; // Apply uniform style
+
+        placeDiv.innerHTML = `<div class="product-image">
+            <img id="place-img-${place.id}" src="imgs/logo.png" alt="${place.place_name} class="product-thumb" ">
+            <button class="card-btn">Bookmark This Place</button>
+            </div>
+            <div class="product-info">
+            <h2 class="product-brand">${place.place_name}</h2>
+            <p class="product-short-description">Category: ${place.granular_category}</p>
+
+<p class="price">
+  Rating: ${
+    place.average_rating === 'N\\A'
+      ? '★★★☆☆'
+      : '★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))
+  }
+</p>
+          <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}">More Details</button></div>
+        `;
+        
+        cxPlacesContainer.appendChild(placeDiv);
 
         // Attach click event to "More Details" button
         placeDiv.querySelector('.details-btn').addEventListener('click', function() {
@@ -633,6 +718,7 @@ function fetchPlaceImage(placeId) {
 
 // Initial rendering of CFRS places
 renderCFRSPlaces();
+renderCXPlaces();
 
     document.querySelectorAll('.details-btn').forEach(button => {
     button.addEventListener('click', function () {
