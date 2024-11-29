@@ -19,7 +19,7 @@ PLACES_DATA_PATH = 'DATADATA.csv'
 RATINGS_DATA_PATH = 'modified_ratings.csv'
 
 # Load datasets
-places_df = pd.read_csv(PLACES_DATA_PATH)
+places_df = pd.read_csv(PLACES_DATA_PATH, encoding='utf-8')
 ratings_df = pd.read_csv(RATINGS_DATA_PATH)
 
 # Preprocess places data
@@ -57,14 +57,16 @@ def prepare_vw_data(data, places_df, user_locations):
         # Calculate distance if user location is available
         if user_location:
             distance = geodesic(user_location, place_location).kilometers
+            adjusted_distance = 1 / distance if distance > 0 else 0.0  # Adjusted distance
         else:
-            distance = 0.0  # Default distance if user location is unavailable
+            distance = 0.0
+            adjusted_distance = 0.0
 
         # VW features
         features = (f"|features user_{user_id}:1 "
                     f"avg_rating:{row['average_rating']} "
                     f"granular_category_{row['granular_category']}:1 "
-                    f"distance:{distance:.2f} ")
+                    f"adjusted_distance:{adjusted_distance:.5f} ")  # Use adjusted distance
         label = row['rating']
         vw_data.append(f"{label} '{user_id}_{row['place_id']} {features}")
     return vw_data
@@ -152,6 +154,8 @@ def save_user_location():
     logging.debug(f"Location saved for user ID {user_id}: {user_locations[user_id]}")
     return jsonify({"message": "Location saved successfully"}), 200
 
+
+
 @app.route('/api/recommendations/<int:user_id>', methods=['GET'])
 def get_recommendations_by_id(user_id):
     """
@@ -160,12 +164,6 @@ def get_recommendations_by_id(user_id):
     try:
         # Retrieve user ratings
         user_data = ratings_df[ratings_df['user_id'] == user_id]
-        if user_data.empty:
-            # Global recommendations if no user data
-            global_recommendations = places_df.sort_values(by='average_rating', ascending=False).head(5)
-            response = global_recommendations[['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng']].to_dict(orient='records')
-            print(f"Global Recommendations: {response}")  # Debugging/Monitoring
-            return jsonify(response)
 
         # Get user location if available
         user_location = user_locations.get(user_id)
@@ -193,7 +191,7 @@ def get_recommendations_by_id(user_id):
             features = (f"|features user_{user_id}:1 "
                         f"avg_rating:{place['average_rating']} "
                         f"granular_category_{place['granular_category']}:1 "
-                        f"distance:{distance:.2f} ")
+                        f"adjusted_distance:{adjusted_distance:.5f} ")
             score = user_model.predict(features)
 
             # Print predicted rating and distance to terminal
@@ -204,6 +202,7 @@ def get_recommendations_by_id(user_id):
 
         # Sort recommendations by predicted score
         recommendations = sorted(recommendations, key=lambda x: x[6], reverse=True)[:5]
+        
 
         # Create DataFrame for recommended places
         recommended_places_details = pd.DataFrame(recommendations, columns=['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng', 'predicted_rating'])
@@ -213,6 +212,7 @@ def get_recommendations_by_id(user_id):
 
         # Print response to terminal for debugging
         print(f"Recommended Places Response: {response}")
+        
         return jsonify(response)
 
     except Exception as e:
