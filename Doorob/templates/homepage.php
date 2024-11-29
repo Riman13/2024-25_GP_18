@@ -107,6 +107,30 @@ if ($context_response && $context_http_status == 200) {
         $context_recommendations = []; // Fallback if JSON decoding fails
     }
 }
+// Fetch context-based recommendations from Flask API
+$hybrid_api_url = 'http://127.0.0.1:5003/api/recommendations_hybrid/' . $user_id;
+
+// Initialize cURL session
+$ch_context = curl_init();
+curl_setopt($ch_context, CURLOPT_URL, $hybrid_api_url);
+curl_setopt($ch_context, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch_context, CURLOPT_HTTPGET, true);
+curl_setopt($ch_context, CURLOPT_CONNECTTIMEOUT, 5);
+curl_setopt($ch_context, CURLOPT_TIMEOUT, 10); // Adjusted timeout
+
+// Execute the cURL request
+$hybrid_response = curl_exec($ch_context);
+$hybrid_http_status = curl_getinfo($ch_context, CURLINFO_HTTP_CODE);
+curl_close($ch_context);
+
+// Process the API response
+$hybrid_recommendations = [];
+if ($hybrid_response && $hybrid_http_status == 200) {
+    $hybrid_recommendations = json_decode($hybrid_response, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        $hybrid_recommendations = []; // Fallback if JSON decoding fails
+    }
+}
 
 ?>
 
@@ -684,6 +708,65 @@ function renderCXPlaces() {
     }
 
 }
+// Initialize current index for iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+
+let currentIndexHYBRID= 0; // Initialize current index for CFRS
+const hybrid_recommendations = <?php echo json_encode($hybrid_recommendations); ?> ;// Convert PHP array to JavaScript array
+
+// Check if recommendations have data
+if (hybrid_recommendations && hybrid_recommendations.length > 0) {
+    // Show the CF section if there are recommendations
+    const HybridSection = document.getElementById('hybrid-section'); // Get the CF section by ID
+    if (HybridSection) {
+        HybridSection.style.display = 'block'; // Make the CF section visible
+    }
+}
+function renderHybridPlaces() {
+    const HYPlacesContainer = document.getElementById('HYproduct-container');
+    HYPlacesContainer.innerHTML = ''; // Clear current recommendations
+
+    // Display the next set of recommendations (3 at a time)
+    for (let i = currentIndexHYBRID; i <hybrid_recommendations.length; i++) {
+        const place = hybrid_recommendations[i];
+        const placeDiv = document.createElement('div');
+        placeDiv.className = 'product-card'; // Apply uniform style
+
+        placeDiv.innerHTML = `<div class="product-image">
+            <img id="place-img-${place.id}" src="imgs/logo.png" alt="${place.place_name} class="product-thumb" ">
+            <button class="card-btn">Bookmark This Place</button>
+            </div>
+            <div class="product-info">
+            <h2 class="product-brand">${place.place_name}</h2>
+            <p class="product-short-description">Category: ${place.granular_category}</p>
+
+<p class="price">
+  Rating: ${
+    place.average_rating === 'N\\A'
+      ? '★★★☆☆'
+      : '★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))
+  }
+</p>
+          <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}">More Details</button></div>
+        `;
+        
+        HYPlacesContainer.appendChild(placeDiv);
+
+        // Attach click event to "More Details" button
+        placeDiv.querySelector('.details-btn').addEventListener('click', function() {
+            showDetails(place.id);
+        });
+
+        // Load the image for this place (check cache first)
+        if (placeImageCache[place.id]) {
+            // Use cached image
+            document.getElementById(`place-img-${place.id}`).src = placeImageCache[place.id];
+        } else {
+            // Fetch image details and cache it
+            fetchPlaceImage(place.id);
+        }
+    }
+
+}
 
 // Function to fetch place image and cache it
 function fetchPlaceImage(placeId) {
@@ -719,6 +802,7 @@ function fetchPlaceImage(placeId) {
 // Initial rendering of CFRS places
 renderCFRSPlaces();
 renderCXPlaces();
+renderHybridPlaces()
 
     document.querySelectorAll('.details-btn').forEach(button => {
     button.addEventListener('click', function () {
