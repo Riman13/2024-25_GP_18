@@ -77,6 +77,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         })
                         .then((result) => {
                             console.log(`Location successfully saved to \${url}:`, result);
+                                                    fetch('update_session.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'Allow', lat: data.lat, lng: data.lng }),
+                    })
                         })
                         .catch((error) => {
                             console.error(`Error sending location data to \${url}:`, error);

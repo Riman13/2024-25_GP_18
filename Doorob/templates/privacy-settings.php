@@ -13,7 +13,13 @@
 
         <div class="setting-item">
             <label for="locationToggle">Allow Location Access</label>
-            <button id="locationBtn" class="toggle-btn">Turn On</button>
+            <button id="locationBtn" class="toggle-btn">
+        <?php
+        echo (isset($_SESSION['Location_Status']) && $_SESSION['Location_Status'] === 'Allow') 
+            ? 'Location Allowed' 
+            : 'Turn On';
+        ?>
+    </button>
         </div>
 
         <div class="setting-item">
@@ -52,6 +58,8 @@ locationBtn.addEventListener('click', function () {
         locationBtn.disabled = true;
     }
 });
+
+function saveLocationToAPIs(data) {
     const apiUrls = [
         'http://127.0.0.1:5002/api/save_location',
         'http://127.0.0.1:5003/api/save_location'
@@ -76,26 +84,6 @@ locationBtn.addEventListener('click', function () {
                 console.error(`Error sending location data to ${url}:`, error);
             });
     });
-
-function handleGeolocationError(error) {
-    let message = '';
-    switch (error.code) {
-        case error.PERMISSION_DENIED:
-            message = 'Location access denied.';
-            break;
-        case error.POSITION_UNAVAILABLE:
-            message = 'Location unavailable. Please try again later.';
-            break;
-        case error.TIMEOUT:
-            message = 'Request for location timed out. Please try again.';
-            break;
-        default:
-            message = 'An unknown error occurred while retrieving location.';
-            break;
-    }
-    alert(message);
-    locationBtn.innerText = 'Location Disabled';
-    locationBtn.disabled = true;
 }
 
 
