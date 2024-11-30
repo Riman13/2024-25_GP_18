@@ -2,7 +2,7 @@
 
 <?php
 // Replace 'YOUR_GOOGLE_API_KEY' with your actual Google API Key
-$apiKey = 'AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g';
+$apiKey = 'AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs';
 
 // Retrieve the latitude and longitude from the query parameters
 $latitude = isset($_GET['lat']) ? $_GET['lat'] : null;

@@ -4,11 +4,15 @@ import pandas as pd
 from scipy.sparse import coo_matrix, csr_matrix
 from lightfm import LightFM
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from geopy.distance import geodesic
 import logging
+from math import radians, sin, cos, sqrt, atan2
+
 
 # Initialize Flask app
 app = Flask(__name__)
+CORS(app)
 
 # Setup logging for debugging
 logging.basicConfig(level=logging.DEBUG)
@@ -23,6 +27,7 @@ ratings_data = pd.read_csv('modified_ratings.csv')  # Assuming this is your rati
 # Log the place data and model
 logging.debug(f"Loaded place data:\n{place_data.head()}")
 logging.debug(f"Model loaded successfully.")
+print(place_data.columns)
 
 # Place names dictionary
 place_names = dict(zip(place_data['ID'], place_data['Name']))
@@ -50,94 +55,118 @@ interaction_matrix = coo_matrix(
     shape=(len(user_id_map), len(place_id_map))
 )
 
+
 # Dictionary to store user locations
 user_locations = {}
+  # Fetch user location from user_locations dictionary
 
-@app.route('/api/save_location', methods=['POST'])
-def save_user_location():
-    """
-    Save user location in memory.
-    """
-    data = request.get_json()
-    user_id = data.get('user_id')
-    user_lat = data.get('lat')
-    user_lng = data.get('lng')
-    
-    if not user_id or not user_lat or not user_lng:
-        return jsonify({"error": "Invalid data"}), 400
-    
-    user_locations[user_id] = (float(user_lat), float(user_lng))
-    logging.debug(f"Location saved for user ID {user_id}: {user_locations[user_id]}")
-    return jsonify({"message": "Location saved successfully"}), 200
-
-def recommend_for_user(user_id, user_lat=None, user_lng=None, num_recommendations=10):
+def recommend_for_user(user_id, user_locations, num_recommendations=10):
     """
     Recommend places to the user based on their ID and location.
+    If the user has no preferences or interactions, provide fallback recommendations based on highest-rated places.
     """
+    user_location = user_locations.get(user_id)
+    logging.debug(f"User location: {user_location}")
+
     # Map user_id to index
     user_index = user_id_map.get(user_id)
+    
     if user_index is None:
-        return []  # Return empty list if the user ID is not valid
+        # If the user has no previous preferences or interactions, recommend based on the highest-rated places
+        top_places = place_data.sort_values(by='Ratings', ascending=False).head(num_recommendations)
+        recommendations = []
+        for index, row in top_places.iterrows():
+            place_id = row['ID']
+            place_name = place_names.get(place_id, "Unknown Place")
+            category = category_dict.get(place_id, "Unknown Category")
+            rating = row['Ratings']
+            recommendations.append({
+                'place_id': int(place_id),
+                'place_name': place_name,
+                'granular_category': category,
+                'average_rating': rating,
+                'distance_km': None,  # Distance is not relevant when no location is available
+                'source': 'highest_rated'  # Indicating that this is from the highest-rated fallback
+            })
+        return recommendations
 
-    # Ensure the item_features_matrix is loaded or created (using dummy data for now)
-    item_features_matrix = csr_matrix(np.random.rand(len(place_id_map), 7))  # Dummy features, replace with actual
-
-    # Get scores for all items for the given user
+    # If the user has previous preferences, continue with hybrid recommendation logic
+    item_features_matrix = csr_matrix(np.random.rand(len(place_id_map), 7))  # Dummy features
     scores = model.predict(user_index, np.arange(len(place_id_map)), item_features=item_features_matrix)
-
-    # Get top N items based on scores
     top_items = np.argsort(scores)[::-1][:num_recommendations]
 
     recommendations = []
     for item_index in top_items:
-        # Get place_id from place_data using item_index
-        place_id = place_data.iloc[item_index]['ID']  # Assuming 'ID' is the place_id in place_data
+        place_id = place_data.iloc[item_index]['ID']
         place_name = place_names.get(place_id, "Unknown Place")
-        
-        # Use the dictionaries for category and rating
         category = category_dict.get(place_id, "Unknown Category")
-        rating = rating_dict.get(place_id, 0)  # Default to 0 if rating is missing or not found
+        rating = rating_dict.get(place_id, 0)
         
-        # Add latitude and longitude
-        place_lat = place_data.iloc[item_index]['lat']
-        place_lng = place_data.iloc[item_index]['lng']
-        
-        # Calculate distance if user location is provided
-        distance = None
-        if user_lat is not None and user_lng is not None:
-            distance = geodesic((user_lat, user_lng), (place_lat, place_lng)).km
-        
-        recommendation = {
+        place_location = (place_data.iloc[item_index]['lat'], place_data.iloc[item_index]['lng'])
+        distance_km = None
+        if user_location:
+            distance = geodesic(user_location, place_location).kilometers
+            distance_km = round(distance, 2) if distance > 0 else 0.0
+
+        recommendations.append({
             'place_id': int(place_id),
             'place_name': place_name,
             'granular_category': category,
             'average_rating': rating,
-            'distance_km': distance
-        }
-        recommendations.append(recommendation)
+            'distance_km': distance_km,
+            'source': 'hybrid'  # Indicating that this recommendation came from the hybrid approach
+        })
 
     # Sort recommendations by distance if user location is provided
-    if user_lat is not None and user_lng is not None:
+    if user_location:
         recommendations.sort(key=lambda x: x['distance_km'] if x['distance_km'] is not None else float('inf'))
 
-
     return recommendations
-@app.route('/api/recommendations/<int:user_id>', methods=['GET'])
+
+
+
+@app.route('/api/save_location', methods=['POST'])
+def save_location():
+    try:
+        data = request.get_json()
+
+        if 'lat' not in data or 'lng' not in data or 'user_id' not in data:
+            return jsonify({'error': 'Missing latitude, longitude, or user_id'}), 400
+
+        # Save the user location in the dictionary
+        user_id = data['user_id']
+        user_location = (data['lat'], data['lng'])
+        user_locations[user_id] = user_location
+
+        print(f"Received data: {data}")
+        print(f"User location saved: {user_locations}")
+
+        return jsonify({'message': 'Location saved successfully!'}), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': 'Failed to save location'}), 500
+
+@app.route('/api/recommendations_hybrid/<int:user_id>', methods=['GET'])
 def get_recommendations(user_id):
     """
-    Endpoint to get recommendations for a user.
+    Endpoint to get recommendations for a user based on their ID and location.
     """
-    # Get user's location if saved
-    user_location = user_locations.get(user_id)
-    user_lat, user_lng = user_location if user_location else (None, None)
+ 
     
-    # Fetch recommendations from your recommendation function
-    recommendations = recommend_for_user(user_id, user_lat, user_lng)
-    
-    logging.debug(f"Recommendations for user {user_id}: {recommendations}")
-    
+    # Generate recommendations
+    try:
+        recommendations = recommend_for_user(user_id, user_locations)
+        logging.debug(f"user_locations: {user_locations}")
+
+        logging.debug(f"Recommendations for user {user_id}: {recommendations}")
+    except Exception as e:
+        logging.error(f"Error generating recommendations for user {user_id}: {e}")
+        return jsonify({'error': 'Failed to generate recommendations'}), 500
+
+    # Return the recommendations as a JSON response
     return jsonify(recommendations)
 
+
 if __name__ == '__main__':
-    # Run the Flask app with debugging enabled
-    app.run(debug=True)
+    app.run(debug=True, port=5003)
