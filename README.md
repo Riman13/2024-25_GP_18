@@ -14,28 +14,62 @@ It uses a hybrid recommendation system incorporating facial emotion recognition 
 - **GitHub** (Version Control)
 - **Jira** (Agile Project Management Tool)
 - **Anaconda** (Python Distribution and Environment Management)
-  
-## Launch Instructions
 
-Instructions for Setting Up and Running the Doroob System
-1. Install Anaconda
-2. Import a Doroob  Environment
-•	Open Anaconda interface 
-•	Go to Environment section
-•	Click on import
-•	Download doroob_enviroment.yml from github in your desktop
-•	From local drive choose the path of doroob_enviroment.yml 
-•	Give the name as doroob_enviroment 
-•	Then click on import
-3. After successfully importing from home section on Anaconda interface install and lunch the powershell
-4.then run your server mamp or xmamp and To connect to the MySQL server you should modify config.php file based on your server information
-5.import doroob.sql in phpMyAdmin.
-6.After you running the server you can open the doroob system
-7. You need to open three separate PowerShell windows to run the recommendation algorithms. In each window, start by typing:
-•	conda activate doroob_enviroment  
-•	then write cd <path_of_Doroob_system_folder> ex.C:\Users\UserName\OneDrive\سطح المكتب\2024-25_GP_18\Doorob
-•	In the first window, write: python CFRS.py
-•	In the second window, write: python Context-Content.py
-•	In the third window, write: python lightFM.py
-8. then you can see the recommendation in the homepage website and you can see the evaluation in the powershell
+## Setup Instructions
+### Instructions for Setting Up and Running the Doroob System
+
+1. **Install Anaconda**  
+2. **Import the Doroob Environment**  
+   - Open the Anaconda interface.  
+   - Go to the "Environment" section.  
+   - Click on "Import."  
+   - Download `doroob_enviroment.yml` from the GitHub repository to your desktop.  
+   - From the local drive, choose the path of `doroob_enviroment.yml`.  
+   - Give the name as `doroob_enviroment`.  
+   - Click on "Import."  
+
+3. **Install and Launch PowerShell**  
+   - After successfully importing, go to the "Home" section in the Anaconda interface.  
+   - Install and launch PowerShell.  
+
+4. **Run Your Server**  
+   - Use MAMP or XAMPP to start your server.  
+   - Modify the `config.php` file based on your server information to connect to the MySQL server.  
+
+5. **Import the Database**  
+   - Import `doroob.sql` in phpMyAdmin.  
+
+6. **Run the Doroob System**  
+   - After starting the server, you can open the Doroob system.  
+
+7. **Run Recommendation Algorithms**  
+   - Open three separate PowerShell windows and follow these steps in each:  
+     1. Activate the Doroob environment:  
+        ```bash
+        conda activate doroob_enviroment
+        ```  
+     2. Navigate to the Doroob system folder:  
+        ```bash
+        cd <path_of_Doroob_system_folder>
+        # Example:
+        cd C:\Users\UserName\OneDrive\سطح المكتب\2024-25_GP_18\Doorob
+        ```  
+     3. Run the corresponding script in each window:  
+        - **First window**:  
+          ```bash
+          python CFRS.py
+          ```  
+        - **Second window**:  
+          ```bash
+          python Context-Content.py
+          ```  
+        - **Third window**:  
+          ```bash
+          python lightFM.py
+          ```  
+
+8. **View Results**  
+   - You can see recommendations on the homepage of the website.  
+   - Evaluation results will appear in the PowerShell windows.  
+
 
