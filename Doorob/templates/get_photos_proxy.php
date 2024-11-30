@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 header('Content-Type: application/json');
 
 $placeId = $_GET['place_id'];
-$apiKey = 'AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g';
+$apiKey = 'AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs';
 
 // URL to Google Places API
 $url = "https://maps.googleapis.com/maps/api/place/details/json?place_id={$placeId}&fields=photos&key={$apiKey}";
@@ -42,7 +42,7 @@ include 'config.php'; // Include your database connection file
 
 if (isset($_GET['place_id'])) {
     $placeId = $_GET['place_id'];
-    $apiKey = 'AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g'; // Replace with your actual API key
+    $apiKey = 'AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs'; // Replace with your actual API key
     $url = "https://maps.googleapis.com/maps/api/place/details/json?place_id={$placeId}&key={$apiKey}";
 
     $response = file_get_contents($url);
