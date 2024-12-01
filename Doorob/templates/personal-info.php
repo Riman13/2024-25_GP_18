@@ -48,7 +48,7 @@ $user = $result->fetch_assoc();
 
         <div class="info-group">
             <label for="resetPassword">
-                <a href="resetPassword.html" target="_top" class="reset-password-link">
+                <a href="resetPassword.php" target="_top" class="reset-password-link">
                     Reset Password <i class="fas fa-arrow-right"></i>
                 </a>
             </label>

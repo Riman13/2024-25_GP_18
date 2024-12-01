@@ -379,7 +379,7 @@ function fetchPlaceImage(placeId) {
             if (data.photos && data.photos.length > 0) {
                 // Use the first photo in the list
                 const firstPhoto = data.photos[0];
-                const imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${firstPhoto.photo_reference}&key=AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g`;
+                const imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${firstPhoto.photo_reference}&key=AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs`;
                 placeImage.src = imageUrl;
                 // Cache the image URL
                 placeImageCache[placeId] = imageUrl;
@@ -479,7 +479,7 @@ renderPlaces();
                     // Add photos to carousel if available
                     jsonData.photos.forEach(photo => {
                         const img = document.createElement('img');
-                        img.src = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g`;
+                        img.src = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs`;
                         img.alt = 'Place photo';
                         img.classList.add('carousel-item'); // Optional: add CSS class for styling
                         photoCarousel.appendChild(img);
@@ -492,7 +492,7 @@ renderPlaces();
                             if (locationPhotosData.photos && locationPhotosData.photos.length > 0) {
                                 locationPhotosData.photos.forEach(photo => {
                                     const img = document.createElement('img');
-                                    img.src = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g`;
+                                    img.src = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs`;
                                     img.alt = 'Place photo';
                                     img.classList.add('carousel-item');
                                     photoCarousel.appendChild(img);

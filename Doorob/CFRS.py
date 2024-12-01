@@ -1,4 +1,3 @@
-
 import logging
 import sys
 
@@ -22,23 +21,24 @@ CORS(app)  # Enable CORS for all routes
 
 
 # Top K items to recommend
-TOP_K = 10
+TOP_K = 3
 
 TEST_SIZE = 0.2 # 20% for testing, 80% for training
 
 RANDOM_SEED = 42
 
-PLACES_DATA_PATH = 'riyadh_places_8836x9.csv'          
+PLACES_DATA_PATH = 'DATADATA.csv'          
 RATINGS_DATA_PATH = 'modified_ratings.csv' 
+
 # Load your datasets
 ratings_df = pd.read_csv(RATINGS_DATA_PATH)
 places_df = pd.read_csv(PLACES_DATA_PATH)
 
 # PREPROCESSING
 places_df = places_df.rename(columns={'id': 'place_id'})
-essential_place_columns = ['place_id', 'place_name', 'is_restaurant', 'categories', 
-                           'average_rating', 'rate_count', 'granular_category', 
-                           'latitude', 'longitude']
+essential_place_columns = ['place_id', 'place_name', 
+                           'average_rating', 'granular_category', 
+                           'lat', 'lng']
 places_df = places_df.dropna(subset=essential_place_columns)
 
 essential_rating_columns = ['user_id', 'place_id', 'rating']
@@ -49,15 +49,16 @@ places_df['place_id'] = places_df['place_id'].astype(int)
 ratings_df['user_id'] = ratings_df['user_id'].astype(int)
 ratings_df['place_id'] = ratings_df['place_id'].astype(int)
 
+# Replace 'N\\A' and any other non-numeric entries in 'average_rating' with 3, then convert to float
+places_df['average_rating'] = pd.to_numeric(places_df['average_rating'], errors='coerce').fillna(3.0)
+
+
 # Additional type conversions
 places_df['place_name'] = places_df['place_name'].astype(str)
-places_df['is_restaurant'] = places_df['is_restaurant'].astype(bool)
-places_df['categories'] = places_df['categories'].astype(str)
 places_df['average_rating'] = places_df['average_rating'].astype(float)
-places_df['rate_count'] = places_df['rate_count'].astype(int)
 places_df['granular_category'] = places_df['granular_category'].astype(str)
-places_df['latitude'] = places_df['latitude'].astype(float)
-places_df['longitude'] = places_df['longitude'].astype(float)
+places_df['lat'] = places_df['lat'].astype(float)
+places_df['lng'] = places_df['lng'].astype(float)
 
 ratings_df['rating'] = ratings_df['rating'].astype(float)
 ratings_df = ratings_df.drop_duplicates(subset=['user_id', 'place_id'])
@@ -66,7 +67,7 @@ data = ratings_df
 data["rating"] = data["rating"].astype(np.float32)
 
 # Train-test split
-train, test = python_stratified_split(data, ratio=0.75, col_user="user_id", col_item="place_id", seed=42)
+train, test = python_stratified_split(data, ratio=0.80, col_user="user_id", col_item="place_id", seed=42)
 
 # Create the SAR model
 model = SAR(
@@ -143,7 +144,7 @@ def get_recommendations_by_id(user_id):
         recommended_places_details = recommended_places.merge(places_df, on='place_id')
 
         # Prepare the response, excluding the score
-        response = recommended_places_details[['place_id', 'place_name', 'is_restaurant', 'categories', 'average_rating', 'rate_count', 'granular_category', 'latitude', 'longitude']].to_dict(orient='records')
+        response = recommended_places_details[['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng']].to_dict(orient='records')
 
         print("Response:", response)  # Log the response for debugging
         return jsonify(response)
@@ -156,4 +157,4 @@ def get_recommendations_by_id(user_id):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, threaded=True, port=5001)

@@ -36,7 +36,7 @@ $conn->close();
 // Function to fetch photos using the place_id
 function fetchPhotos($placeId) {
     // Here, you'll need to replace 'YOUR_API_KEY' with your actual Google Places API key
-    $apiKey = 'AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g'; 
+    $apiKey = 'AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs'; 
     $url = "https://maps.googleapis.com/maps/api/place/details/json?place_id={$placeId}&fields=photos&key={$apiKey}";
 
     // Fetch the photo data from Google Places API
@@ -53,7 +53,7 @@ function fetchPhotos($placeId) {
 
 // Function to fetch a new place_id based on latitude and longitude
 function fetchNewPlaceIdByLatLng($lat, $lng) {
-    $apiKey = 'AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g';
+    $apiKey = 'AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs';
     $radius = 500; // Adjust as needed
     $url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={$lat},{$lng}&radius={$radius}&key={$apiKey}";
 

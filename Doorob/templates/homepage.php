@@ -241,7 +241,8 @@ if ($hybrid_response && $hybrid_http_status == 200) {
 <div class="intro-content">
 
 <h1>LET'S GO! <br/> THE<span class="highlight"> ADVENTURE</span> IS WAITING FOR You</h1>
-<p>Embark on your journey with Doroob from the heart of Riyadh, where hidden gems and fascinating experiences await. Explore cultural landmarks and modern wonders, creating unforgettable memories as you discover Saudi Arabia's capital's rich heritage and dynamic attractions.</p>        <button class="cta-btn" onclick="scrollToDestinations()">Explore Destinations</button>    
+<p>Embark on your journey with Doroob from the heart of Riyadh, where hidden gems and fascinating experiences await. Explore cultural landmarks and modern wonders, creating unforgettable memories as you discover Saudi Arabia's capital's rich heritage and dynamic attractions.</p>       <button class="cta-btn" onclick="window.location.href='places.php';">Explore Destinations</button>
+   
 </div>
 </div>
 
@@ -294,15 +295,8 @@ if ($hybrid_response && $hybrid_http_status == 200) {
 <!--============ Gallrey End Here =============-->
 
 <!-- Recommendation -->
-<!-- Discover our destenation -->
-<section class="product"> 
-        <h2 class="product-category">Discover our destenation</h2>
-        <button class="pre-btn"><img src="imgs/arrow.png" alt=""></button>
-        <button class="nxt-btn"><img src="imgs/arrow.png" alt=""></button>
-        <div class="product-container" id="product-container">
 
-        </div>
-</section>
+
 <!-- CF -->
 <section class="product" id="cf-section"> 
     <h2 class="product-category">Recommended Destinations Based on What Others Like</h2>
@@ -312,14 +306,6 @@ if ($hybrid_response && $hybrid_http_status == 200) {
     </div>
 </section>
 
-<!-- Content -->
-<section class="product" id="content-section"> 
-    <h2 class="product-category">Discover Destinations Tailored to Your Interests</h2>
-    <button class="pre-btn"><img src="imgs/arrow.png" alt=""></button>
-    <button class="nxt-btn"><img src="imgs/arrow.png" alt=""></button>
-    <div class="product-container" id="CNproduct-container">
-    </div>
-</section>
 
 <!-- Context -->
 <section class="product" id="context-section"> 
@@ -492,99 +478,6 @@ function toggleRating() {
 //Discover Destenation Section Start Here
 
 
-const places = <?php echo json_encode($places); ?>; // Convert PHP array to JavaScript array
-
-// Cache to store fetched place images
-const placeImageCache = {};
-let currentIndex = 0;
-
-// Function to render places based on the current index
-function renderPlaces() {
-    const placesContainer = document.getElementById('product-container');
-    placesContainer.innerHTML = ''; // Clear current places
-
-
-    // Display the next set of places (3 at a time)
-    for (let i = currentIndex; i < places.length; i++) {
-        const place = places[i];
-        const placeDiv = document.createElement('div');
-        placeDiv.className = 'product-card'; // Apply uniform style
-
-        placeDiv.innerHTML = `<div class="product-image">
-            <img id="place-img-${place.id}" src="imgs/logo.png" alt="${place.place_name} class="product-thumb" ">
-            <button class="card-btn">Bookmark This Place</button>
-            </div>
-            <div class="product-info">
-            <h2 class="product-brand">${place.place_name}</h2>
-            <p class="product-short-description">Category: ${place.granular_category}</p>
-
-<p class="price">
-  Rating: ${
-    place.average_rating === 'Not rated'
-      ? '☆☆☆☆☆'
-      : '★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))
-  }
-</p>
-          <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}">More Details</button></div>
-        `;
-        
-        placesContainer.appendChild(placeDiv);
-
-        // Attach click event to "More Details" button
-        placeDiv.querySelector('.details-btn').addEventListener('click', function() {
-            showDetails(place.id);
-        });
-
-        // Load the image for this place (check cache first)
-        if (placeImageCache[place.id]) {
-            // Use cached image
-            document.getElementById(`place-img-${place.id}`).src = placeImageCache[place.id];
-        } else {
-            // Fetch image details and cache it
-            fetchPlaceImage(place.id);
-        }
-    }
-
-}
-
-// Function to fetch place image and cache it
-function fetchPlaceImage(placeId) {
-    fetch(`get_place_details.php?id=${placeId}`)
-        .then(response => response.text())  // Get raw text
-        .then(data => {
-            try {
-                const jsonData = JSON.parse(data);  // Parse JSON
-                const placeImage = document.getElementById(`place-img-${placeId}`);
-                
-                if (jsonData.photos && jsonData.photos.length > 0) {
-                    // Use the first photo in the list
-                    const firstPhoto = jsonData.photos[0];
-                    const imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${firstPhoto.photo_reference}&key=AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g`;
-                    placeImage.src = imageUrl;
-                    // Cache the image URL
-                    placeImageCache[placeId] = imageUrl;
-                } else {
-                    // No photos available, use default image
-                    const defaultImage = 'imgs/logo.png';
-                    placeImage.src = defaultImage;
-                    placeImageCache[placeId] = defaultImage;
-                }
-            } catch (error) {
-                console.error('Error parsing JSON:', error);
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching place details:', error);
-        });
-}
-
-// Initial rendering of places
-renderPlaces();
-
-//Discover Destenation Section END Here
-
-//CF Section Start Here
-
 
 // Initialize variables
 let currentIndexCFRS = 0; // Initialize current index for CFRS
@@ -598,12 +491,12 @@ if (recommendations && recommendations.length > 0) {
         cfSection.style.display = 'block'; // Make the CF section visible
     }
 }
+// Cache to store fetched place images
+const cfrsPlaceImageCache = {};
 
 
 
         
-
-// Function to render CFRS recommendations based on the current index
 function renderCFRSPlaces() {
     const cfrsPlacesContainer = document.getElementById('CFproduct-container');
     cfrsPlacesContainer.innerHTML = ''; // Clear current recommendations
@@ -614,42 +507,90 @@ function renderCFRSPlaces() {
         const placeDiv = document.createElement('div');
         placeDiv.className = 'product-card'; // Apply uniform style
 
-        placeDiv.innerHTML = `<div class="product-image">
-            <img id="place-img-${place.id}" src="imgs/logo.png" alt="${place.place_name} class="product-thumb" ">
-            <button class="card-btn">Bookmark This Place</button>
+        placeDiv.innerHTML = `
+            <div class="product-image">
+                <img id="cfrs-place-img-${place.place_id}" src="imgs/logo.png" alt="${place.place_name}" class="product-thumb">
+                <button class="card-btn">Bookmark This Place</button>
             </div>
             <div class="product-info">
-            <h2 class="product-brand">${place.place_name}</h2>
-            <p class="product-short-description">Category: ${place.granular_category}</p>
-
-<p class="price">
-  Rating: ${
-    place.average_rating === 'N\\A'
-      ? '★★★☆☆'
-      : '★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))
-  }
-</p>
-          <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}">More Details</button></div>
+                <h2 class="product-brand">${place.place_name}</h2>
+                <p class="product-short-description">Category: ${place.granular_category}</p>
+                <p class="price">
+                  Rating: ${
+                    place.average_rating === 'N\\A'
+                      ? '★★★☆☆'
+                      : '★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))
+                  }
+                </p>
+                <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}">More Details</button>
+            </div>
         `;
-        
-        cfrsPlacesContainer.appendChild(placeDiv);
+
+        cfrsPlacesContainer.appendChild(placeDiv); // Corrected this line
 
         // Attach click event to "More Details" button
-        placeDiv.querySelector('.details-btn').addEventListener('click', function() {
-            showDetails(place.id);
+        placeDiv.querySelector('.details-btn').addEventListener('click', function () {
+            showDetails(place.place_id);
         });
 
         // Load the image for this place (check cache first)
-        if (placeImageCache[place.id]) {
+        if (cfrsPlaceImageCache[place.place_id]) {
             // Use cached image
-            document.getElementById(`place-img-${place.id}`).src = placeImageCache[place.id];
+            document.getElementById(`cfrs-place-img-${place.place_id}`).src = cfrsPlaceImageCache[place.place_id];
         } else {
             // Fetch image details and cache it
-            fetchPlaceImage(place.id);
+            fetchCFRSPlaceImage(place.place_id);
         }
     }
-
 }
+
+
+// Function to fetch place image and cache it
+function fetchCFRSPlaceImage(placeId) {
+    fetch(`get_place_details.php?id=${placeId}`)
+        .then(response => response.text())  // Get raw text
+        .then(data => {
+            try {
+                const jsonData = JSON.parse(data);  // Parse JSON
+                const placeImage = document.getElementById(`cfrs-place-img-${placeId}`);
+                
+                if (jsonData.photos && jsonData.photos.length > 0) {
+                    // Use the first photo in the list
+                    const firstPhoto = jsonData.photos[0];
+                    const imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${firstPhoto.photo_reference}&key=AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs`;
+                    placeImage.src = imageUrl;
+                    // Cache the image URL
+                    cfrsPlaceImageCache[placeId] = imageUrl;
+                } else {
+                    // No photos available, use default image
+                    const defaultImage = 'imgs/logo.png';
+                    placeImage.src = defaultImage;
+                    cfrsPlaceImageCache[placeId] = defaultImage;
+                }
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching place details:', error);
+        });
+}
+
+
+
+
+renderCFRSPlaces();
+
+
+
+//Discover Destenation Section END Here
+
+//CF Section Start Here
+
+
+
+
+//cxb 
 
 let currentIndexCx= 0; // Initialize current index for CFRS
 const context_recommendations = <?php echo json_encode($context_recommendations); ?> ;// Convert PHP array to JavaScript array
@@ -662,6 +603,7 @@ if (context_recommendations && context_recommendations.length > 0) {
         cxSection.style.display = 'block'; // Make the CF section visible
     }
 }
+const cxPlaceImageCache = {};
 function renderCXPlaces() {
     const cxPlacesContainer = document.getElementById('CXproduct-container');
     cxPlacesContainer.innerHTML = ''; // Clear current recommendations
@@ -673,7 +615,7 @@ function renderCXPlaces() {
         placeDiv.className = 'product-card'; // Apply uniform style
 
         placeDiv.innerHTML = `<div class="product-image">
-            <img id="place-img-${place.id}" src="imgs/logo.png" alt="${place.place_name} class="product-thumb" ">
+            <img id="cx-place-img-${place.place_id}" src="imgs/logo.png" alt="${place.place_name}" class="product-thumb" >
             <button class="card-btn">Bookmark This Place</button>
             </div>
             <div class="product-info">
@@ -694,24 +636,51 @@ function renderCXPlaces() {
 
         // Attach click event to "More Details" button
         placeDiv.querySelector('.details-btn').addEventListener('click', function() {
-            showDetails(place.id);
+            showDetails(place.place_id);
         });
 
-        // Load the image for this place (check cache first)
-        if (placeImageCache[place.id]) {
-            // Use cached image
-            document.getElementById(`place-img-${place.id}`).src = placeImageCache[place.id];
-        } else {
-            // Fetch image details and cache it
-            fetchPlaceImage(place.id);
-        }
+        if (cxPlaceImageCache[place.place_id]) {
+    document.getElementById(`cx-place-img-${place.place_id}`).src = cxPlaceImageCache[place.place_id];
+} else {
+    fetchCXPlaceImage(place.place_id);
+}
+
     }
 
 }
+
+// Fetch place image for CX
+function fetchCXPlaceImage(placeId) {
+    fetch(`get_place_details.php?id=${placeId}`)
+        .then(response => response.text())
+        .then(data => {
+            try {
+                const jsonData = JSON.parse(data);
+                const placeImage = document.getElementById(`cx-place-img-${placeId}`);
+                if (jsonData.photos && jsonData.photos.length > 0) {
+                    const firstPhoto = jsonData.photos[0];
+                    const imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${firstPhoto.photo_reference}&key=AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs`;
+                    placeImage.src = imageUrl;
+                    cxPlaceImageCache[placeId] = imageUrl;
+                } else {
+                    placeImage.src = 'imgs/logo.png';
+                    cxPlaceImageCache[placeId] = 'imgs/logo.png';
+                }
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching place details:', error);
+        });
+}
+
+renderCXPlaces();
 // Initialize current index for iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
 
 let currentIndexHYBRID= 0; // Initialize current index for CFRS
 const hybrid_recommendations = <?php echo json_encode($hybrid_recommendations); ?> ;// Convert PHP array to JavaScript array
+const hybridPlaceImageCache = {};
 
 // Check if recommendations have data
 if (hybrid_recommendations && hybrid_recommendations.length > 0) {
@@ -723,6 +692,7 @@ if (hybrid_recommendations && hybrid_recommendations.length > 0) {
 }
 function renderHybridPlaces() {
     const HYPlacesContainer = document.getElementById('HYproduct-container');
+    
     HYPlacesContainer.innerHTML = ''; // Clear current recommendations
 
     // Display the next set of recommendations (3 at a time)
@@ -732,7 +702,7 @@ function renderHybridPlaces() {
         placeDiv.className = 'product-card'; // Apply uniform style
 
         placeDiv.innerHTML = `<div class="product-image">
-            <img id="place-img-${place.id}" src="imgs/logo.png" alt="${place.place_name} class="product-thumb" ">
+            <img id="hybrid-place-img-${place.place_id}" src="imgs/logo.png" alt="${place.place_name}" class="product-thumb" >
             <button class="card-btn">Bookmark This Place</button>
             </div>
             <div class="product-info">
@@ -757,38 +727,32 @@ function renderHybridPlaces() {
         });
 
         // Load the image for this place (check cache first)
-        if (placeImageCache[place.id]) {
-            // Use cached image
-            document.getElementById(`place-img-${place.id}`).src = placeImageCache[place.id];
-        } else {
-            // Fetch image details and cache it
-            fetchPlaceImage(place.id);
-        }
+        if (hybridPlaceImageCache[place.place_id]) {
+    document.getElementById(`hybrid-place-img-${place.place_id}`).src = hybridPlaceImageCache[place.place_id];
+} else {
+    fetchHybridPlaceImage(place.place_id);
+  
+}
+
     }
 
 }
-
-// Function to fetch place image and cache it
-function fetchPlaceImage(placeId) {
+// Fetch place image for hybird
+function fetchHybridPlaceImage(placeId) {
     fetch(`get_place_details.php?id=${placeId}`)
-        .then(response => response.text())  // Get raw text
+        .then(response => response.text())
         .then(data => {
             try {
-                const jsonData = JSON.parse(data);  // Parse JSON
-                const placeImage = document.getElementById(`place-img-${placeId}`);
-                
+                const jsonData = JSON.parse(data);
+                const placeImage = document.getElementById(`hybrid-place-img-${placeId}`);
                 if (jsonData.photos && jsonData.photos.length > 0) {
-                    // Use the first photo in the list
                     const firstPhoto = jsonData.photos[0];
-                    const imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${firstPhoto.photo_reference}&key=AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g`;
+                    const imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${firstPhoto.photo_reference}&key=AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs`;
                     placeImage.src = imageUrl;
-                    // Cache the image URL
-                    placeImageCache[placeId] = imageUrl;
+                    cxPlaceImageCache[placeId] = imageUrl;
                 } else {
-                    // No photos available, use default image
-                    const defaultImage = 'imgs/logo.png';
-                    placeImage.src = defaultImage;
-                    placeImageCache[placeId] = defaultImage;
+                    placeImage.src = 'imgs/logo.png';
+                    cxPlaceImageCache[placeId] = 'imgs/logo.png';
                 }
             } catch (error) {
                 console.error('Error parsing JSON:', error);
@@ -799,10 +763,11 @@ function fetchPlaceImage(placeId) {
         });
 }
 
-// Initial rendering of CFRS places
-renderCFRSPlaces();
-renderCXPlaces();
+
 renderHybridPlaces();
+
+
+
 
     document.querySelectorAll('.details-btn').forEach(button => {
     button.addEventListener('click', function () {
@@ -878,7 +843,7 @@ renderHybridPlaces();
                     // Add photos to carousel if available
                     jsonData.photos.forEach(photo => {
                         const img = document.createElement('img');
-                        img.src = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g`;
+                        img.src = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs`;
                         img.alt = 'Place photo';
                         img.classList.add('carousel-item'); // Optional: add CSS class for styling
                         photoCarousel.appendChild(img);
@@ -891,7 +856,7 @@ renderHybridPlaces();
                             if (locationPhotosData.photos && locationPhotosData.photos.length > 0) {
                                 locationPhotosData.photos.forEach(photo => {
                                     const img = document.createElement('img');
-                                    img.src = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=AIzaSyAXILlpWx0kAcGYMB6VeRbDSzyRw2Xsg9g`;
+                                    img.src = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs`;
                                     img.alt = 'Place photo';
                                     img.classList.add('carousel-item');
                                     photoCarousel.appendChild(img);

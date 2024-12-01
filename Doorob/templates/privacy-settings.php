@@ -13,7 +13,13 @@
 
         <div class="setting-item">
             <label for="locationToggle">Allow Location Access</label>
-            <button id="locationBtn" class="toggle-btn">Turn On</button>
+            <button id="locationBtn" class="toggle-btn">
+        <?php
+        echo (isset($_SESSION['Location_Status']) && $_SESSION['Location_Status'] === 'Allow') 
+            ? 'Location Allowed' 
+            : 'Turn On';
+        ?>
+    </button>
         </div>
 
         <div class="setting-item">
@@ -79,6 +85,8 @@ function saveLocationToAPIs(data) {
             });
     });
 }
+
+
 
 function handleGeolocationError(error) {
     let message = '';
