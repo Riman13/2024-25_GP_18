@@ -1,3 +1,23 @@
+<?php include 'session.php';
+include 'config.php';
+
+// Retrieve the user_id from the session
+$user_id = $_SESSION['userID'];
+
+
+// Query to get the user's name directly
+$query = "SELECT Name FROM users WHERE UserID = $user_id";
+$result = mysqli_query($conn, $query);
+
+if ($result && mysqli_num_rows($result) > 0) {
+    $user = mysqli_fetch_assoc($result);
+    $username = $user['Name'];
+} else {
+    $username = "Guest";
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +28,8 @@
     <link rel="stylesheet" href="styles/footer-header-styles.css">
     <!--======== ICONS ========-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
      <!--======== WEBSITEICON ========-->
      <link rel="shortcut icon" href="imgs/logo.png" type="image/x-icon">
 </head>
@@ -27,7 +49,7 @@
             <a href="homepage.php" class="nav__link">Home</a>
           </li>
           <li class="nav__item">
-            <a href="personal-info.php" class="nav__link">Profile</a>
+            <a href="profile.php" class="nav__link">Profile</a>
           </li>
           <li class="nav__item">
             <a href="places.php" class="nav__link">Places</a>
@@ -43,13 +65,22 @@
      
       <!-- <i class='bx bx-moon change-theme' id="theme-button"></i>-->
         <i class='bx bxs-bell nav__notification' id="notification-button"></i>
-        <i class='bx bx bx-log-out nav__sign-out' id="signout-button"></i>
+        <a href="logout.php">
+    <i class='bx bx-log-out nav__sign-out' id="signout-button"></i>
+</a>
   
         
         <div class="nav__toggle" id="nav-toggle">
           <i class='bx bx-grid-alt' ></i>
       </div>
       </div>
+
+      <div class="UserName"> 
+    <div class="user-profile">
+        <span><i class="ri-user-3-fill"></i></span>
+        <?php echo htmlspecialchars($username); ?>
+    </div>
+</div>
     </nav>
   </header>
 

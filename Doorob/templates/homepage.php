@@ -241,7 +241,8 @@ if ($hybrid_response && $hybrid_http_status == 200) {
 <div class="intro-content">
 
 <h1>LET'S GO! <br/> THE<span class="highlight"> ADVENTURE</span> IS WAITING FOR You</h1>
-<p>Embark on your journey with Doroob from the heart of Riyadh, where hidden gems and fascinating experiences await. Explore cultural landmarks and modern wonders, creating unforgettable memories as you discover Saudi Arabia's capital's rich heritage and dynamic attractions.</p>        <button class="cta-btn" onclick="scrollToDestinations()">Explore Destinations</button>    
+<p>Embark on your journey with Doroob from the heart of Riyadh, where hidden gems and fascinating experiences await. Explore cultural landmarks and modern wonders, creating unforgettable memories as you discover Saudi Arabia's capital's rich heritage and dynamic attractions.</p>       <button class="cta-btn" onclick="window.location.href='places.php';">Explore Destinations</button>
+   
 </div>
 </div>
 
