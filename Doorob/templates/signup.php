@@ -9,6 +9,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $password = $_POST['pass'];
+    
+        // Regular Expression for Validation
+        $passwordRegex = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/';
+    
+        if (!preg_match($passwordRegex, $password)) {
+            header('Location: registration.php?error=Password does not meet the criteria');
+            exit();
+        } else {
+            // Save the password securely (use hashing)
+            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            // Save $hashedPassword to the database
+        }
+    }
 
     $checkEmailQuery = "SELECT * FROM users WHERE email = ?";
     $stmt = $conn->prepare($checkEmailQuery);
