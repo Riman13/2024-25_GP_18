@@ -70,6 +70,9 @@ if(isset($_GET['error'])){
                 <input type="text" placeholder="Name" id="name" name="name" required />
                 <input type="email" placeholder="Email" id="eml" name="eml" required />
                 <input type="password" placeholder="Password" id="pass" name="pass" required />
+                <p id="passwordError" style="color: red; display: none;">Password must be 8 characters long, 
+    include at least one uppercase letter, one lowercase letter, one number, and one special character.</p>
+
                 <button id="signUp1">Sign Up</button>
             </form>
         </div>
@@ -165,6 +168,23 @@ if(isset($_GET['error'])){
       
        <!--========== JS ==========-->
        <script src="scripts/scripts-fh.js"></script>
+
+       <script> document.getElementById('signUp1').addEventListener('click', (event) => {
+    const password = document.getElementById('pass').value;
+    const errorMessage = document.getElementById('passwordError');
+    
+    // Regular Expression for Password Validation
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+        event.preventDefault(); // Prevent form submission
+        errorMessage.style.display = 'block'; // Show error message
+    } else {
+        errorMessage.style.display = 'none'; // Hide error message
+    }
+});
+</script>
+
 </body>
 </html>
 
