@@ -102,7 +102,7 @@ if ($stmt_check->num_rows > 0) {
                 <div class="email-content">
                     <p>Hi there,</p>
                     <p>We received a request to reset your password for your Doroob account. If you didn't make this request, please ignore this email. If you did, you can reset your password by clicking the link below:</p>
-                    <p><a href="http://localhost:3000/Doorob/templates/reset-password.php?token=$token" class="reset-link">Reset Your Password</a></p>
+                    <p><a href="http://localhost:3000/templates/reset-password.php?token=$token" class="reset-link">Reset Your Password</a></p>
                     <p>This link will expire in 10 minutes for security purposes. If you don't reset your password in time, you'll need to request a new link.</p>
                 </div>
                 <div class="email-footer">

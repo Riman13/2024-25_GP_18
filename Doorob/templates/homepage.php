@@ -132,6 +132,10 @@ if ($hybrid_response && $hybrid_http_status == 200) {
     }
 }
 
+
+// rate 
+
+
 ?>
 
 
@@ -213,7 +217,6 @@ if ($hybrid_response && $hybrid_http_status == 200) {
       </nav>
 </header>
 
-
 <div class="intro-container">
 <div class="intro-image">
 <div class="intro-image-card intro-image-card1">
@@ -248,7 +251,7 @@ if ($hybrid_response && $hybrid_http_status == 200) {
 
 
 
-<!--============ Mission & Values Section =============-->
+<!--============ Mission & Values Section =============--><!--
 <div class="mission-values">
     <h1>MISSION & VALUES</h1>
     <div class="key-pillars">
@@ -259,13 +262,13 @@ if ($hybrid_response && $hybrid_http_status == 200) {
         <div><i class="fas fa-compass"></i><br>Adventure Awaits</div>
     </div>
 </div>
-<!--============ Mission & Values Section End Here =============-->
-
-
- <!--============ Gallrey =============-->
+-->
+<!--============ Mission & Values Section End Here =============--><!--
+<BR><BR><BR>-->
+ <!--============ Gallrey =============--><!--
 <section>
     <div class="gallrey">
-        <h3>Explore & Discover Our Destinations</h>
+        <h3>Explore & Discover New Destinations</h>
         <p>Enjoy breathtaking views and unique experiences with your family</p>
     </div>
     <div class="gallrey-container">
@@ -291,15 +294,27 @@ if ($hybrid_response && $hybrid_http_status == 200) {
         </div>
 
     </div>
-</section>
+</section>-->
 <!--============ Gallrey End Here =============-->
 
 <!-- Recommendation -->
 
+<!--top rated places -->
+<section class="product" id="rt-section"> 
+    <!--Recommended Destinations Based on What Others Like--> 
+    <h2 class="product-category">Best Rated Destinations</h2>
+    <button class="pre-btn"><img src="imgs/arrow.png" alt=""></button>
+    <button class="nxt-btn"><img src="imgs/arrow.png" alt=""></button>
+    <div class="product-container" id="RTproduct-container">
+    </div>
+</section>
 
 <!-- CF -->
 <section class="product" id="cf-section"> 
-    <h2 class="product-category">Recommended Destinations Based on What Others Like</h2>
+    <!--Recommended Destinations Based on What Others Like--> 
+    <h2 class="product-category">Favorites Destinations Inspired by Similar Users <a href="all_places_CFRS.html" class="view-all-link">
+        <img src="imgs/arrow.png" alt="View All" class="view-all-arrow">
+    </a> </h2>
     <button class="pre-btn"><img src="imgs/arrow.png" alt=""></button>
     <button class="nxt-btn"><img src="imgs/arrow.png" alt=""></button>
     <div class="product-container" id="CFproduct-container">
@@ -309,7 +324,10 @@ if ($hybrid_response && $hybrid_http_status == 200) {
 
 <!-- Context -->
 <section class="product" id="context-section"> 
-    <h2 class="product-category">Best Places for You Based on Your Location</h2>
+    <!--Best Places for You Based on Your Location --> 
+    <h2 class="product-category">Best Nearby Destinations <a href="all_places_Context.php" class="view-all-link">
+        <img src="imgs/arrow.png" alt="View All" class="view-all-arrow">
+    </a> </h2>
     <button class="pre-btn"><img src="imgs/arrow.png" alt=""></button>
     <button class="nxt-btn"><img src="imgs/arrow.png" alt=""></button>
     <div class="product-container" id="CXproduct-container">
@@ -318,7 +336,10 @@ if ($hybrid_response && $hybrid_http_status == 200) {
 
 <!-- Hybrid -->
 <section class="product" id="hybrid-section"> 
-    <h2 class="product-category">Personalized Destinations Just for You</h2>
+    <!--Personalized Destinations Just for You-->
+    <h2 class="product-category">Top Recommended Destinations for You <a href="all_places_hybird.php" class="view-all-link">
+        <img src="imgs/arrow.png" alt="View All" class="view-all-arrow">
+    </a></h2>
     <button class="pre-btn"><img src="imgs/arrow.png" alt=""></button>
     <button class="nxt-btn"><img src="imgs/arrow.png" alt=""></button>
     <div class="product-container" id="HYproduct-container">
@@ -607,7 +628,7 @@ const cxPlaceImageCache = {};
 function renderCXPlaces() {
     const cxPlacesContainer = document.getElementById('CXproduct-container');
     cxPlacesContainer.innerHTML = ''; // Clear current recommendations
-
+    // <p class="product-short-description">Category: ${place.granular_category}</p>
     // Display the next set of recommendations (3 at a time)
     for (let i = currentIndexCx; i < context_recommendations.length; i++) {
         const place = context_recommendations[i];
@@ -620,7 +641,7 @@ function renderCXPlaces() {
             </div>
             <div class="product-info">
             <h2 class="product-brand">${place.place_name}</h2>
-            <p class="product-short-description">Category: ${place.granular_category}</p>
+        
 
 <p class="price">
   Rating: ${
@@ -707,7 +728,7 @@ function renderHybridPlaces() {
             </div>
             <div class="product-info">
             <h2 class="product-brand">${place.place_name}</h2>
-            <p class="product-short-description">Category: ${place.granular_category}</p>
+          
 
 <p class="price">
   Rating: ${
@@ -765,6 +786,8 @@ function fetchHybridPlaceImage(placeId) {
 
 
 renderHybridPlaces();
+
+
 
 
 
