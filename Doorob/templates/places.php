@@ -1,7 +1,7 @@
 <?php
 include 'config.php'; 
 include 'session.php';
-$sql = "SELECT id, place_name, granular_category, average_rating , place_id FROM  riyadhplaces_doroob";
+$sql = "SELECT id, place_name, granular_category, average_rating , place_id ,lng ,lat FROM  riyadhplaces_doroob";
 $result = $conn->query($sql);
 // Store places in an array
 $places = [];
@@ -52,7 +52,7 @@ if ($result && mysqli_num_rows($result) > 0) {
 <link rel="shortcut icon" href="imgs/logo.png" type="image/x-icon">
        
 </head>
-<body>
+<div>
 
 <!--============ Header =============-->
 <header class="header" id="header">
@@ -112,7 +112,7 @@ if ($result && mysqli_num_rows($result) > 0) {
     </div>
 </div>-->
  <!--============ Filter =============-->
- <div class="filter-container">
+ <div class="filter-container" id="filt">
     <h2>What are you looking for?</h2>
     <div class="filter-boxes">
     <div class="filter-box" data-category="all" onclick="filterPlaces('all')">
@@ -168,7 +168,7 @@ if ($result && mysqli_num_rows($result) > 0) {
 </div>
 
 <!-- Pagination Controls -->
-<div class="pagination">
+<div class="pagination" id="paginationss">
     <button onclick="navigate(-1)">&#8249;</button> <!-- Previous button -->
     <span id="currentPage">1</span> <!-- Current page indicator -->
     <button onclick="navigate(1)">&#8250;</button> <!-- Next button -->
@@ -181,18 +181,26 @@ if ($result && mysqli_num_rows($result) > 0) {
     <span class="close" onclick="closeModal()">&times;</span>
     <i class="fas fa-map-marker-alt name-icon"></i>
     <h2 id="placeName"></h2>
+    <hr>
+
+<!-- Photo Carousel Section -->
+<div id="photoCarousel" class="carousel">
+  <!-- Photos will be inserted here by JavaScript -->
+</div>
+<!-- Dots for navigation -->
+<div id="carouselDots" class="carousel-dots"></div>
     <hr> <!-- Line under the name -->
     <div class="info-row">
       <div class="left-section">
       <!--  <p><strong>Category:</strong> <span id="placeCategory"></span></p>-->
         <p><strong>Granular Category:</strong> <span id="placeGranularCategory"></span></p><br>
         <button class="favorite-btn"><i class="fas fa-bookmark"></i> Save This Place</button>
+        
       </div>
       <div class="divider"></div>
       <div class="right-section">
     <p><strong>Rating:</strong> <span id="placeRating"></span></p><br>
     <div class="right-section">
-   
     <button id="rateThisPlaceBtn" class="rate-btn" onclick="toggleRating()"> <p><i class="fas fa-star"></i><strong>Rate This Place:</strong></p></button>
 
 <div id="rate-btn" class="rt" display: none;>
@@ -249,21 +257,67 @@ function toggleRating() {
 </script>
     </div>
     <hr>
-
-    <!-- Photo Carousel Section -->
-    <div id="photoCarousel" class="carousel">
-      <!-- Photos will be inserted here by JavaScript -->
-    </div>
-    <!-- Dots for navigation -->
     <div id="carouselDots" class="carousel-dots"></div>
+    <div id="mapContainer" style="width: 100%; height: 400px;">
   </div>
 </div>
+ <!--============ FOOTER =============-->
+ <footer class="footer section">
+        <div class="footer__container container grid">
+            <div class="footer__content">
+                <h3 class="footer__title section__title">Our information</h3>
+      
+                <ul class="footer__list">
+                    <li>1234 -  Saudi Arabia</li>
+                    <li>Riyadh Region</li>
+                    <li>123-456-789</li>
+                </ul>
+            </div>
+            <div class="footer__content">
+                <h3 class="footer__title section__title">About Us</h3>
+      
+                <ul class="footer__links">
+                    <li>
+                    <a href="profile.php?iframe=iframe5" class="footer__link">Contact Us</a>
+                    </li>
+                 
+                    <li>
+                    <a href="Index.php" class="footer__link">About Us</a>
+                    </li>
+                    
+                </ul>
+            </div>
+      
+            <div class="footer__content">
+            <h3 class="footer__title section__title">Doroob</h3>
+  
+            <ul class="footer__links">
+                <li>
+                    <a href="homepage.php" class="footer__link">Home</a>
+                </li>
+                <li>
+                    <a href="profile.php" class="footer__link">Profile page</a>
+                </li>
+                <li>
+                <a href="profile.php?iframe=iframe3" class="footer__link">History Ratings</a>
 
+                </li>
+                
+            </ul>
+        </div>
+      
+    
+        </div>
+      
+        <span class="footer__copy">Doorob &#169;All rigths reserved</span>
+      </footer>
+</div>
 
+</div>
    
 
  <!--============ FOOTER =============-->
- <footer class="footer section">
+ <footer class="footer section" id="foort">
         <div class="footer__container container grid">
             <div class="footer__content">
                 <h3 class="footer__title section__title">Our information</h3>
@@ -316,6 +370,7 @@ function toggleRating() {
 <!--========== JS ==========-->
 <script src="scripts/scripts-fh.js"></script>
 <script src="https://unpkg.com/scrollreveal"></script>
+
 <script>
 // Initialize variables
 let places = <?php echo json_encode($places); ?>;
@@ -353,7 +408,9 @@ function renderPlaces() {
 
         // Attach click event to "More Details" button
         placeDiv.querySelector('.details-btn').addEventListener('click', function() {
-            showDetails(place.id);
+            const lat = parseFloat(this.getAttribute('data-lat'));
+    const lng = parseFloat(this.getAttribute('data-lng'));
+    showDetails(place.id, lat, lng);
         });
 
         // Load the image for this place (check cache first)
@@ -438,15 +495,42 @@ renderPlaces();
     .then(data => {
         if (data.success) {
             alert("Rating saved successfully!");
-            closeModal();
+
         } else {
             alert("Error saving rating: " + data.error);
         }
     })
     .catch(error => console.error("Error submitting rating:", error));
 }
-    function showDetails(placeId) {
+let map;
+
+function initMap() {
+    // Set initial position for the map
+    const initialPosition = { lat: 24.7136, lng: 46.6753 }; // Riyadh center
+
+    map = new google.maps.Map(document.getElementById('mapContainer'), {
+        center: initialPosition,
+        zoom: 12,
+    });
+}
+    function showDetails(placeId, lat, lng) {
+
+        document.getElementById('placesContainer').style.display = 'none';
+        document.getElementById('paginationss').style.visibility = 'hidden';
+        document.getElementById('foort').style.visibility = 'hidden';
+        document.getElementById('filt').style.visibility = 'hidden';
         
+        // Recenter map to the selected place and zoom in
+        const placeLocation = { lat: lat, lng: lng };
+        map.setCenter(placeLocation);
+        map.setZoom(14);
+
+        // Add marker at the selected place
+        new google.maps.Marker({
+            position: placeLocation,
+            map: map,
+            title: "Selected Place"
+        });
     // Fetch details from the server
     fetch(`get_place_details.php?id=${placeId}`)
         .then(response => response.text())  // Get raw text
@@ -459,6 +543,8 @@ renderPlaces();
                 //document.getElementById('placeCategory').innerText = jsonData.categories;
                 document.getElementById('placeGranularCategory').innerText = jsonData.granular_category;
                 document.getElementById('placeRating').innerText = jsonData.average_rating;
+                       // Display place description (assuming it's in the JSON data)
+                
                 // Fetch and display previous rating if available
               // Fetch and display previous rating if available
               fetch('get_user_rating.php?userId=<?php echo $user_id; ?>&placeId=' + placeId)
@@ -514,11 +600,20 @@ renderPlaces();
 
 function closeModal() {
     document.getElementById('detailsModal').style.display = "none";
+    document.getElementById('placesContainer').style.display = 'grid';
+    document.getElementById('paginationss').style.visibility = 'visible';
+    document.getElementById('foort').style.visibility = 'visible';
+    document.getElementById('filt').style.visibility = 'visible';
+    
 }
 
 
 </script>
-
+<script 
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs&callback=initMap&libraries=marker"
+    async
+    defer>
+</script>
    
   </body>
   </html>
