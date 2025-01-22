@@ -64,6 +64,7 @@ $http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
 
 $recommendations = [];
+$error_message = ""; // Initialize error message
 
 // ====================
 // 3. Handle API Response
@@ -76,6 +77,12 @@ if ($response === false) {
     // Optionally log the error for debugging
 } elseif ($http_status != 200) {
     $error_message = "API Error: Unable to fetch data (HTTP status: " . $http_status . ").";
+        // Optionally check for specific error cases
+        if ($http_status === 400) {
+            $error_message = "No recommendations available. Please provide past ratings.";
+        } elseif ($http_status === 500) {
+            $error_message = "Internal server error. Please try again later.";
+        }
 } else {
     $recommendations = json_decode($response, true);
     if (json_last_error() !== JSON_ERROR_NONE) {
@@ -309,11 +316,16 @@ if ($hybrid_response && $hybrid_http_status == 200) {
     </div>
 </section>
 
-<!-- CF -->
-<section class="product" id="cf-section"> 
+
+<!-- CF error -->
+<section class="product" id="cf-message" style="display: none;">
+<h2 class="product-category">Recommended Destinations Based on What Others Like</h2>
+</section>
+<!-- CF results -->
+<section class="product" id="cf-section" style="display: none;"> 
     <!--Recommended Destinations Based on What Others Like--> 
     <h2 class="product-category">Favorites Destinations Inspired by Similar Users <a href="all_places_CFRS.html" class="view-all-link">
-        <img src="imgs/arrow.png" alt="View All" class="view-all-arrow">
+    <img src="imgs/arrow.png" alt="View All" class="view-all-arrow">
     </a> </h2>
     <button class="pre-btn"><img src="imgs/arrow.png" alt=""></button>
     <button class="nxt-btn"><img src="imgs/arrow.png" alt=""></button>
@@ -511,6 +523,23 @@ if (recommendations && recommendations.length > 0) {
     if (cfSection) {
         cfSection.style.display = 'block'; // Make the CF section visible
     }
+} else {
+    // Show a message to the user if there are no recommendations
+    const messageContainer = document.getElementById('cf-message'); // Container for the message
+    if (messageContainer) {
+        // Create a new div for the error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'errormassage'; // Add the class for styling
+
+        // Set the error message content
+        errorDiv.innerHTML = `<p>No recommendations available to you because you do not have past ratings.</p>`;
+
+        // Append the error div to the message container
+        messageContainer.appendChild(errorDiv);
+
+        // Make the message container visible
+        messageContainer.style.display = 'block';
+    }
 }
 // Cache to store fetched place images
 const cfrsPlaceImageCache = {};
@@ -526,25 +555,20 @@ function renderCFRSPlaces() {
     for (let i = currentIndexCFRS; i < recommendations.length; i++) {
         const place = recommendations[i];
         const placeDiv = document.createElement('div');
-        placeDiv.className = 'product-card'; // Apply uniform style
+        placeDiv.className = 'card'; // Apply uniform style
 
         placeDiv.innerHTML = `
-            <div class="product-image">
+
+            <div class="face front">
                 <img id="cfrs-place-img-${place.place_id}" src="imgs/logo.png" alt="${place.place_name}" class="product-thumb">
-                <button class="card-btn">Bookmark This Place</button>
+                <div class="info-container">
+                    <h3 class="product-brand">${place.place_name}</h3>
+                    <button class="details-btn ri-arrow-right-line" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}"></button>
+                </div>
             </div>
-            <div class="product-info">
-                <h2 class="product-brand">${place.place_name}</h2>
-                <p class="product-short-description">Category: ${place.granular_category}</p>
-                <p class="price">
-                  Rating: ${
-                    place.average_rating === 'N\\A'
-                      ? '★★★☆☆'
-                      : '★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))
-                  }
-                </p>
-                <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}">More Details</button>
-            </div>
+
+            
+                        
         `;
 
         cfrsPlacesContainer.appendChild(placeDiv); // Corrected this line
@@ -633,25 +657,19 @@ function renderCXPlaces() {
     for (let i = currentIndexCx; i < context_recommendations.length; i++) {
         const place = context_recommendations[i];
         const placeDiv = document.createElement('div');
-        placeDiv.className = 'product-card'; // Apply uniform style
+        placeDiv.className = 'card'; // Apply uniform style
+        placeDiv.innerHTML = `
 
-        placeDiv.innerHTML = `<div class="product-image">
+            <div class="face front">
             <img id="cx-place-img-${place.place_id}" src="imgs/logo.png" alt="${place.place_name}" class="product-thumb" >
-            <button class="card-btn">Bookmark This Place</button>
+            <div class="info-container">
+                <h3 class="product-brand">${place.place_name}</h3>
+                <button class="details-btn ri-arrow-right-line" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}"></button>
             </div>
-            <div class="product-info">
-            <h2 class="product-brand">${place.place_name}</h2>
-        
-
-<p class="price">
-  Rating: ${
-    place.average_rating === 'N\\A'
-      ? '★★★☆☆'
-      : '★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))
-  }
-</p>
-          <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}">More Details</button></div>
+            </div>
+           
         `;
+
         
         cxPlacesContainer.appendChild(placeDiv);
 

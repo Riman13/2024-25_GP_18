@@ -246,83 +246,104 @@ body {
   display: none;
 }
 
-.product-card {
+.card {
   flex: 0 0 auto;
-  width: 350px;
-  height: 350px;
-  text-align: center;
+  width: 250px;
+  height: 250px;
+  /*text-align: center;
   background-color: #fff;
   border-radius: 10px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);*/
+  position: relative;
+  margin: 10px;
   
 }
 
-
-.product-image {
-  position: relative;
+.card .face {
+  position: absolute;
   width: 100%;
-  height: 50%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 10px;
   overflow: hidden;
-
+  transition: .5s;
 }
 
-.product-thumb {
+.card .front {
+  transform: perspective(600px) rotateY(0deg);
+  box-shadow: 0 5px 10px #000;
+}
+
+.card .front img {
+  position: absolute;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-
-.card-btn {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 10px;
-  width: 90%;
-  text-transform: capitalize;
-  border: none;
-  outline: none;
-  background: #fff;
-  border-radius: 5px;
-  transition: 0.5s;
-  cursor: pointer;
-  opacity: 0;
+.face.front {
+  position: relative; /* Ensure proper positioning within the parent container */
 }
 
-.product-card:hover .card-btn {
-  opacity: 1;
+.info-container {
+  display: flex; /* Arrange children in a row */
+  align-items: center; /* Vertically align h3 and button */
+  justify-content: space-between; /* Create space between the h3 and button */
+  background: rgba(0, 0, 0, 0.4); /* Shared background color */
+  padding: 10px; /* Add padding for spacing inside the container */
+  border-radius: 8px; /* Optional: Add rounded corners */
+  position: absolute; /* Position it within the parent container */
+  bottom: 0; /* Position at the bottom of the .face.front div */
+  width: 100%; /* Span the full width of the parent */
+  box-sizing: border-box; /* Include padding in the width calculation */
+  height: auto;
 }
+.card .front h3 {
 
-.card-btn:hover {
-  background: #ff7d7d;
+
   color: #fff;
+  text-align: center;
+  line-height: 1.5; /* Set a line height for better readability */
+  height: auto; /* Allow the height to adjust dynamically */
+  white-space: normal; /* Allow the text to wrap */
+  overflow: hidden; /* Prevent content overflow if needed */
+  word-break: break-word; /* Break words if they are too long */
+  margin: 0; /* Remove default margins */
+
 }
 
-.product-info {
-  width: 100%;
-  height: 50%;
-  padding-top: 10px;
-  position: relative;
+
+button.ri-arrow-right-line {
+  background: none; /* Remove default button background */
+  border: none; /* Remove border */
+  font-size: 24px; /* Icon size */
+  color: white; /* Icon color */
+  cursor: pointer; /* Show pointer on hover */
+  margin-left: 10px; /* Add spacing between h3 and button */
+
 }
 
-.product-brand {
-  text-transform: uppercase;
+button.ri-arrow-right-line:hover {
+  color: #007bff; /* Change color on hover for interactivity */
 }
 
-.product-short-description {
-  width: 100%;
-  height: 20px;
-  line-height: 20px;
-  overflow: hidden;
-  opacity: 0.7;
-  text-transform: capitalize;
-  margin: 5px 0;
+.errormassage {
+  background-color: #f8d7da;  /* Light red background */
+  color: #721c24;              /* Dark red text for contrast */
+  border: 1px solid #f5c6cb;   /* Border to match the background color */
+  padding: 15px 30px;          /* Padding around the text */
+  border-radius: 8px;          /* Rounded corners */
+  font-size: 18px;             /* Slightly larger text for readability */
+  font-family: Arial, sans-serif; /* Clean, readable font */
+  text-align: center;          /* Center the text */
+  max-width: 80%;              /* Max width for responsiveness */
+  margin: 20px auto;           /* Center the div horizontally */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+  line-height: 1.5;            /* Increased line height for better readability */
 }
 
-.price {
-  font-weight: 900;
-  font-size: 15px;
+.errormassage p {
+  margin: 0;  /* Remove default margin for the <p> tag */
 }
 
 
@@ -363,7 +384,7 @@ body {
 
 
 
-.details-btn{
+/*.details-btn{
 
   position: absolute;
   bottom: 10px;
@@ -384,12 +405,12 @@ body {
 
 .details-btn:hover {
   background-color: var(--primary-color-dark);
-}
+}*/
 
 
 
 
-/*============gallrey===============*/
+/*============gallrey===============
 
 section {
     width: 100%;
@@ -494,7 +515,7 @@ section .gallrey p {
     .gallrey-container {
         grid-template-columns: repeat(1, 1fr); 
     }
-}
+}*/
 
 /* Modal Background */
 .modal {

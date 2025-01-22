@@ -439,3 +439,172 @@
 rt {
     display: none; /* Ensures it's hidden by default */
 }
+
+
+/*Recommendation style*/
+/* PRODUCTS */
+.product {
+  margin-top: 2vw;
+  position: relative;
+  overflow: hidden;
+  padding: 20px;
+  height: auto;
+  
+}
+
+.product-category {
+  padding: 0;
+  font-size: 30px;
+  font-weight: 500;
+  margin-bottom: 40px;
+  text-transform: capitalize;
+}
+
+.product-container {
+  padding: 0 10vw;
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  gap: 1vw; /* Adjust the gap as needed */
+}
+
+.product-container::-webkit-scrollbar {
+  display: none;
+}
+
+.card {
+  flex: 0 0 auto;
+  width: 250px;
+  height: 250px;
+  /*text-align: center;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);*/
+  position: relative;
+  margin: 10px;
+  
+  
+}
+
+.card .face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: .5s;
+}
+
+.card .front {
+  transform: perspective(600px) rotateY(0deg);
+  box-shadow: 0 5px 10px #000;
+}
+
+.card .front img {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.face.front {
+  position: relative; /* Ensure proper positioning within the parent container */
+}
+
+.info-container {
+  display: flex; /* Arrange children in a row */
+  align-items: center; /* Vertically align h3 and button */
+  justify-content: space-between; /* Create space between the h3 and button */
+  background: rgba(0, 0, 0, 0.4); /* Shared background color */
+  padding: 10px; /* Add padding for spacing inside the container */
+  border-radius: 8px; /* Optional: Add rounded corners */
+  position: absolute; /* Position it within the parent container */
+  bottom: 0; /* Position at the bottom of the .face.front div */
+  width: 100%; /* Span the full width of the parent */
+  box-sizing: border-box; /* Include padding in the width calculation */
+  height: auto;
+}
+.card .front h3 {
+
+
+  color: #fff;
+  text-align: center;
+  line-height: 1.5; /* Set a line height for better readability */
+  height: auto; /* Allow the height to adjust dynamically */
+  white-space: normal; /* Allow the text to wrap */
+  overflow: hidden; /* Prevent content overflow if needed */
+  word-break: break-word; /* Break words if they are too long */
+  margin: 0; /* Remove default margins */
+
+}
+
+
+button.ri-arrow-right-line {
+  background: none; /* Remove default button background */
+  border: none; /* Remove border */
+  font-size: 24px; /* Icon size */
+  color: white; /* Icon color */
+  cursor: pointer; /* Show pointer on hover */
+  margin-left: 10px; /* Add spacing between h3 and button */
+
+}
+
+button.ri-arrow-right-line:hover {
+  color: #007bff; /* Change color on hover for interactivity */
+}
+
+.errormassage {
+  background-color: #f8d7da;  /* Light red background */
+  color: #721c24;              /* Dark red text for contrast */
+  border: 1px solid #f5c6cb;   /* Border to match the background color */
+  padding: 15px 30px;          /* Padding around the text */
+  border-radius: 8px;          /* Rounded corners */
+  font-size: 18px;             /* Slightly larger text for readability */
+  font-family: Arial, sans-serif; /* Clean, readable font */
+  text-align: center;          /* Center the text */
+  max-width: 80%;              /* Max width for responsiveness */
+  margin: 20px auto;           /* Center the div horizontally */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+  line-height: 1.5;            /* Increased line height for better readability */
+}
+
+.errormassage p {
+  margin: 0;  /* Remove default margin for the <p> tag */
+}
+
+
+
+.pre-btn,
+.nxt-btn {
+  border: none;
+  width: 10vw;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  cursor: pointer;
+  z-index: 8;
+}
+
+.pre-btn {
+  left: 0;
+  transform: rotate(180deg);
+}
+
+.nxt-btn {
+  right: 0;
+}
+
+.pre-btn img,
+.nxt-btn img {
+  opacity: 0.7;
+}
+
+.pre-btn:hover img,
+.nxt-btn:hover img {
+  opacity: 1;
+}

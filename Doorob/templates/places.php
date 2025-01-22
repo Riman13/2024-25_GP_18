@@ -26,6 +26,109 @@ if ($result && mysqli_num_rows($result) > 0) {
 } else {
     $username = "Guest";
 }
+
+// ====================
+// 2. Communicate with Flask API FOR CF
+// ====================
+
+// Define the Flask API URL
+$api_url = 'http://127.0.0.1:5001/api/recommendations/' . $user_id;
+
+// Initialize cURL session
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $api_url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPGET, true);
+curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
+curl_setopt($ch, CURLOPT_TIMEOUT, 10); // Adjusted timeout
+
+// Execute the cURL request
+$response = curl_exec($ch);
+$curl_error = curl_error($ch);
+$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+
+$recommendations = [];
+$error_message = ""; // Initialize error message
+
+// ====================
+// 3. Handle API Response
+// ====================
+
+if ($response === false) {
+    $curl_error = curl_error($ch); // Capture the cURL error
+    $error_message = "Unable to fetch recommendations. cURL error: " . htmlspecialchars($curl_error);
+
+    // Optionally log the error for debugging
+} elseif ($http_status != 200) {
+    $error_message = "API Error: Unable to fetch data (HTTP status: " . $http_status . ").";
+        // Optionally check for specific error cases
+        if ($http_status === 400) {
+            $error_message = "No recommendations available. Please provide past ratings.";
+        } elseif ($http_status === 500) {
+            $error_message = "Internal server error. Please try again later.";
+        }
+} else {
+    $recommendations = json_decode($response, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        $error_message = "Data format error. Please contact support.";
+        $recommendations = [];
+    }
+}
+// Fetch context-based recommendations from Flask API
+$context_api_url = 'http://127.0.0.1:5002/api/recommendations_context/' . $user_id;
+
+// Initialize cURL session
+$ch_context = curl_init();
+curl_setopt($ch_context, CURLOPT_URL, $context_api_url);
+curl_setopt($ch_context, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch_context, CURLOPT_HTTPGET, true);
+curl_setopt($ch_context, CURLOPT_CONNECTTIMEOUT, 5);
+curl_setopt($ch_context, CURLOPT_TIMEOUT, 10); // Adjusted timeout
+
+// Execute the cURL request
+$context_response = curl_exec($ch_context);
+$context_http_status = curl_getinfo($ch_context, CURLINFO_HTTP_CODE);
+curl_close($ch_context);
+
+// Process the API response
+$context_recommendations = [];
+if ($context_response && $context_http_status == 200) {
+    $context_recommendations = json_decode($context_response, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        $context_recommendations = []; // Fallback if JSON decoding fails
+    }
+}
+// Fetch context-based recommendations from Flask API
+$hybrid_api_url = 'http://127.0.0.1:5003/api/recommendations_hybrid/' . $user_id;
+
+// Initialize cURL session
+$ch_hybrid = curl_init();
+curl_setopt($ch_hybrid, CURLOPT_URL, $hybrid_api_url);
+curl_setopt($ch_hybrid, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch_hybrid, CURLOPT_HTTPGET, true);
+curl_setopt($ch_hybrid, CURLOPT_CONNECTTIMEOUT, 5);
+curl_setopt($ch_hybrid, CURLOPT_TIMEOUT, 10); // Adjusted timeout
+
+// Execute the cURL request
+$hybrid_response = curl_exec($ch_hybrid );
+$hybrid_http_status = curl_getinfo($ch_hybrid, CURLINFO_HTTP_CODE);
+curl_close($ch_hybrid);
+
+// Process the API response
+$hybrid_recommendations = [];
+if ($hybrid_response && $hybrid_http_status == 200) {
+    $hybrid_recommendations = json_decode($hybrid_response, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        $hybrid_recommendations = []; // Fallback if JSON decoding fails
+    }
+}
+
+
+// rate 
+
+
+
 ?>
 
 
@@ -42,6 +145,7 @@ if ($result && mysqli_num_rows($result) > 0) {
 <!--======== CSS ========-->
 <link rel="stylesheet" href="styles/footer-header-styles.css">
 <link rel="stylesheet" href="styles/places.css">
+
 
 <!--======== ICONS ========-->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
@@ -260,6 +364,47 @@ function toggleRating() {
     <div id="carouselDots" class="carousel-dots"></div>
     <div id="mapContainer" style="width: 100%; height: 400px;">
   </div>
+  <!-- CF error -->
+<section class="product" id="cf-message" style="display: none;">
+<h3 class="product-category">Recommended Destinations Based on What Others Like</h3>
+</section>
+<!-- CF results -->
+<section class="product" id="cf-section" style="display: none;"> 
+    <!--Recommended Destinations Based on What Others Like--> 
+    <h3 class="product-category">Favorites Destinations Inspired by Similar Users <a href="all_places_CFRS.html" class="view-all-link">
+    <img src="imgs/arrow.png" alt="View All" class="view-all-arrow">
+    </a> </h3>
+    <button class="pre-btn"><img src="imgs/arrow.png" alt=""></button>
+    <button class="nxt-btn"><img src="imgs/arrow.png" alt=""></button>
+    <div class="product-container" id="CFproduct-container">
+    </div>
+</section>
+
+
+<!-- Context -->
+<section class="product" id="context-section"> 
+    <!--Best Places for You Based on Your Location --> 
+    <h3 class="product-category">Best Nearby Destinations <a href="all_places_Context.php" class="view-all-link">
+        <img src="imgs/arrow.png" alt="View All" class="view-all-arrow">
+    </a> </h3>
+    <button class="pre-btn"><img src="imgs/arrow.png" alt=""></button>
+    <button class="nxt-btn"><img src="imgs/arrow.png" alt=""></button>
+    <div class="product-container" id="CXproduct-container">
+    </div>
+</section>
+
+<!-- Hybrid -->
+<section class="product" id="hybrid-section"> 
+    <!--Personalized Destinations Just for You-->
+    <h3 class="product-category">Top Recommended Destinations for You <a href="all_places_hybird.php" class="view-all-link">
+        <img src="imgs/arrow.png" alt="View All" class="view-all-arrow">
+    </a></h3>
+    <button class="pre-btn"><img src="imgs/arrow.png" alt=""></button>
+    <button class="nxt-btn"><img src="imgs/arrow.png" alt=""></button>
+    <div class="product-container" id="HYproduct-container">
+    </div>
+</section>
+<!-- Recommendation End Here -->
 </div>
  <!--============ FOOTER =============-->
  <footer class="footer section">
@@ -594,6 +739,222 @@ function initMap() {
             } catch (error) {
                 console.error('Error parsing JSON:', error);
             }
+
+            
+// Initialize variables
+let currentIndexCFRS = 0; // Initialize current index for CFRS
+const recommendations = <?php echo json_encode($recommendations); ?>; // Convert PHP array to JavaScript array
+
+// Check if recommendations have data
+if (recommendations && recommendations.length > 0) {
+    // Show the CF section if there are recommendations
+    const cfSection = document.getElementById('cf-section'); // Get the CF section by ID
+    if (cfSection) {
+        cfSection.style.display = 'block'; // Make the CF section visible
+    }
+} else {
+    // Show a message to the user if there are no recommendations
+    const messageContainer = document.getElementById('cf-message'); // Container for the message
+    if (messageContainer) {
+        messageContainer.innerHTML = '';
+        messageContainer.innerHTML = ` <h3 class="product-category">Recommended Destinations Based on What Others Like</h3>`;
+
+        // Clear any existing content in the message container
+        // Create a new div for the error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'errormassage'; // Add the class for styling
+        
+        errorDiv.innerHTML = ` <p>No recommendations available to you because you do not have past ratings.</p>`;
+
+        // Append the error div to the message container
+        messageContainer.appendChild(errorDiv);
+
+        // Make the message container visible
+        messageContainer.style.display = 'block';
+    }
+}
+// Cache to store fetched place images
+const cfrsPlaceImageCache = {};
+
+
+
+        
+function renderCFRSPlaces() {
+    const cfrsPlacesContainer = document.getElementById('CFproduct-container');
+    cfrsPlacesContainer.innerHTML = ''; // Clear current recommendations
+
+    // Display the next set of recommendations (3 at a time)
+    for (let i = currentIndexCFRS; i < recommendations.length; i++) {
+        const place = recommendations[i];
+        const placeDiv = document.createElement('div');
+        placeDiv.className = 'card'; // Apply uniform style
+
+        placeDiv.innerHTML = `
+
+            <div class="face front">
+                <img id="cfrs-place-img-${place.place_id}" src="imgs/logo.png" alt="${place.place_name}" class="product-thumb">
+                <div class="info-container">
+                    <h3 class="product-brand">${place.place_name}</h3>
+                    <button class="details-btn ri-arrow-right-line" data-id="${place.place_id}" data-lat="${place.latitude}" data-lng="${place.longitude}"></button>
+                </div>
+            </div>
+            
+
+            
+                        
+        `;
+
+        cfrsPlacesContainer.appendChild(placeDiv); // Corrected this line
+
+        // Attach click event to "More Details" button
+        placeDiv.querySelector('.details-btn').addEventListener('click', function() {
+            // Attach click event to "More Details" button
+            const lat = parseFloat(this.getAttribute('data-lat'));
+            const lng = parseFloat(this.getAttribute('data-lng'));
+            showDetails(place.place_id, lat, lng);
+        });
+
+        // Load the image for this place (check cache first)
+        if (cfrsPlaceImageCache[place.place_id]) {
+            // Use cached image
+            document.getElementById(`cfrs-place-img-${place.place_id}`).src = cfrsPlaceImageCache[place.place_id];
+        } else {
+            // Fetch image details and cache it
+            fetchCFRSPlaceImage(place.place_id);
+        }
+    }
+}
+
+
+// Function to fetch place image and cache it
+function fetchCFRSPlaceImage(placeId) {
+    fetch(`get_place_details.php?id=${placeId}`)
+        .then(response => response.text())  // Get raw text
+        .then(data => {
+            try {
+                const jsonData = JSON.parse(data);  // Parse JSON
+                const placeImage = document.getElementById(`cfrs-place-img-${placeId}`);
+                
+                if (jsonData.photos && jsonData.photos.length > 0) {
+                    // Use the first photo in the list
+                    const firstPhoto = jsonData.photos[0];
+                    const imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${firstPhoto.photo_reference}&key=AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs`;
+                    placeImage.src = imageUrl;
+                    // Cache the image URL
+                    cfrsPlaceImageCache[placeId] = imageUrl;
+                } else {
+                    // No photos available, use default image
+                    const defaultImage = 'imgs/logo.png';
+                    placeImage.src = defaultImage;
+                    cfrsPlaceImageCache[placeId] = defaultImage;
+                }
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching place details:', error);
+        });
+}
+
+
+
+
+renderCFRSPlaces();
+
+
+
+//Discover Destenation Section END Here
+
+//CF Section Start Here
+
+
+
+
+//cxb 
+
+let currentIndexCx= 0; // Initialize current index for CFRS
+const context_recommendations = <?php echo json_encode($context_recommendations); ?> ;// Convert PHP array to JavaScript array
+
+// Check if recommendations have data
+if (context_recommendations && context_recommendations.length > 0) {
+    // Show the CF section if there are recommendations
+    const cxSection = document.getElementById('context-section'); // Get the CF section by ID
+    if (cxSection) {
+        cxSection.style.display = 'block'; // Make the CF section visible
+    }
+}
+const cxPlaceImageCache = {};
+function renderCXPlaces() {
+    const cxPlacesContainer = document.getElementById('CXproduct-container');
+    cxPlacesContainer.innerHTML = ''; // Clear current recommendations
+    // <p class="product-short-description">Category: ${place.granular_category}</p>
+    // Display the next set of recommendations (3 at a time)
+    for (let i = currentIndexCx; i < context_recommendations.length; i++) {
+        const place = context_recommendations[i];
+        const placeDiv = document.createElement('div');
+        placeDiv.className = 'card'; // Apply uniform style
+        placeDiv.innerHTML = `
+
+            <div class="face front">
+            <img id="cx-place-img-${place.place_id}" src="imgs/logo.png" alt="${place.place_name}" class="product-thumb" >
+            <div class="info-container">
+                <h3 class="product-brand">${place.place_name}</h3>
+                <button class="details-btn ri-arrow-right-line" data-id="${place.place_id}" data-lat="${place.latitude}" data-lng="${place.longitude}"></button>
+            </div>
+            </div>
+           
+        `;
+
+        
+        cxPlacesContainer.appendChild(placeDiv);
+
+        // Attach click event to "More Details" button
+        placeDiv.querySelector('.details-btn').addEventListener('click', function() {
+            // Attach click event to "More Details" button
+            const lat = parseFloat(this.getAttribute('data-lat'));
+            const lng = parseFloat(this.getAttribute('data-lng'));
+            showDetails(place.place_id, lat, lng);
+        });
+        
+
+        if (cxPlaceImageCache[place.place_id]) {
+    document.getElementById(`cx-place-img-${place.place_id}`).src = cxPlaceImageCache[place.place_id];
+} else {
+    fetchCXPlaceImage(place.place_id);
+}
+
+    }
+
+}
+
+// Fetch place image for CX
+function fetchCXPlaceImage(placeId) {
+    fetch(`get_place_details.php?id=${placeId}`)
+        .then(response => response.text())
+        .then(data => {
+            try {
+                const jsonData = JSON.parse(data);
+                const placeImage = document.getElementById(`cx-place-img-${placeId}`);
+                if (jsonData.photos && jsonData.photos.length > 0) {
+                    const firstPhoto = jsonData.photos[0];
+                    const imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${firstPhoto.photo_reference}&key=AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs`;
+                    placeImage.src = imageUrl;
+                    cxPlaceImageCache[placeId] = imageUrl;
+                } else {
+                    placeImage.src = 'imgs/logo.png';
+                    cxPlaceImageCache[placeId] = 'imgs/logo.png';
+                }
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching place details:', error);
+        });
+}
+
+renderCXPlaces();
         })
         .catch(error => console.error('Error fetching place details:', error));
 }
