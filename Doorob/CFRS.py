@@ -1,6 +1,6 @@
 import logging
 import sys
-
+from sklearn.metrics import roc_auc_score
 import numpy as np
 import pandas as pd
 from flask import Flask, jsonify, render_template, request
@@ -108,6 +108,33 @@ eval_logloss = logloss(
     test_bin, top_k_prob, col_user="user_id", col_item="place_id", col_rating="rating"
 )
 
+def calculate_auc(test, top_k, col_user="user_id", col_item="place_id", col_rating="rating", col_prediction="prediction"):
+    auc_scores = []
+    for user in test[col_user].unique():
+        # Get actual ratings for the user
+        actual = test[test[col_user] == user].set_index(col_item)[col_rating]
+        
+        # Get predicted rankings for the user
+        predicted = top_k[top_k[col_user] == user].set_index(col_item)[col_prediction]
+        
+        # Align actual and predicted indices (intersection only)
+        common_items = actual.index.intersection(predicted.index)
+        if len(common_items) > 0:
+            y_true = (actual.loc[common_items] > positivity_threshold).astype(int)  # Binary relevance
+            y_pred = predicted.loc[common_items]  # Predicted scores
+            
+            # Skip users with no diversity in actual ratings (e.g., all 0s or 1s)
+            if len(set(y_true)) > 1:
+                auc_scores.append(roc_auc_score(y_true, y_pred))
+    
+    # Return mean AUC across all users
+    return np.mean(auc_scores) if auc_scores else 0
+
+
+# Calculate AUC
+eval_auc = calculate_auc(test, top_k, col_user="user_id", col_item="place_id", col_rating="rating", col_prediction="prediction")
+
+# Print all evaluation metrics including AUC
 print("Model:\t",
       "Top K:\t%d" % TOP_K,
       "MAP:\t%f" % eval_map,
@@ -119,6 +146,7 @@ print("Model:\t",
       "R2:\t%f" % eval_rsquared,
       "Exp var:\t%f" % eval_exp_var,
       "Logloss:\t%f" % eval_logloss,
+      "AUC:\t%f" % eval_auc,
       sep='\n')
 
 @app.route('/api/recommendations/<int:user_id>', methods=['GET'])
