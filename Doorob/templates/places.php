@@ -123,15 +123,7 @@ if ($hybrid_response && $hybrid_http_status == 200) {
         $hybrid_recommendations = []; // Fallback if JSON decoding fails
     }
 }
-
-
-// rate 
-
-
-
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -362,8 +354,6 @@ function toggleRating() {
     </div>
     <hr>
     <div id="carouselDots" class="carousel-dots"></div>
-    <div id="mapContainer" style="width: 100%; height: 400px;">
-  </div>
   <!-- CF error -->
 <section class="product" id="cf-message" style="display: none;">
 <h3 class="product-category">Recommended Destinations Based on What Others Like</h3>
@@ -647,35 +637,31 @@ renderPlaces();
     })
     .catch(error => console.error("Error submitting rating:", error));
 }
-let map;
 
-function initMap() {
-    // Set initial position for the map
-    const initialPosition = { lat: 24.7136, lng: 46.6753 }; // Riyadh center
 
-    map = new google.maps.Map(document.getElementById('mapContainer'), {
-        center: initialPosition,
-        zoom: 12,
-    });
-}
+let currentSessionId = Date.now().toString();
     function showDetails(placeId, lat, lng) {
-
         document.getElementById('placesContainer').style.display = 'none';
         document.getElementById('paginationss').style.visibility = 'hidden';
         document.getElementById('foort').style.visibility = 'hidden';
         document.getElementById('filt').style.visibility = 'hidden';
-        
-        // Recenter map to the selected place and zoom in
-        const placeLocation = { lat: lat, lng: lng };
-        map.setCenter(placeLocation);
-        map.setZoom(14);
-
-        // Add marker at the selected place
-        new google.maps.Marker({
-            position: placeLocation,
-            map: map,
-            title: "Selected Place"
-        });
+        currentSessionId = Date.now().toString(); // Generate new session ID for each place
+    fetch('http://127.0.0.1:5000/start_emotion_analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            userId: <?php echo $user_id; ?>,
+            placeId: placeId,
+            sessionId: currentSessionId
+        })
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              console.log("Emotion analysis started for session:", currentSessionId);
+          } else {
+              console.error("Error starting emotion analysis:", data.error);
+          }
+      }).catch(error => console.error("Error:", error));
     // Fetch details from the server
     fetch(`get_place_details.php?id=${placeId}`)
         .then(response => response.text())  // Get raw text
@@ -688,9 +674,7 @@ function initMap() {
                 //document.getElementById('placeCategory').innerText = jsonData.categories;
                 document.getElementById('placeGranularCategory').innerText = jsonData.granular_category;
                 document.getElementById('placeRating').innerText = jsonData.average_rating;
-                       // Display place description (assuming it's in the JSON data)
                 
-                // Fetch and display previous rating if available
               // Fetch and display previous rating if available
               fetch('get_user_rating.php?userId=<?php echo $user_id; ?>&placeId=' + placeId)
     .then(response => response.json())
@@ -700,6 +684,7 @@ function initMap() {
         updateStarDisplay(currentRating);
     })
     .catch(error => console.error("Error fetching previous rating:", error));
+    
                 document.getElementById('detailsModal').style.display = "block";
 
                   // Populate photo carousel
@@ -868,9 +853,6 @@ renderCFRSPlaces();
 
 //CF Section Start Here
 
-
-
-
 //cxb 
 
 let currentIndexCx= 0; // Initialize current index for CFRS
@@ -958,17 +940,35 @@ renderCXPlaces();
         })
         .catch(error => console.error('Error fetching place details:', error));
 }
-
 function closeModal() {
+     // Stop the emotion analysis when the modal is closed
+     fetch('http://127.0.0.1:5000/stop_emotion_analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: currentSessionId })
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              console.log("Emotion analysis stopped for session:", currentSessionId);
+          } else {
+              console.error("Error stopping emotion analysis:", data.error);
+          }
+      }).catch(error => console.error("Error:", error));
     document.getElementById('detailsModal').style.display = "none";
     document.getElementById('placesContainer').style.display = 'grid';
     document.getElementById('paginationss').style.visibility = 'visible';
     document.getElementById('foort').style.visibility = 'visible';
-    document.getElementById('filt').style.visibility = 'visible';
-    
+    document.getElementById('filt').style.visibility = 'visible';  
 }
 
-
+// Ensure analysis stops when the page is closed or refreshed
+window.addEventListener('beforeunload', () => {
+    fetch('http://127.0.0.1:5000/stop_emotion_analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: currentSessionId })
+    });
+});
 </script>
 <script 
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs&callback=initMap&libraries=marker"
