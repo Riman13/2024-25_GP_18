@@ -166,6 +166,60 @@ body {
     }
 }
 
+/* Notification Box */
+
+/* Ensure dropdown appears properly */
+.notification-dropdown {
+  position: absolute;
+  top: 60px;
+  right: 10px;
+  width: 300px;
+  background: white;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  display: none;
+  padding: 10px;
+  z-index: 1000;
+}
+
+/* Show dropdown when active */
+.notification-dropdown.show {
+  display: block;
+}
+
+
+/* Ensure notification list has space and styling */
+.notification-dropdown ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.notification-dropdown li {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.notification-dropdown li:last-child {
+  border-bottom: none; /* Remove border from last item */
+}
+
+
+
+/* Shake Animation */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 80% { transform: translateX(-5px); }
+  40%, 60% { transform: translateX(5px); }
+}
+
+.shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+
 
 /*=============== Mission Values===============*/
 .mission-values {

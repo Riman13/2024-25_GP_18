@@ -90,6 +90,8 @@ if ($response === false) {
         $recommendations = [];
     }
 }
+
+
 // Fetch context-based recommendations from Flask API
 $context_api_url = 'http://127.0.0.1:5002/api/recommendations_context/' . $user_id;
 
@@ -132,10 +134,13 @@ curl_close($ch_hybrid);
 
 // Process the API response
 $hybrid_recommendations = [];
+
+
 if ($hybrid_response && $hybrid_http_status == 200) {
     $hybrid_recommendations = json_decode($hybrid_response, true);
     if (json_last_error() !== JSON_ERROR_NONE) {
         $hybrid_recommendations = []; // Fallback if JSON decoding fails
+     
     }
 }
 
@@ -144,6 +149,7 @@ if ($hybrid_response && $hybrid_http_status == 200) {
 
 
 ?>
+
 
 
 
@@ -204,8 +210,12 @@ if ($hybrid_response && $hybrid_http_status == 200) {
   
       <div class="nav__btns">
      
-        <!--<i class='bx bx-moon change-theme' id="theme-button"></i>-->
-        <i class='bx bxs-bell nav__notification' id="notification-button"></i>
+      <i class='bx bxs-bell nav__notification' id="notification-button"></i>
+<div id="notification-dropdown" class="notification-dropdown hidden">
+    <ul id="notification-list"></ul>
+</div>
+
+
         <a href="logout.php">
     <i class='bx bx-log-out nav__sign-out' id="signout-button"></i>
 </a>
@@ -256,7 +266,123 @@ if ($hybrid_response && $hybrid_http_status == 200) {
 </div>
 </div>
 
+<script>
+    /*
+document.addEventListener("DOMContentLoaded", function () {
+    const bellIcon = document.getElementById("notification-button");
+    const notificationList = document.getElementById("notification-list");
+    const dropdown = document.getElementById("notification-dropdown");
 
+    function fetchNotifications() {
+    fetch("notifications.php")
+        .then(response => response.json())
+        .then(data => {
+            notificationList.innerHTML = ""; // Clear old notifications
+            let hasNotifications = false;
+
+            if (data.notifications && data.notifications.length > 0) {
+                hasNotifications = true;
+                data.notifications.forEach(notification => {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = notification.message;
+                    notificationList.appendChild(listItem);
+                });
+
+                // Show the dropdown with a delay before hiding
+                dropdown.classList.add("show");
+                setTimeout(() => {
+                    dropdown.classList.remove("show");
+                }, 15000); // Keep it visible for 5 seconds
+            }
+
+            if (hasNotifications) {
+                bellIcon.classList.add("shake");
+            } else {
+                bellIcon.classList.remove("shake");
+            }
+        })
+        .catch(error => console.error("Error fetching notifications:", error));
+}
+
+
+    // Toggle notification dropdown visibility on bell icon click
+    bellIcon.addEventListener("click", function (event) {
+        event.stopPropagation(); // Prevent click from bubbling up
+        dropdown.classList.toggle("show");
+        bellIcon.classList.remove("shake"); // Stop shaking effect when opened
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function (event) {
+        if (!bellIcon.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.classList.remove("show");
+        }
+    });
+
+    // Fetch notifications every 5 seconds
+    setInterval(fetchNotifications, 5000);
+    fetchNotifications(); // Fetch notifications immediately on page load
+});
+*/
+document.addEventListener("DOMContentLoaded", function () {
+    const bellIcon = document.getElementById("notification-button");
+    const notificationList = document.getElementById("notification-list");
+    const dropdown = document.getElementById("notification-dropdown");
+
+    function fetchNotifications() {
+        fetch("notifications.php")
+            .then(response => response.json())
+            .then(data => {
+                notificationList.innerHTML = ""; // Clear old notifications
+                let hasNotifications = false;
+
+                // If there's a notification, display it
+                if (data.notifications && data.notifications.length > 0) {
+                    hasNotifications = true;
+                    data.notifications.forEach(notification => {
+                        const listItem = document.createElement("li");
+                        listItem.textContent = notification.message;
+                        notificationList.appendChild(listItem);
+                    });
+                }
+
+                // Show the notification dropdown if notifications exist
+                if (hasNotifications) {
+                    dropdown.classList.add("show");
+                    bellIcon.classList.add("shake");
+                    // Keep the dropdown visible for 10 seconds before hiding
+                    setTimeout(() => {
+                        dropdown.classList.remove("show");
+                    }, 10000); // Change this value for longer/shorter visibility
+                } else {
+                    bellIcon.classList.remove("shake");
+                }
+            })
+            .catch(error => console.error("Error fetching notifications:", error));
+    }
+
+    // Fetch notifications when the page loads
+    fetchNotifications();
+
+    // Fetch notifications every 5 seconds to check for updates
+    setInterval(fetchNotifications, 5000);
+
+    // Toggle the notification dropdown visibility on bell icon click
+    bellIcon.addEventListener("click", function (event) {
+        event.stopPropagation(); // Prevent click from bubbling up
+        dropdown.classList.toggle("show");
+        bellIcon.classList.remove("shake"); // Stop the shaking effect when opened
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function (event) {
+        if (!bellIcon.contains(event.target) && !dropdown.contains(event.target)) {
+            dropdown.classList.remove("show");
+        }
+    });
+});
+
+</script>
 
 <!--============ Mission & Values Section =============--><!--
 <div class="mission-values">
@@ -346,8 +472,12 @@ if ($hybrid_response && $hybrid_http_status == 200) {
     </div>
 </section>
 
+<!-- hybird error -->
+<section class="product" id="hybrid-message" style="display: none;">
+<h2 class="product-category">Top Recommended Destinations for You </h2>
+</section>
 <!-- Hybrid -->
-<section class="product" id="hybrid-section"> 
+<section class="product" id="hybrid-section" style="display: none;"> 
     <!--Personalized Destinations Just for You-->
     <h2 class="product-category">Top Recommended Destinations for You <a href="all_places_hybird.php" class="view-all-link">
         <img src="imgs/arrow.png" alt="View All" class="view-all-arrow">
@@ -715,101 +845,108 @@ function fetchCXPlaceImage(placeId) {
 }
 
 renderCXPlaces();
-// Initialize current index for iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
 
-let currentIndexHYBRID= 0; // Initialize current index for CFRS
-const hybrid_recommendations = <?php echo json_encode($hybrid_recommendations); ?> ;// Convert PHP array to JavaScript array
-const hybridPlaceImageCache = {};
+// Initialize current index for iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+let currentIndexHYBRID = 0; // Initialize index
+const hybrid_recommendations = <?php echo json_encode($hybrid_recommendations); ?>;
+
 
 // Check if recommendations have data
 if (hybrid_recommendations && hybrid_recommendations.length > 0) {
-    // Show the CF section if there are recommendations
-    const HybridSection = document.getElementById('hybrid-section'); // Get the CF section by ID
+    const HybridSection = document.getElementById('hybrid-section');
     if (HybridSection) {
-        HybridSection.style.display = 'block'; // Make the CF section visible
+        HybridSection.style.display = 'block'; // Show section if recommendations exist
+    }
+} else {
+    // Show a message to the user if there are no recommendations
+    const messageContainer = document.getElementById('hybrid-message'); // Container for the message
+    if (messageContainer) {
+        // Create a new div for the error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'errormassage'; // Add the class for styling
+
+        // Set the error message content
+        errorDiv.innerHTML = `<p>No recommendations available to you because you do not have past ratings.</p>`;
+
+        // Append the error div to the message container
+        messageContainer.appendChild(errorDiv);
+
+        // Make the message container visible
+        messageContainer.style.display = 'block';
     }
 }
+// Cache to store fetched place images
+const hybridPlaceImageCache = {}; 
+
 function renderHybridPlaces() {
     const HYPlacesContainer = document.getElementById('HYproduct-container');
-    
-    HYPlacesContainer.innerHTML = ''; // Clear current recommendations
+    HYPlacesContainer.innerHTML = ''; // Clear previous recommendations
 
-    // Display the next set of recommendations (3 at a time)
-    for (let i = currentIndexHYBRID; i <hybrid_recommendations.length; i++) {
+    // Display 3 recommendations at a time
+    for (let i = currentIndexHYBRID; i < hybrid_recommendations.length; i++) {
         const place = hybrid_recommendations[i];
         const placeDiv = document.createElement('div');
-        placeDiv.className = 'product-card'; // Apply uniform style
+        placeDiv.className = 'card';
 
-        placeDiv.innerHTML = `<div class="product-image">
-            <img id="hybrid-place-img-${place.place_id}" src="imgs/logo.png" alt="${place.place_name}" class="product-thumb" >
-            <button class="card-btn">Bookmark This Place</button>
+        placeDiv.innerHTML = `
+            <div class="face front">
+                <img id="hybrid-place-img-${place.place_id}" src="imgs/logo.png" alt="${place.place_name}" class="product-thumb">
+
+            <div class="info-container">
+                <h3 class="product-brand">${place.place_name}</h2>
+               
+               
+                <button class="details-btn ri-arrow-right-line" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}"></button>
+                </div>
             </div>
-            <div class="product-info">
-            <h2 class="product-brand">${place.place_name}</h2>
-          
-
-<p class="price">
-  Rating: ${
-    place.average_rating === 'N\\A'
-      ? '★★★☆☆'
-      : '★'.repeat(Math.floor(place.average_rating)) + '☆'.repeat(5 - Math.floor(place.average_rating))
-  }
-</p>
-          <button class="details-btn" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}">More Details</button></div>
         `;
-        
+
         HYPlacesContainer.appendChild(placeDiv);
 
-        // Attach click event to "More Details" button
-        placeDiv.querySelector('.details-btn').addEventListener('click', function() {
-            showDetails(place.id);
+        // Attach event listener to the "More Details" button
+        placeDiv.querySelector('.details-btn').addEventListener('click', function () {
+            showDetails(place.place_id);
         });
 
-        // Load the image for this place (check cache first)
+        // Load place image
         if (hybridPlaceImageCache[place.place_id]) {
-    document.getElementById(`hybrid-place-img-${place.place_id}`).src = hybridPlaceImageCache[place.place_id];
-} else {
-    fetchHybridPlaceImage(place.place_id);
-  
-}
-
+            document.getElementById(`hybrid-place-img-${place.place_id}`).src = hybridPlaceImageCache[place.place_id];
+        } else {
+            fetchHybridPlaceImage(place.place_id);
+        }
     }
-
 }
-// Fetch place image for hybird
+
+// Fetch place image
 function fetchHybridPlaceImage(placeId) {
     fetch(`get_place_details.php?id=${placeId}`)
         .then(response => response.text())
         .then(data => {
-            try {
-                const jsonData = JSON.parse(data);
-                const placeImage = document.getElementById(`hybrid-place-img-${placeId}`);
-                if (jsonData.photos && jsonData.photos.length > 0) {
-                    const firstPhoto = jsonData.photos[0];
-                    const imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${firstPhoto.photo_reference}&key=AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs`;
-                    placeImage.src = imageUrl;
-                    cxPlaceImageCache[placeId] = imageUrl;
-                } else {
-                    placeImage.src = 'imgs/logo.png';
-                    cxPlaceImageCache[placeId] = 'imgs/logo.png';
-                }
-            } catch (error) {
-                console.error('Error parsing JSON:', error);
+            try{
+            const jsonData = JSON.parse(data);
+            const placeImage = document.getElementById(`hybrid-place-img-${placeId}`);
+            if (jsonData.photos && jsonData.photos.length > 0) {
+                const firstPhoto = jsonData.photos[0];
+                const imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${firstPhoto.photo_reference}&key=AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs`;
+                placeImage.src = imageUrl;
+                hybridPlaceImageCache[placeId] = imageUrl;
+            } else {
+                placeImage.src = 'imgs/logo.png';
+                hybridPlaceImageCache[placeId] = 'imgs/logo.png';
             }
-        })
-        .catch(error => {
+        } catch (error) {
+            console.error('Error parsing JSON:', error);
+        }
+    })
+    .catch(error => {
             console.error('Error fetching place details:', error);
         });
 }
 
-
 renderHybridPlaces();
 
 
-
-
-
-
+/*
     document.querySelectorAll('.details-btn').forEach(button => {
     button.addEventListener('click', function () {
         // Get place_id from data-id attribute
@@ -823,7 +960,7 @@ renderHybridPlaces();
     });
 });
 
-
+*/
 
     //reman -api photos
     function submitRating() {

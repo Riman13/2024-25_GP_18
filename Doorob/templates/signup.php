@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->execute()) {
             $_SESSION['userID'] = $conn->insert_id;
             $_SESSION['user_type'] = 'user';  
-            
+            $_SESSION['new_user'] = $name;
             echo "<script>
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
@@ -104,7 +104,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 });
             }
         </script>";
-        
+
+ 
 
         
             exit();
