@@ -16,8 +16,8 @@ CORS(app)
 db_config = {
     'host': 'localhost',
     'user': 'root',  
-    'password': '', 
-    'database': 'doroob',
+    'password': 'root', 
+    'database': 'doroob7',
 }
 
 # Dictionary to track active sessions
@@ -75,7 +75,7 @@ def save_rating_to_db(user_id, place_id, rating):
             """
             
             cursor.execute(update_query, (rating, user_id, place_id))
-            print("Rating updated in the database.")
+            print(f"Rating updated in the database for user {user_id} at place {place_id}.")
         else:
             # Insert a new rating
             insert_query = """
@@ -83,7 +83,7 @@ def save_rating_to_db(user_id, place_id, rating):
                 VALUES (%s, %s, %s)
             """
             cursor.execute(insert_query, (user_id, place_id, rating))
-            print("New rating inserted into the database.")
+            print(f"New rating inserted into the database for user {user_id} at place {place_id}.")
 
         conn.commit()
         cursor.close()
@@ -174,12 +174,38 @@ def analyze_emotion_in_session(session_id):
         rating = map_emotion_to_rating(avg_emotion_scores)
         save_rating_to_db(user_id, place_id, rating)
         print(f"Session {session_id}: Final Rating {rating} saved.")
+        # Store the rating in the session so frontend can retrieve it
+        active_sessions[session_id]["rating"] = rating
     else:
         print(f"Session {session_id}: Insufficient data or time for rating.")
+        # Store an error message if detection failed
+        active_sessions[session_id]["error"] = "Insufficient data or time for rating."
 
-    # Clean up session
+    # route to send the rating to the frontend 
+@app.route('/get_rating', methods=['GET'])
+def get_rating():
+    session_id = request.args.get('sessionId')
+
+    # Debugging print to see if session exists
+    print(f"Checking session: {session_id}")
+
     if session_id in active_sessions:
-        del active_sessions[session_id]
+        if "rating" in active_sessions[session_id]:
+            print(f"Returning rating: {active_sessions[session_id]['rating']}")
+            rating = active_sessions[session_id]["rating"]
+            # Clean up session after rating is retrieved
+            del active_sessions[session_id]
+            return jsonify({"success": True, "rating": rating})
+        
+        elif "error" in active_sessions[session_id]:
+            print(f"Returning error: {active_sessions[session_id]['error']}")
+            error = active_sessions[session_id]["error"]
+            # Clean up session after error is retrieved
+            del active_sessions[session_id]
+            return jsonify({"success": False, "error": error})
+    
+    print("Session not found or still processing.")
+    return jsonify({"success": False, "error": "Session not found or still processing."}), 404
         
 if __name__ == '__main__':
     app.run(port=5000)

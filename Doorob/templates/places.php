@@ -143,6 +143,7 @@ if ($hybrid_response && $hybrid_http_status == 200) {
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
 <!--======== WEBSITE ICON ========-->
 <link rel="shortcut icon" href="imgs/logo.png" type="image/x-icon">
@@ -283,6 +284,10 @@ if ($hybrid_response && $hybrid_http_status == 200) {
 <div id="photoCarousel" class="carousel">
   <!-- Photos will be inserted here by JavaScript -->
 </div>
+
+<!--FER notification-->
+<div class="notifications"></div>
+
 <!-- Dots for navigation -->
 <div id="carouselDots" class="carousel-dots"></div>
     <hr> <!-- Line under the name -->
@@ -507,6 +512,64 @@ function toggleRating() {
 <script src="https://unpkg.com/scrollreveal"></script>
 
 <script>
+
+//FER messages script 
+
+let notifications = document.querySelector('.notifications');
+// Flag to check if the second info toast has been shown
+let hasShownSecondInfoToast = false;
+
+// Generalized createToast function without countdown
+function createToast(type, title, message) {
+    let newToast = document.createElement('div');
+    newToast.classList.add('toast', type);
+
+// Apply different background colors based on the toast type
+if (type === 'success') {
+    newToast.style.backgroundImage = 'linear-gradient(to right, hsl(150, 40%, 95%), hsl(150, 45%, 85%) 30%)'; // Soft, cool green
+} else if (type === 'info') {
+    newToast.style.backgroundImage = 'linear-gradient(to right, hsl(210, 36%, 96%), hsl(200, 42%, 85%) 30%)'; // Soft blue
+}
+
+    newToast.innerHTML = `
+        <i class="${type === 'success' ? 'fa-solid fa-check-circle' : 'fa-solid fa-circle-info'}"></i>
+        <div class="content">
+            <div class="title">${title}</div>
+            <span>${message}</span>
+        </div>
+    `;
+    notifications.appendChild(newToast);
+
+    // Ensure toast stays for 10 seconds before removal
+    setTimeout(() => {
+        // Remove the toast after 10 seconds
+        if (newToast) {
+            newToast.remove();
+        }
+
+        // Only show the second toast after the first one is removed
+        if (type === 'info' && !hasShownSecondInfoToast) {
+            hasShownSecondInfoToast = true;
+            createToast('info', 'info', 'We have started analyzing your emotions.');
+        }
+
+        // Only show the second toast after the first one is removed
+        if (type === 'success' && hasShownSecondInfoToast) {
+            hasShownSecondInfoToast = false;
+        }
+    }, 7500);  // Toast will disappear after 10 seconds
+
+}
+
+// Success Toast with a different icon and message arrangement
+function showSuccessToast(rating) {
+    createToast('success', 'Analysis Complete', 
+    `Your emotion analysis is complete with a rating of ${rating}.`);
+
+}
+
+//END FER messages
+
 // Initialize variables
 let places = <?php echo json_encode($places); ?>;
 let filteredPlaces = places; // Use this for filtering
@@ -641,11 +704,16 @@ renderPlaces();
 
 let currentSessionId = Date.now().toString();
     function showDetails(placeId, lat, lng) {
+
+        //first FER message
+        createToast('info', 'Info', 'In the next few moments, we\'ll analyze your emotions about this place to improve your recommendations.');
+
         document.getElementById('placesContainer').style.display = 'none';
         document.getElementById('paginationss').style.visibility = 'hidden';
         document.getElementById('foort').style.visibility = 'hidden';
         document.getElementById('filt').style.visibility = 'hidden';
         currentSessionId = Date.now().toString(); // Generate new session ID for each place
+
     fetch('http://127.0.0.1:5000/start_emotion_analysis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -658,10 +726,60 @@ let currentSessionId = Date.now().toString();
       .then(data => {
           if (data.success) {
               console.log("Emotion analysis started for session:", currentSessionId);
+              setTimeout(() => {
+              checkForRating(currentSessionId);
+          }, 15000); // Wait for 15 seconds to allow enough time for emotion analysis
           } else {
               console.error("Error starting emotion analysis:", data.error);
           }
       }).catch(error => console.error("Error:", error));
+
+      //retraive emotion rating 
+
+      let currentRating = 0; // Store the rating persistently
+
+function checkForRating(sessionId) {
+    fetch(`http://127.0.0.1:5000/get_rating?sessionId=${sessionId}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showSuccessToast(data.rating); // Call the success toast with the rating data
+            currentRating = data.rating; // Store fetched rating
+            updateStarDisplay(currentRating);
+            document.getElementById("rate-btn").style.display = "block"; // Show rating section
+        } else {
+            alert("Error: " + data.error);
+        }
+    })
+    .catch(error => console.error("Error checking rating:", error));
+}
+
+
+// Function to update stars dynamically based on rating
+function updateStarDisplay(rating) {
+    const stars = document.querySelectorAll('#starRating .star');
+    
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.classList.add('gold'); // Highlight stars up to the rating
+        } else {
+            star.classList.remove('gold'); // Reset other stars
+        }
+    });
+}
+
+// Event listeners for hover and click effects
+document.querySelectorAll('#starRating .star').forEach((star, index) => {
+    star.addEventListener('mouseover', () => updateStarDisplay(index + 1)); // Hover effect
+    star.addEventListener('mouseout', () => updateStarDisplay(currentRating)); // Reset to actual rating
+    star.addEventListener('click', () => {
+        currentRating = index + 1; // Update rating on click
+        updateStarDisplay(currentRating);
+    });
+});
+
+
+
     // Fetch details from the server
     fetch(`get_place_details.php?id=${placeId}`)
         .then(response => response.text())  // Get raw text
