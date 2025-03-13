@@ -17,11 +17,10 @@ CORS(app)
 
 # Data paths
 PLACES_DATA_PATH = 'DATADATA.csv'
-RATINGS_DATA_PATH = 'modified_ratings.csv'
+RATINGS_CSV_PATH = 'modified_ratings.csv'
 
-# Load datasets
+# Load places data from CSV
 places_df = pd.read_csv(PLACES_DATA_PATH, encoding='utf-8')
-ratings_df = pd.read_csv(RATINGS_DATA_PATH)
 
 # Preprocess places data
 places_df = places_df.rename(columns={'id': 'place_id'})
@@ -30,18 +29,15 @@ places_df = places_df.dropna(subset=essential_place_columns)
 places_df['place_id'] = places_df['place_id'].astype(int)
 places_df['average_rating'] = pd.to_numeric(places_df['average_rating'], errors='coerce').fillna(0.0)
 
-# Preprocess ratings data
-ratings_df = ratings_df.dropna(subset=['user_id', 'place_id', 'rating'])
-ratings_df['user_id'] = ratings_df['user_id'].astype(int)
-ratings_df['place_id'] = ratings_df['place_id'].astype(int)
-ratings_df['rating'] = ratings_df['rating'].astype(float)
+# Dictionary to store user locations
+user_locations = {}
 
-# Function to connect to MySQL
+# Function to establish MySQL connection
 def get_db_connection():
     return pymysql.connect(
-        host="localhost",  # Change as needed
+        host="localhost",
         user="root",
-        password="root",
+        password="",
         database="doroob",
         cursorclass=pymysql.cursors.DictCursor
     )
@@ -57,30 +53,23 @@ def fetch_mysql_ratings():
     finally:
         connection.close()
 
-# Load CSV Ratings
-ratings_data_csv = pd.read_csv('modified_ratings.csv')
+# Function to load ratings from both MySQL and CSV
+def load_ratings():
+    csv_ratings = pd.read_csv(RATINGS_CSV_PATH)
+    mysql_ratings = fetch_mysql_ratings()
 
-# Load MySQL Ratings
-ratings_data_mysql = fetch_mysql_ratings()
+    # Merge MySQL and CSV ratings
+    ratings_data = pd.concat([csv_ratings, mysql_ratings], ignore_index=True)
 
-# Merge Both Sources
-ratings_data = pd.concat([ratings_data_csv, ratings_data_mysql], ignore_index=True)
+    # Remove duplicates (keep latest rating)
+    ratings_data.drop_duplicates(subset=['user_id', 'place_id'], keep='last', inplace=True)
+    
+    return ratings_data
 
-# Remove Duplicates (Keep latest rating if user rated the same place multiple times)
-ratings_data.drop_duplicates(subset=['user_id', 'place_id'], keep='last', inplace=True)
-ratings_df = ratings_data.copy()
-
-# Train-test split
-train = ratings_df.sample(frac=0.9, random_state=42)
-test = ratings_df.drop(train.index)
-
-# User locations (in-memory storage)
-user_locations = {}
-
-# Prepare Vowpal Wabbit data 
+# Function to prepare data for Vowpal Wabbit
 def prepare_vw_data(data, places_df, user_locations):
     """
-    Prepare VW formatted data with additional location-based features.
+    Prepare data in VW format with additional location-based features.
     """
     vw_data = []
     data = data.merge(places_df, on='place_id')
@@ -89,42 +78,45 @@ def prepare_vw_data(data, places_df, user_locations):
         place_location = (row['lat'], row['lng'])
         user_location = user_locations.get(user_id)
 
-        # Calculate distance if user location is available
+        # Compute distance-based feature if user location is available
         if user_location:
             distance = geodesic(user_location, place_location).kilometers
-            adjusted_distance = 1 / distance if distance > 0 else 0.0  # Adjusted distance
+            adjusted_distance = 1 / distance if distance > 0 else 0.0
         else:
-            distance = 0.0
-            adjusted_distance = 0.0
+            distance, adjusted_distance = 0.0, 0.0
 
-        # VW features
+        # Construct VW feature string
         features = (f"|features user_{user_id}:1 "
                     f"avg_rating:{row['average_rating']} "
                     f"granular_category_{row['granular_category']}:1 "
-                    f"adjusted_distance:{adjusted_distance:.5f} ")  # Use adjusted distance
+                    f"adjusted_distance:{adjusted_distance:.5f} ")
         label = row['rating']
         vw_data.append(f"{label} '{user_id}_{row['place_id']} {features}")
+    
     return vw_data
 
-# Prepare training and testing data
+# Train Vowpal Wabbit model on initial dataset
+ratings_df = load_ratings()  # Load initial ratings
+train = ratings_df.sample(frac=0.9, random_state=42)
+test = ratings_df.drop(train.index)
 train_data = prepare_vw_data(train, places_df, user_locations)
-test_data = prepare_vw_data(test, places_df, user_locations)
 
-# Train Vowpal Wabbit model
 vw_model = pyvw.vw("--loss_function squared --l2 0.00001 --learning_rate 0.3 --bit_precision 25")
-for _ in range(5):  # Iterate over epochs
+for _ in range(5):  # Train for 5 epochs
     for row in train_data:
         vw_model.learn(row)
 
-logging.info("Model training completed.")
+logging.info("Initial model training completed.")
 
-# Evaluation function
+# Function to evaluate model performance
 def evaluate_model(vw_model, test_data, test, k=5):
+    """
+    Evaluate the model using RMSE, MAE, R-squared, and ranking metrics (NDCG, Precision, Recall).
+    """
     predictions, actuals, place_ids = [], [], []
 
     for row in test_data:
         try:
-            # Split row into label and features
             label, features = row.split(" ", 1)
             actual = float(label)
             prediction = vw_model.predict(features)
@@ -141,10 +133,10 @@ def evaluate_model(vw_model, test_data, test, k=5):
             continue
 
     if not predictions or not actuals or not place_ids:
-        logging.error("Empty predictions, actuals, or place_ids. Cannot compute metrics.")
+        logging.error("Evaluation failed due to empty predictions.")
         return None
 
-    # DataFrames for evaluation
+    # Convert to DataFrame for evaluation
     rating_true = pd.DataFrame({
         'user_id': test['user_id'].iloc[:len(actuals)],
         'item_id': place_ids,
@@ -157,113 +149,96 @@ def evaluate_model(vw_model, test_data, test, k=5):
         'prediction': predictions
     })
 
-    # Compute evaluation metrics
+    # Compute metrics
     rmse_val = mean_squared_error(actuals, predictions, squared=False)
     mae_val = mean_absolute_error(actuals, predictions)
     r2_val = rsquared(rating_true, rating_pred, col_user="user_id", col_item="item_id", col_rating="rating", col_prediction="prediction")
-    ndcg = ndcg_at_k(rating_true, rating_pred, col_user="user_id", col_item="item_id", col_rating="rating", col_prediction="prediction", k=k)
-    precision = precision_at_k(rating_true, rating_pred, col_user="user_id", col_item="item_id", col_rating="rating", col_prediction="prediction", k=k)
-    recall = recall_at_k(rating_true, rating_pred, col_user="user_id", col_item="item_id", col_rating="rating", col_prediction="prediction", k=k)
+    ndcg = ndcg_at_k(rating_true, rating_pred, k=k)
+    precision = precision_at_k(rating_true, rating_pred, k=k)
+    recall = recall_at_k(rating_true, rating_pred, k=k)
 
-    logging.info(f"Evaluation Metrics:\nRMSE: {rmse_val:.4f}\nMAE: {mae_val:.4f}\nR-squared: {r2_val:.4f}\n"
-                 f"NDCG@{k}: {ndcg:.4f}\nPrecision@{k}: {precision:.4f}\nRecall@{k}: {recall:.4f}")
+    logging.info(f"Evaluation Metrics - RMSE: {rmse_val:.4f}, MAE: {mae_val:.4f}, R2: {r2_val:.4f}, NDCG@{k}: {ndcg:.4f}, Precision@{k}: {precision:.4f}, Recall@{k}: {recall:.4f}")
 
-    return {
-        "rmse": rmse_val,
-        "mae": mae_val,
-        "r2": r2_val,
-        "ndcg": ndcg,
-        "precision": precision,
-        "recall": recall
-    }
+    return {"rmse": rmse_val, "mae": mae_val, "r2": r2_val, "ndcg": ndcg, "precision": precision, "recall": recall}
 
+# API to save user location
 @app.route('/api/save_location', methods=['POST'])
 def save_user_location():
+    """
+    Store user location to personalize recommendations.
+    """
     data = request.get_json()
     user_id = data.get('user_id')
     user_lat = data.get('lat')
     user_lng = data.get('lng')
+
     if not user_id or not user_lat or not user_lng:
         return jsonify({"error": "Invalid data"}), 400
+
     user_locations[user_id] = (float(user_lat), float(user_lng))
-    logging.debug(f"Location saved for user ID {user_id}: {user_locations[user_id]}")
     return jsonify({"message": "Location saved successfully"}), 200
 
-
-
+# API to generate recommendations
 @app.route('/api/recommendations_context/<int:user_id>', methods=['GET'])
 def get_recommendations_by_id(user_id):
     """
-    Generate content-based recommendations for a specific user, considering location if available.
+    Generate content-based recommendations, prioritizing nearby places.
+    Ensures real-time updates by fetching the latest ratings from MySQL every request.
     """
     try:
-        # Retrieve user ratings
+        # **Force reloading ratings from MySQL & CSV**
+        ratings_df = load_ratings()  # ✅ Fetches updated ratings every request
+
+        # Get user's past ratings
         user_data = ratings_df[ratings_df['user_id'] == user_id]
 
         # Get user location if available
         user_location = user_locations.get(user_id)
-        train_data = prepare_vw_data(user_data, places_df, user_locations)
 
         # Train user-specific model
+        train_data = prepare_vw_data(user_data, places_df, user_locations)
         user_model = pyvw.vw("--loss_function squared --l2 0.00001 --learning_rate 0.3 --bit_precision 25")
         for row in train_data:
             user_model.learn(row)
 
-        # Filter out places the user has already rated
+        # Get unrated places (places the user has NOT rated)
         rated_places = user_data['place_id'].tolist()
         unrated_places = places_df[~places_df['place_id'].isin(rated_places)]
 
-        # Generate recommendations
         recommendations = []
         for _, place in unrated_places.iterrows():
+            distance, adjusted_distance = float('inf'), 0.0  
+            
             # Calculate distance if user location is available
             if user_location:
                 distance = geodesic(user_location, (place['lat'], place['lng'])).kilometers
-                adjusted_distance = 1 / distance if distance > 0 else 0.0
-            else:
-                distance = 0.0
-                adjusted_distance = 0.0
+                adjusted_distance = 1 / (distance + 1)  
 
             # Prepare VW feature string
             features = (f"|features user_{user_id}:1 "
                         f"avg_rating:{place['average_rating']} "
                         f"granular_category_{place['granular_category']}:1 "
-                        f"adjusted_distance:{adjusted_distance:.5f} ")
+                        f"adjusted_distance:{adjusted_distance:.5f} ")  
+            
+            # Predict score using the trained model
             score = user_model.predict(features)
 
-            # Print predicted rating and distance to terminal
-            logging.info(f"Predicted Rating for Place {place['place_name']} (ID: {place['place_id']}): {score:.2f}")
-            logging.info(f"Distance to Place {place['place_name']}: {distance:.2f} km")
+            # Store place information including distance
+            recommendations.append((place['place_id'], place['place_name'], place['average_rating'],
+                                    place['granular_category'], place['lat'], place['lng'], score, distance))
 
-            recommendations.append((place['place_id'], place['place_name'], place['average_rating'], place['granular_category'], place['lat'], place['lng'], score))
+        # **Sort by distance first, then predicted rating**
+        recommendations = sorted(recommendations, key=lambda x: (x[7], -x[6]))[:5]
 
-        # Sort recommendations by predicted score
-        recommendations = sorted(recommendations, key=lambda x: x[6], reverse=True)[:5]
+        # Convert results to JSON
+        response = pd.DataFrame(recommendations, columns=['place_id', 'place_name', 'average_rating',
+                                                           'granular_category', 'lat', 'lng', 'predicted_rating', 'distance'])
         
-
-        # Create DataFrame for recommended places
-        recommended_places_details = pd.DataFrame(recommendations, columns=['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng', 'predicted_rating'])
-
-        # Prepare the response
-        response = recommended_places_details[['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng']].to_dict(orient='records')
-
-        # Print response to terminal for debugging
-        logging.info(f"Recommended Places Response: {response}")
-        return jsonify(response), 200
-
-
+        return jsonify(response[['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng', 'distance']].to_dict(orient='records')), 200
 
     except Exception as e:
         logging.error(f"Error generating recommendations for user {user_id}: {e}")
         return jsonify({"error": "Unable to generate recommendations"}), 500
 
-
 if __name__ == '__main__':
-    metrics = evaluate_model(vw_model, test_data, test, k=5)
-    if metrics:
-        logging.info("\nEvaluation Metrics:")
-        for metric, value in metrics.items():
-            logging.info(f"{metric.upper()}: {value:.4f}")
-    else:
-       logging.info("Evaluation metrics could not be computed.")
     app.run(debug=True, threaded=True, port=5002)
