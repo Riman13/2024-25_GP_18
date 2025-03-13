@@ -1,15 +1,19 @@
 <?php
 session_start();
 header('Content-Type: application/json');
+
 $notifications = [];
 
-// Check if there's a new user notification
+// Debug: Log session data
+error_log(print_r($_SESSION, true));
+
 if (isset($_SESSION['new_user'])) {
     $notifications[] = ["message" => "🎉 Welcome! Thank you for signing up, " . $_SESSION['new_user']];
-    // Do not unset $_SESSION['new_user'] here
 }
 
+if (isset($_SESSION['best_place_notification'])) {
+    $notifications[] = ["message" => $_SESSION['best_place_notification']];
+}
 
-// Send back the notifications to the client
 echo json_encode(["notifications" => $notifications]);
 ?>
