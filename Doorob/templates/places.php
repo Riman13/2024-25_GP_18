@@ -874,8 +874,8 @@ document.querySelectorAll('#starRating .star').forEach((star, index) => {
                 console.error('Error parsing JSON:', error);
             }
 
-             // Check if place is bookmarked and update button appearance
-    $.ajax({
+   // Check if place is bookmarked and update button appearance
+   $.ajax({
         url: 'check_bookmark.php',
         type: 'POST',
         dataType: 'json',
@@ -894,10 +894,7 @@ document.querySelectorAll('#starRating .star').forEach((star, index) => {
         error: function() {
             console.error('Error checking bookmark status.');
         }
-    });
-
-
-
+    });         
 // Initialize variables
 let currentIndexCFRS = 0; // Initialize current index for CFRS
 const recommendations = <?php echo json_encode($recommendations); ?>; // Convert PHP array to JavaScript array
