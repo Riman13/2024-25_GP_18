@@ -86,15 +86,11 @@ body {
   transition: .4s;
 }
 
-h2 {
-    text-align: left;
-    color: #333;
-    color: var(--title-color);
-    font-weight: var(--font-medium);
+h1, h2, h3, h4 {
+  color: var(--title-color);
+  font-weight: var(--font-medium);
 }
-
-
-.container {
+.bookmarks {
     max-width: 600px;
     margin: 10px auto;
     padding: 20px;
@@ -102,16 +98,45 @@ h2 {
 }
 
 
-.places-list {
-    border: 1px dashed #ccc;
-    padding: 20px;
-    margin: 10px auto;
-    border-radius: 10px;
-    min-height: 250px;
-}
+
 
 .empty-message {
     font-size: 16px;
     color: #888;
     margin-top: 10px;
+}
+
+
+
+
+.bookmarks h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+
+  text-align: left;
+}
+
+.bookmark-list ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.bookmark-list li {
+  background-color: #f3f3f3;
+  margin-bottom: 10px;
+  padding: 15px;
+  border-radius: 5px;
+  color: #333;
+  line-height: 1.6;
+}
+
+.bookmark-list li strong {
+  color: var(--title-color);
+}
+
+.empty-message {
+  color: #999;
+  font-size: 16px;
+  text-align: center;
 }
