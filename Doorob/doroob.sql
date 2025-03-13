@@ -68,6 +68,19 @@ CREATE TABLE `riyadhplaces_doroob` (
   `place_id` text COLLATE utf8mb4_unicode_ci NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE bookmarks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    place_id INT NOT NULL
+);
+
+ALTER TABLE bookmarks 
+ADD CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
+
+ALTER TABLE bookmarks 
+ADD CONSTRAINT fk_place FOREIGN KEY (place_id) REFERENCES riyadhplaces_doroob(id) ON DELETE CASCADE;
+
+
 --
 -- Dumping data for table `riyadhplaces_doroob`
 --

@@ -130,7 +130,7 @@ if ($hybrid_response && $hybrid_http_status == 200) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Doroob</title>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <!--======== FONTS ========-->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 
@@ -701,6 +701,37 @@ renderPlaces();
     .catch(error => console.error("Error submitting rating:", error));
 }
 
+$(document).on('click', '.favorite-btn', function() {
+            const placeId = $('#placeName').attr('data-id');
+            const userId = <?php echo $user_id; ?>;
+            const button = $(this);
+            const isBookmarked = button.hasClass('bookmarked'); // Check if already bookmarked.
+
+            $.ajax({
+                url: 'bookmark.php',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    placeId: placeId,
+                    userId: userId,
+                    action: isBookmarked ? 'remove' : 'add'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        if (isBookmarked) {
+                            button.removeClass('bookmarked').html('<i class="fas fa-bookmark"></i> Bookmark This Place');
+                        } else {
+                            button.addClass('bookmarked').html('<i class="fas fa-bookmark"></i> Bookmarked');
+                        }
+                    } else {
+                        alert(response.error || 'An error occurred.');
+                    }
+                },
+                error: function() {
+                    alert('An error occurred while communicating with the server.');
+                }
+            });
+        });
 
 let currentSessionId = Date.now().toString();
     function showDetails(placeId, lat, lng) {
@@ -843,7 +874,30 @@ document.querySelectorAll('#starRating .star').forEach((star, index) => {
                 console.error('Error parsing JSON:', error);
             }
 
-            
+             // Check if place is bookmarked and update button appearance
+    $.ajax({
+        url: 'check_bookmark.php',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            placeId: placeId,
+            userId: <?php echo $user_id; ?>
+        },
+        success: function(response) {
+            const favoriteButton = $('.favorite-btn');
+            if (response.bookmarked) {
+                favoriteButton.addClass('bookmarked').html('<i class="fas fa-bookmark"></i> Bookmarked');
+            } else {
+                favoriteButton.removeClass('bookmarked').html('<i class="fas fa-bookmark"></i> Bookmark This Place');
+            }
+        },
+        error: function() {
+            console.error('Error checking bookmark status.');
+        }
+    });
+
+
+
 // Initialize variables
 let currentIndexCFRS = 0; // Initialize current index for CFRS
 const recommendations = <?php echo json_encode($recommendations); ?>; // Convert PHP array to JavaScript array
