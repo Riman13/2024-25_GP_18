@@ -1,8 +1,10 @@
 import logging
 import sys
-from sklearn.metrics import roc_auc_score
+
 import numpy as np
 import pandas as pd
+# Import pymysql at the top of your script:
+import pymysql
 from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS  # Import CORS
 from recommenders.datasets.python_splitters import python_stratified_split
@@ -14,6 +16,7 @@ from recommenders.evaluation.python_evaluation import (exp_var, logloss, mae,
 from recommenders.models.sar import SAR
 # SAR and evaluation imports
 from recommenders.utils.python_utils import binarize
+from sklearn.metrics import roc_auc_score
 from sklearn.preprocessing import minmax_scale
 
 app = Flask(__name__)
@@ -31,8 +34,43 @@ PLACES_DATA_PATH = 'DATADATA.csv'
 RATINGS_DATA_PATH = 'modified_ratings.csv' 
 
 # Load your datasets
-ratings_df = pd.read_csv(RATINGS_DATA_PATH)
 places_df = pd.read_csv(PLACES_DATA_PATH)
+
+# Define a function to establish a connection to your MySQL database:
+def get_db_connection():
+    return pymysql.connect(
+        host="localhost",  
+        user="root",       
+        password="",   
+        database="doroob", 
+        cursorclass=pymysql.cursors.DictCursor
+    )
+
+# Define a function to fetch ratings from MySQL:
+def fetch_mysql_ratings():
+    connection = get_db_connection()
+    try:
+        with connection.cursor() as cursor:
+            # Use correct column names from your MySQL database
+            cursor.execute("SELECT UserID AS user_id, PlaceID AS place_id, Rating AS rating FROM ratings")
+            ratings = cursor.fetchall()
+            return pd.DataFrame(ratings)
+    finally:
+        connection.close()
+# Fetch ratings from MySQL
+mysql_ratings = fetch_mysql_ratings()
+
+# Load CSV ratings
+csv_ratings = pd.read_csv(RATINGS_DATA_PATH)
+
+# Merge MySQL and CSV ratings
+ratings_df = pd.concat([csv_ratings, mysql_ratings], ignore_index=True)
+
+# Remove duplicates (if any) and keep the latest rating for each user-place pair
+ratings_df = ratings_df.drop_duplicates(subset=['user_id', 'place_id'], keep='last')
+
+# Preprocess the merged ratings
+ratings_df['rating'] = ratings_df['rating'].astype(float)
 
 # PREPROCESSING
 places_df = places_df.rename(columns={'id': 'place_id'})
