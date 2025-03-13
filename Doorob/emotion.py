@@ -42,11 +42,11 @@ def map_emotion_to_rating(emotion_dict):
     # Assign a rating based on the response value range
     if response_value >= 40:  
         return 5  # Very Satisfied
-    elif 10 <= response_value < 40:
+    elif 15 <= response_value < 40:
         return 4  # Satisfied
-    elif -10 <= response_value < 10:
+    elif -10 <= response_value < 15:
         return 3  # Neutral
-    elif -40 <= response_value < -10:
+    elif -35 <= response_value < -10:
         return 2  # Unsatisfied
     else:
         return 1  # Very Unsatisfied
