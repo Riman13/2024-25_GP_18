@@ -1,3 +1,10 @@
+<?php
+if (isset($_GET['error'])) {
+    $errorMessage = htmlspecialchars($_GET['error']); // Sanitize the input
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,10 +12,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration</title>
     <link rel="stylesheet" href="styles/registration.css">
+    <link rel="stylesheet" href="styles/msg.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles/footer-header-styles.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
-     <link rel="shortcut icon" href="imgs/logo.png" type="image/x-icon">
+    <link rel="shortcut icon" href="imgs/logo.png" type="image/x-icon">
+
+    
 </head>
 <body>
   <header class="header" id="header">
@@ -38,16 +48,12 @@
       </div>
     </nav>
   </header>
+  
 
   <div style="height: 100px;"></div> 
+  <div class="notifications"></div>
     <div class="registration">
-    <div style="display: flex; justify-content: center; align-items: center;">
-<?php
-if(isset($_GET['error'])){
-    echo '<script type="text/javascript">alert("'.$_GET['error'].'");</script>';
-}
-?>
-</div>
+
     <div class="container1" id="container1">
         <div class="form-container1 sign-in-container1">
             <form action="login.php" method="post">
@@ -170,19 +176,51 @@ if(isset($_GET['error'])){
        <script src="scripts/scripts-fh.js"></script>
 
        <script> document.getElementById('signUp1').addEventListener('click', (event) => {
-    const password = document.getElementById('pass').value;
-    const errorMessage = document.getElementById('passwordError');
+        const password = document.getElementById('pass').value;
+        const errorMessage = document.getElementById('passwordError');
     
-    // Regular Expression for Password Validation
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+        // Regular Expression for Password Validation
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
 
-    if (!passwordRegex.test(password)) {
+        if (!passwordRegex.test(password)) {
         event.preventDefault(); // Prevent form submission
         errorMessage.style.display = 'block'; // Show error message
-    } else {
+        } else {
         errorMessage.style.display = 'none'; // Hide error message
+        }
+        });
+/// error messages
+    let notifications = document.querySelector('.notifications');
+
+    function getQueryParam(param) {
+        let urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
     }
-});
+
+    function createToast(type, icon, title, text) {
+        if (!text) return; // If there's no message, do nothing
+
+        let newToast = document.createElement('div');
+        newToast.innerHTML = `
+            <div class="toast ${type}">
+                <i class="${icon}"></i>
+                <div class="content">
+                    <div class="title">${title}</div>
+                    <span>${text}</span>
+                </div>
+                <i class="fa-solid fa-xmark" onclick="(this.parentElement).remove()"></i>
+            </div>`;
+        notifications.appendChild(newToast);
+        setTimeout(() => newToast.remove(), 5000);
+    }
+
+    // Get error message from URL and display it
+    let errorMessage = getQueryParam('error');
+    if (errorMessage) {
+        createToast('error', 'fa-solid fa-circle-exclamation', 'Error', errorMessage);
+    }
+
+
 </script>
 
 </body>
