@@ -534,36 +534,34 @@ function createToast(type, icon, title, text){
                 <i class="fa-solid fa-xmark" onclick="(this.parentElement).remove()"></i>
             </div>`;
         notifications.appendChild(newToast);
-        newToast.timeOut = setTimeout(() => {
-        // Remove the toast after 10 seconds
-        if (newToast) {
-            newToast.remove();
-        }
-
-        // Only show the second toast after the first one is removed
-        if (type === 'info' && !hasShownSecondInfoToast ) {
-            hasShownSecondInfoToast = true;
-            createToast('info','fa-solid fa-circle-info', 'Info', 'We have started analyzing your emotions.');
-           
-        }
-
-
-
-        // Only show the second toast after the first one is removed
-        if (type === 'success' && hasShownSecondInfoToast) {
-            resetSecondToastFlag();
-        }
-    }, 7500);  // Toast will disappear after 10 seconds
+        setTimeout(() => newToast.remove(), 7500);
     }
 
-// Call this when either success is received OR user closes the place
-function resetSecondToastFlag() {
-    hasShownSecondInfoToast = false;
-}
 
 
-function userClosedPlace() {
-    resetSecondToastFlag();
+function showEmotionAnalysisToasts() {
+  // Create and show the first toast
+  const toast = createToast(
+    'info',
+    'fa-solid fa-circle-info',
+    'Info',
+    'In the next few moments, we\'ll analyze your emotions about this place to improve your recommendations.'
+  );
+
+  // After 5 seconds, remove the first toast and show the second one
+  setTimeout(() => {
+    if (toast && toast.parentNode) {
+      toast.parentNode.removeChild(toast);
+    }
+
+    // Show the second toast
+    createToast(
+      'info',
+      'fa-solid fa-circle-info',
+      'Info',
+      'Emotion analysis started'
+    );
+  }, 7500);
 }
 
 
@@ -740,8 +738,7 @@ let currentSessionId = Date.now().toString();
     function showDetails(placeId, lat, lng) {
 
         //first FER message
-        createToast('info', 'fa-solid fa-circle-info','Info', 'In the next few moments, we\'ll analyze your emotions about this place to improve your recommendations.');
-
+        showEmotionAnalysisToasts();
         document.getElementById('placesContainer').style.display = 'none';
         document.getElementById('paginationss').style.visibility = 'hidden';
         document.getElementById('foort').style.visibility = 'hidden';
@@ -935,9 +932,7 @@ if (recommendations && recommendations.length > 0) {
 // Cache to store fetched place images
 const cfrsPlaceImageCache = {};
 
-
-
-        
+      
 function renderCFRSPlaces() {
     const cfrsPlacesContainer = document.getElementById('CFproduct-container');
     cfrsPlacesContainer.innerHTML = ''; // Clear current recommendations
@@ -1133,7 +1128,6 @@ function closeModal() {
     document.getElementById('paginationss').style.visibility = 'visible';
     document.getElementById('foort').style.visibility = 'visible';
     document.getElementById('filt').style.visibility = 'visible';  
-    userClosedPlace();
 }
 
 // Ensure analysis stops when the page is closed or refreshed

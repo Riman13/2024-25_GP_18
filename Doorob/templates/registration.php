@@ -211,7 +211,7 @@ if (isset($_GET['error'])) {
                 <i class="fa-solid fa-xmark" onclick="(this.parentElement).remove()"></i>
             </div>`;
         notifications.appendChild(newToast);
-        setTimeout(() => newToast.remove(), 5000);
+        setTimeout(() => newToast.remove(), 7500);
     }
 
     // Get error message from URL and display it
