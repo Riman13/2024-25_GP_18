@@ -21,7 +21,7 @@
         --color: #0abf30;
         background-image: 
             linear-gradient(
-                to right, #0abf3055, #22242f 30%
+                to right, #0abf3055, #ffffff 50%
             ); 
         animation: show 0.3s ease 1 forwards  
     }
@@ -74,20 +74,20 @@
         --color: #f24d4c;
         background-image: 
             linear-gradient(
-                to right, #f24d4c55, #ebe2e2 30%
+                to right, #f24d4c55, #ffffff 50%
             );
     }
     .toast.warning{
         --color: #e9bd0c;
         background-image: 
             linear-gradient(
-                to right, #e9bd0c55, #ecedf2 30%
+                to right, #e9bd0c55, #ffffff 50%
             );
     }
     .toast.info{
         --color: #3498db;
         background-image: 
             linear-gradient(
-                to right, #3498db55, #22242F 30%
+                to right, #3498db55,#ffffff 50%
             );
     }

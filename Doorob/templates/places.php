@@ -124,6 +124,7 @@ if ($hybrid_response && $hybrid_http_status == 200) {
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -137,6 +138,7 @@ if ($hybrid_response && $hybrid_http_status == 200) {
 <!--======== CSS ========-->
 <link rel="stylesheet" href="styles/footer-header-styles.css">
 <link rel="stylesheet" href="styles/places.css">
+<link rel="stylesheet" href="styles/msg.css">
 
 
 <!--======== ICONS ========-->
@@ -518,55 +520,54 @@ function toggleRating() {
 let notifications = document.querySelector('.notifications');
 // Flag to check if the second info toast has been shown
 let hasShownSecondInfoToast = false;
+let isFirstInfoToastShown = false;
 
-// Generalized createToast function without countdown
-function createToast(type, title, message) {
-    let newToast = document.createElement('div');
-    newToast.classList.add('toast', type);
-
-// Apply different background colors based on the toast type
-if (type === 'success') {
-    newToast.style.backgroundImage = 'linear-gradient(to right, hsl(150, 40%, 95%), hsl(150, 45%, 85%) 30%)'; // Soft, cool green
-} else if (type === 'info') {
-    newToast.style.backgroundImage = 'linear-gradient(to right, hsl(210, 36%, 96%), hsl(200, 42%, 85%) 30%)'; // Soft blue
-}
-
-    newToast.innerHTML = `
-        <i class="${type === 'success' ? 'fa-solid fa-check-circle' : 'fa-solid fa-circle-info'}"></i>
-        <div class="content">
-            <div class="title">${title}</div>
-            <span>${message}</span>
-        </div>
-    `;
-    notifications.appendChild(newToast);
-
-    // Ensure toast stays for 10 seconds before removal
-    setTimeout(() => {
+function createToast(type, icon, title, text){
+        let newToast = document.createElement('div');
+        newToast.innerHTML = `
+            <div class="toast ${type}">
+                <i class="${icon}"></i>
+                <div class="content">
+                    <div class="title">${title}</div>
+                    <span>${text}</span>
+                </div>
+                <i class="fa-solid fa-xmark" onclick="(this.parentElement).remove()"></i>
+            </div>`;
+        notifications.appendChild(newToast);
+        newToast.timeOut = setTimeout(() => {
         // Remove the toast after 10 seconds
         if (newToast) {
             newToast.remove();
         }
 
         // Only show the second toast after the first one is removed
-        if (type === 'info' && !hasShownSecondInfoToast) {
+        if (type === 'info' && !hasShownSecondInfoToast ) {
             hasShownSecondInfoToast = true;
-            createToast('info', 'info', 'We have started analyzing your emotions.');
+            createToast('info','fa-solid fa-circle-info', 'Info', 'We have started analyzing your emotions.');
+           
         }
+
+
 
         // Only show the second toast after the first one is removed
         if (type === 'success' && hasShownSecondInfoToast) {
-            hasShownSecondInfoToast = false;
+            resetSecondToastFlag();
         }
     }, 7500);  // Toast will disappear after 10 seconds
+    }
 
+// Call this when either success is received OR user closes the place
+function resetSecondToastFlag() {
+    hasShownSecondInfoToast = false;
 }
 
-// Success Toast with a different icon and message arrangement
-function showSuccessToast(rating) {
-    createToast('success', 'Analysis Complete', 
-    `Your emotion analysis is complete with a rating of ${rating}.`);
 
+function userClosedPlace() {
+    resetSecondToastFlag();
 }
+
+
+
 
 //END FER messages
 
@@ -692,10 +693,10 @@ renderPlaces();
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert("Rating saved successfully!");
-
+            createToast('success','fa-solid fa-circle-check', 'Success', `Rating saved successfully!`);
         } else {
-            alert("Error saving rating: " + data.error);
+            createToast('error', 'fa-solid fa-circle-exclamation', 'Error', "Error saving rating: " + data.error);
+
         }
     })
     .catch(error => console.error("Error submitting rating:", error));
@@ -724,11 +725,13 @@ $(document).on('click', '.favorite-btn', function() {
                             button.addClass('bookmarked').html('<i class="fas fa-bookmark"></i> Bookmarked');
                         }
                     } else {
-                        alert(response.error || 'An error occurred.');
+                        createToast('error', 'fa-solid fa-circle-exclamation', 'Error', response.error || 'An error occurred.');
+
                     }
                 },
                 error: function() {
-                    alert('An error occurred while communicating with the server.');
+                    createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'An error occurred while communicating with the server.');
+
                 }
             });
         });
@@ -737,7 +740,7 @@ let currentSessionId = Date.now().toString();
     function showDetails(placeId, lat, lng) {
 
         //first FER message
-        createToast('info', 'Info', 'In the next few moments, we\'ll analyze your emotions about this place to improve your recommendations.');
+        createToast('info', 'fa-solid fa-circle-info','Info', 'In the next few moments, we\'ll analyze your emotions about this place to improve your recommendations.');
 
         document.getElementById('placesContainer').style.display = 'none';
         document.getElementById('paginationss').style.visibility = 'hidden';
@@ -774,12 +777,14 @@ function checkForRating(sessionId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showSuccessToast(data.rating); // Call the success toast with the rating data
+            rating = data.rating; // Store fetched rating
+            createToast('success','fa-solid fa-circle-check', 'Success',`Your emotion analysis is complete with a rating of ${rating}.`);
             currentRating = data.rating; // Store fetched rating
             updateStarDisplay(currentRating);
             document.getElementById("rate-btn").style.display = "block"; // Show rating section
         } else {
-            alert("Error: " + data.error);
+            createToast('error', 'fa-solid fa-circle-exclamation', 'Error', "Error: " + data.error);
+
         }
     })
     .catch(error => console.error("Error checking rating:", error));
@@ -1020,7 +1025,7 @@ renderCFRSPlaces();
 
 //Discover Destenation Section END Here
 
-//CF Section Start Here
+//CF Section END Here
 
 //cxb 
 
@@ -1128,6 +1133,7 @@ function closeModal() {
     document.getElementById('paginationss').style.visibility = 'visible';
     document.getElementById('foort').style.visibility = 'visible';
     document.getElementById('filt').style.visibility = 'visible';  
+    userClosedPlace();
 }
 
 // Ensure analysis stops when the page is closed or refreshed
