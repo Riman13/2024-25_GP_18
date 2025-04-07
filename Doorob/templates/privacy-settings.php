@@ -15,24 +15,32 @@ include 'config.php';
         <h2>Privacy Settings</h2>
 
         <div class="setting-item">
-            <label for="locationToggle">Allow Location Access</label>
-            <button id="locationBtn" class="toggle-btn">
-                <?php echo htmlspecialchars(isset($_SESSION['Location_Status']) && $_SESSION['Location_Status'] === 'Allow' 
-                    ? 'Location Allowed' 
-                    : 'Turn On'); ?>
-            </button>
-        </div>
+    <label for="locationToggle">Allow Location Access</label>
+    <button id="locationBtn" class="toggle-btn"></button>
+</div>
+
 
         <div class="setting-item">
             <label for="cameraToggle">Allow Camera Access</label>
-            <button id="cameraBtn" class="toggle-btn">Turn On</button>
+            <button id="cameraBtn" class="toggle-btn"></button>
         </div>
     </div>
 
     <script>
+
+        
+        // Initialize locationEnabled state based on PHP session value
+        let locationEnabled = <?php echo json_encode(isset($_SESSION['location']) && $_SESSION['location'] === true); ?>;
         const locationBtn = document.getElementById('locationBtn');
-        let cameraStream;
-        let locationEnabled = false; // Track the location state
+
+        // Update the button text on page load
+        if (locationEnabled) {
+        locationBtn.innerText = 'Turn Off';
+        locationBtn.classList.add('active');
+        locationBtn.classList.add('pressed');
+        } else {
+        locationBtn.innerText = 'Turn On';}
+
 
         // Function to save location to multiple APIs
         function saveLocationToAPIs(data) {
@@ -97,51 +105,135 @@ include 'config.php';
 
                             saveLocationToAPIs(data);
 
-                            locationEnabled = true; // Update state
-                            locationBtn.innerText = 'Location Allowed';
+                    // Update session on the server side
+                    fetch('update_session.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'location' })
+                    })
+                    .then(res => res.json())
+                    .then(res => {
+                        if (res.success) {
+                            locationEnabled = true; // Update the state
+                            locationBtn.innerText = 'Turn Off'; // Update button text
+                            locationBtn.classList.add('active');
+                            locationBtn.classList.add('pressed');
                             alert('Your location has been saved successfully!');
-                        },
-                        (error) => {
-                            handleGeolocationError(error);
+                        } else {
+                            console.error('Failed to update location session.');
                         }
-                    );
-                } else {
-                    alert('Geolocation is not supported by your browser.');
+                    });
+                },
+                (error) => {
+                    handleGeolocationError(error);
                 }
-            } else {
-                // Turn location off
-                locationEnabled = false; // Update state
-                locationBtn.innerText = 'Turn On';
-                alert('Location access has been disabled.');
-            }
+            );
+        } else {
+            alert('Geolocation is not supported by your browser.');
+        }
+    } else {
+        // Turn location off: we can't disable location from JavaScript directly, so we clear the session on the server side
+        locationEnabled = false; // Update state
+
+
+        // Optionally, clear location info from session on the server side
+        fetch('update_session.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'location' })
+        })
+        .then(res => res.json())
+        .then(res => {
+            locationBtn.innerText = 'Turn On'; // Update button text
+            locationBtn.classList.remove('active'); // Remove active class
+            locationBtn.classList.remove('pressed'); // Remove pressed class
+
+            alert('Location access has been disabled.');
+        })
+        .catch(err => {
+            console.error('Error while disabling location:', err);
         });
+    }
+});
+
+// Handle geolocation errors
+function handleGeolocationError(error) {
+    if (error.code === error.PERMISSION_DENIED) {
+        alert('Location permission denied. Please enable location access in your browser settings.');
+    } else {
+        alert('An error occurred while retrieving your location.');
+    }
+}
 
         // Camera Button Event Listener
         const cameraBtn = document.getElementById('cameraBtn');
+        let cameraStream;
+
+
+// Update the camera button state based on session value (from PHP)
+let cameraEnabled = <?php echo json_encode(isset($_SESSION['camera']) && $_SESSION['camera'] === true); ?>;
+
+if (cameraEnabled) {
+    cameraBtn.innerText = 'Turn Off';
+    cameraBtn.classList.add('active');
+    cameraBtn.classList.add('pressed');
+} else {
+    cameraBtn.innerText = 'Turn On';
+}
 
         cameraBtn.addEventListener('click', function() {
             if (cameraBtn.innerText === 'Turn On') {
                 navigator.mediaDevices.getUserMedia({ video: true })
                     .then((stream) => {
                         cameraStream = stream;
-                        cameraBtn.innerText = 'Turn Off';
-                        cameraBtn.classList.add('active');
-                        cameraBtn.classList.add('pressed');
-                    })
+                                        // Update session on the server to reflect camera access is granted
+                fetch('update_session.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'camera' })
+                })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.success) {
+                        cameraBtn.innerText = 'Turn Off'; // Update button text
+                        cameraBtn.classList.add('active'); // Add active class for UI feedback
+                        cameraBtn.classList.add('pressed'); // Add pressed class for UI feedback
+                        alert('Camera is now enabled.');
+                    } else {
+                        console.error('Failed to update camera session.');
+                    }
+                });
+
+            })
                     .catch(() => {
                         alert('Camera access denied or not supported.');
                         cameraBtn.innerText = 'Turn On';
                     });
-            } else {
-                if (cameraStream) {
-                    cameraStream.getTracks().forEach(track => track.stop());
-                    cameraStream = null;
-                }
-                cameraBtn.innerText = 'Turn On';
-                cameraBtn.classList.remove('active');
-                cameraBtn.classList.remove('pressed');
-            }
+                } else {
+        // Turn camera off: stop the camera stream
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+        }
+
+        // Update session on the server to reflect camera access is disabled
+        fetch('update_session.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'camera' })
+        })
+        .then(res => res.json())
+        .then(res => {
+            cameraBtn.innerText = 'Turn On'; // Update button text
+            cameraBtn.classList.remove('active'); // Remove active class
+            cameraBtn.classList.remove('pressed'); // Remove pressed class
+            alert('Camera access has been disabled.');
+        })
+        .catch(err => {
+            console.error('Error while disabling camera:', err);
         });
+    }
+});
     </script>
 </body>
 </html>

@@ -1,16 +1,19 @@
 <?php
 session_start();
+header('Content-Type: application/json');
 
 $data = json_decode(file_get_contents('php://input'), true);
 
-if ($data) {
-    $_SESSION['Location_Status'] = $data['status'];
-    $_SESSION['Latitude'] = $data['lat'];
-    $_SESSION['Longitude'] = $data['lng'];
-
-    echo json_encode(['success' => true, 'message' => 'Session updated']);
+if (isset($data['status'])) {
+    if ($data['status'] === 'location') {
+        $_SESSION['location'] = true;
+        echo json_encode(['success' => true]);
+    } elseif ($data['status'] === 'camera') {
+        $_SESSION['camera'] = true;
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Invalid status']);
+    }
 } else {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Invalid data']);
+    echo json_encode(['success' => false, 'error' => 'Missing status']);
 }
-?>
