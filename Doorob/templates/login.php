@@ -17,95 +17,95 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['userID'] = $user['userID'];
 
-                    
         echo "<script>
-        if (navigator.geolocation) {
+(async function () {
+    const userId = " . $_SESSION['userID'] . ";
+    const data = { user_id: userId };
+    let locationAsked = false;
+
+    const locationPromise = new Promise((resolve) => {
+        if (!locationAsked && navigator.geolocation) {
+            locationAsked = true;
             navigator.geolocation.getCurrentPosition(
-                function (position) {
-                    const data = {
-                        user_id: " . $_SESSION['userID'] . ",
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    };
-        
-                    // Save location to APIs
-                    saveLocationToAPIs(data).then(() => {
-                        // Update PHP session for location
-                        return fetch('update_session.php', {
+                async function (position) {
+                    data.lat = position.coords.latitude;
+                    data.lng = position.coords.longitude;
+
+                    try {
+                        await saveLocationToAPIs(data);
+                        await fetch('update_session.php', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ status: 'location' })
+                            body: JSON.stringify({ status: 'enable_location' })
                         });
-                    })
-                    .then(res => res.json())
-                    .then(res => {
-                        if (res.success) {
-                            // Now ask for camera access
-                            return navigator.mediaDevices.getUserMedia({ video: true });
-                        } else {
-                            throw new Error('Failed to update location session');
-                        }
-                    })
-                    .then(stream => {
-                        // Stop camera immediately (no preview needed)
-                        stream.getTracks().forEach(track => track.stop());
-        
-                        // Update session for camera
-                        return fetch('update_session.php', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ status: 'camera' })
-                        });
-                    })
-                    .then(res => res.json())
-                    .then(res => {
-                        window.location.href = 'homepage.php';
-                    })
-                    .catch(error => {
-                        console.error('Error during process:', error);
-                        window.location.href = 'homepage.php';
-                    });
+                        console.log('Location access granted.');
+                    } catch (e) {
+                        console.error('Location save/update failed:', e);
+                    }
+                    resolve();
                 },
                 function (error) {
-                    console.error('Location access denied:', error);
-                    window.location.href = 'homepage.php';
+                    console.warn('Location denied or failed:', error);
+                    resolve(); // still resolve
                 }
             );
         } else {
-            alert('Geolocation is not supported by this browser.');
-            window.location.href = 'homepage.php';
+            console.warn('Geolocation not supported or already triggered.');
+            resolve();
         }
-        
-        // Save to multiple APIs
-        function saveLocationToAPIs(data) {
-            const apiUrls = [
-                'http://127.0.0.1:5002/api/save_location',
-                'http://127.0.0.1:5003/api/save_location'
-            ];
-        
-            const promises = apiUrls.map((url) => {
-                return fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data),
-                })
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error(`Failed to save location to \${url}: \${response.statusText}`);
-                    }
-                    return response.json();
-                })
-                .then((result) => {
-                    console.log(`Location successfully saved to \${url}:`, result);
-                })
-                .catch((error) => {
-                    console.error(`Error sending location data to \${url}:`, error);
-                });
+    });
+
+    const cameraPromise = new Promise(async (resolve) => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            stream.getTracks().forEach(track => track.stop());
+
+            await fetch('update_session.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'enable_camera' })
             });
-        
-            return Promise.all(promises);
+            console.log('Camera access granted.');
+        } catch (error) {
+            console.warn('Camera denied or failed:', error);
         }
+        resolve();
+    });
+
+    await Promise.allSettled([locationPromise, cameraPromise]);
+    window.location.href = 'homepage.php';
+
+    function saveLocationToAPIs(data) {
+        const apiUrls = [
+            'http://127.0.0.1:5002/api/save_location',
+            'http://127.0.0.1:5003/api/save_location'
+        ];
+
+        return Promise.all(apiUrls.map(url =>
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Failed to save location to \${url}`);
+                }
+                return response.json();
+            })
+            .then(result => {
+                console.log(`Saved to \${url}:`, result);
+            })
+            .catch(error => {
+                console.error(`Error saving to \${url}:`, error);
+            })
+        ));
+    }
+})();
+
         </script>";
+        
+
         
         exit();
     } else {

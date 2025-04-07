@@ -516,6 +516,8 @@ function toggleRating() {
 <script>
 
 //FER messages script 
+ const session = {
+    camera: <?php echo isset($_SESSION['camera']) && $_SESSION['camera'] ? 'true' : 'false'; ?> };
 
 let notifications = document.querySelector('.notifications');
 // Flag to check if the second info toast has been shown
@@ -539,6 +541,19 @@ function createToast(type, icon, title, text){
 
 
 
+function checkCameraAndShowToasts(session) {
+  if (session.camera === true) {
+    showEmotionAnalysisToasts();
+  } else {
+    createToast(
+      'warning',
+      'fa-solid fa-camera',
+      'Camera Access Needed',
+      'Please enable your camera to allow us to analyze your emotions and improve your recommendations.'
+    );
+  }
+}
+
 function showEmotionAnalysisToasts() {
   // Create and show the first toast
   const toast = createToast(
@@ -548,7 +563,7 @@ function showEmotionAnalysisToasts() {
     'In the next few moments, we\'ll analyze your emotions about this place to improve your recommendations.'
   );
 
-  // After 5 seconds, remove the first toast and show the second one
+  // After 7.5 seconds, remove the first toast and show the second one
   setTimeout(() => {
     if (toast && toast.parentNode) {
       toast.parentNode.removeChild(toast);
@@ -563,6 +578,44 @@ function showEmotionAnalysisToasts() {
     );
   }, 7500);
 }
+function checkCameraAndShowToasts(session) {
+  if (session.camera === true) {
+    showEmotionAnalysisToasts();
+  } else {
+    createToast(
+      'warning',
+      'fa-solid fa-camera',
+      'Activate Camera',
+      'Please enable your camera to allow us to analyze your emotions and improve your recommendations.'
+    );
+  }
+}
+
+function showEmotionAnalysisToasts() {
+  // Create and show the first toast
+  const toast = createToast(
+    'info',
+    'fa-solid fa-circle-info',
+    'Info',
+    'In the next few moments, we\'ll analyze your emotions about this place to improve your recommendations.'
+  );
+
+  // After 7.5 seconds, remove the first toast and show the second one
+  setTimeout(() => {
+    if (toast && toast.parentNode) {
+      toast.parentNode.removeChild(toast);
+    }
+
+    // Show the second toast
+    createToast(
+      'info',
+      'fa-solid fa-circle-info',
+      'Info',
+      'Emotion analysis started'
+    );
+  }, 7500);
+}
+
 
 
 
@@ -738,7 +791,7 @@ let currentSessionId = Date.now().toString();
     function showDetails(placeId, lat, lng) {
 
         //first FER message
-        showEmotionAnalysisToasts();
+        checkCameraAndShowToasts(session);
         document.getElementById('placesContainer').style.display = 'none';
         document.getElementById('paginationss').style.visibility = 'hidden';
         document.getElementById('foort').style.visibility = 'hidden';
