@@ -75,30 +75,7 @@ if ($response === false) {
         $recommendations = [];
     }
 }
-// Fetch context-based recommendations from Flask API
-$context_api_url = 'http://127.0.0.1:5002/api/recommendations_context/' . $user_id;
-
-// Initialize cURL session
-$ch_context = curl_init();
-curl_setopt($ch_context, CURLOPT_URL, $context_api_url);
-curl_setopt($ch_context, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch_context, CURLOPT_HTTPGET, true);
-curl_setopt($ch_context, CURLOPT_CONNECTTIMEOUT, 5);
-curl_setopt($ch_context, CURLOPT_TIMEOUT, 10); // Adjusted timeout
-
-// Execute the cURL request
-$context_response = curl_exec($ch_context);
-$context_http_status = curl_getinfo($ch_context, CURLINFO_HTTP_CODE);
-curl_close($ch_context);
-
-// Process the API response
 $context_recommendations = [];
-if ($context_response && $context_http_status == 200) {
-    $context_recommendations = json_decode($context_response, true);
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        $context_recommendations = []; // Fallback if JSON decoding fails
-    }
-}
 // Fetch context-based recommendations from Flask API
 $hybrid_api_url = 'http://127.0.0.1:5003/api/recommendations_hybrid/' . $user_id;
 
@@ -745,6 +722,14 @@ renderPlaces();
     .then(data => {
         if (data.success) {
             createToast('success','fa-solid fa-circle-check', 'Success', `Rating saved successfully!`);
+    // Fetch updated recommendations instantly
+    fetch(`http://127.0.0.1:5002/api/recommendations_context/<?php echo $user_id; ?>`)
+    .then(res => res.json())
+    .then(updatedContextRecs => {
+        context_recommendations.length = 0;
+        context_recommendations.push(...updatedContextRecs);
+        renderCXPlaces(); // 👈 re-render the section
+    })
         } else {
             createToast('error', 'fa-solid fa-circle-exclamation', 'Error', "Error saving rating: " + data.error);
 
@@ -864,8 +849,6 @@ document.querySelectorAll('#starRating .star').forEach((star, index) => {
     });
 });
 
-
-
     // Fetch details from the server
     fetch(`get_place_details.php?id=${placeId}`)
         .then(response => response.text())  // Get raw text
@@ -877,6 +860,56 @@ document.querySelectorAll('#starRating .star').forEach((star, index) => {
                 document.getElementById('placeName').innerText = jsonData.place_name;
                 //document.getElementById('placeCategory').innerText = jsonData.categories;
                 document.getElementById('placeGranularCategory').innerText = jsonData.granular_category;
+                const selectedCategory = jsonData.granular_category;
+
+                fetch(`http://127.0.0.1:5002/api/recommendations_context/<?php echo $user_id; ?>?category=${encodeURIComponent(selectedCategory)}`)
+  .then(res => res.json())
+  .then(filteredContextRecs => {
+    context_recommendations.length = 0;
+    
+    if (filteredContextRecs.length > 0) {
+        context_recommendations.push(...filteredContextRecs);
+    } else {
+        // fallback: fetch general VW-based context recommendations
+        return fetch(`http://127.0.0.1:5002/api/recommendations_context/<?php echo $user_id; ?>`)
+          .then(res => res.json())
+          .then(generalRecs => {
+            context_recommendations.push(...generalRecs);
+          });
+    }
+  })
+  .then(() => {
+    renderCXPlaces();
+    document.getElementById('context-section').style.display = 'block';
+  })
+  .catch(error => {
+    console.error('Error fetching context recommendations:', error);
+  });
+
+  fetch(`http://127.0.0.1:5001/api/recommendations/<?php echo $user_id; ?>?category=${encodeURIComponent(selectedCategory)}`)
+  .then(res => res.json())
+  .then(filteredCFRecs => {
+    recommendations.length = 0;
+
+    if (filteredCFRecs.length > 0) {
+      recommendations.push(...filteredCFRecs);
+    } else {
+      // fallback: fetch general CF recommendations
+      return fetch(`http://127.0.0.1:5001/api/recommendations/<?php echo $user_id; ?>`)
+        .then(res => res.json())
+        .then(generalCFRecs => {
+          recommendations.push(...generalCFRecs);
+        });
+    }
+  })
+  .then(() => {
+    renderCFRSPlaces(); // this should re-render based on `cf_recommendations`
+    document.getElementById('cf-section').style.display = 'block';
+  })
+  .catch(error => {
+    console.error('Error fetching CF recommendations:', error);
+  });
+
                 document.getElementById('placeRating').innerText = jsonData.average_rating;
                 
               // Fetch and display previous rating if available
@@ -1192,11 +1225,5 @@ window.addEventListener('beforeunload', () => {
     });
 });
 </script>
-<script 
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs&callback=initMap&libraries=marker"
-    async
-    defer>
-</script>
-   
   </body>
   </html>
