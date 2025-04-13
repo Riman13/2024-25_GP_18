@@ -40,13 +40,20 @@ $conn->close();
         <div class="rating-list">
             <?php if (!empty($ratings)): ?>
                 <ul>
-                    <?php foreach ($ratings as $rating): ?>
-                        <li>
-                            <strong>Place:</strong> <?php echo htmlspecialchars($rating['place_name']); ?><br>
-                            <strong>Rating:</strong> <?php echo htmlspecialchars($rating['rating']); ?>/5
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
+                <?php foreach ($ratings as $rating): ?>
+                    <li>
+                        <strong>Place:</strong> <?php echo htmlspecialchars($rating['place_name']); ?><br>
+                        <strong>Rating:</strong>
+                        <?php
+                            $stars = intval($rating['rating']);
+                            for ($i = 1; $i <= 5; $i++) {
+                                $class = $i <= $stars ? 'star gold' : 'star';
+                                echo "<span class=\"$class\">" . ($i <= $stars ? '★' : '☆') . "</span>";
+                            }
+                        ?>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
             <?php else: ?>
                 <p class="empty-message">You haven't rated any place yet.</p>
             <?php endif; ?>

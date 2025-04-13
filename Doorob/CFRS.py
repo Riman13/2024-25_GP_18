@@ -24,7 +24,7 @@ CORS(app)  # Enable CORS for all routes
 
 
 # Top K items to recommend
-TOP_K = 3
+TOP_K = 5
 
 TEST_SIZE = 0.2 # 20% for testing, 80% for training
 
@@ -190,28 +190,32 @@ print("Model:\t",
 @app.route('/api/recommendations/<int:user_id>', methods=['GET'])
 def get_recommendations_by_id(user_id):
     try:
+        category_filter = request.args.get('category')
         # Fetch user recommendations
-        user_recommendations = model.recommend_k_items(pd.DataFrame({'user_id': [user_id]}), top_k=TOP_K, remove_seen=True)
+        # Fetch all recommendations for this user
+        user_recommendations = model.recommend_k_items(pd.DataFrame({'user_id': [user_id]}), top_k=500, remove_seen=True)
+        rated_place_ids = ratings_df[ratings_df['user_id'] == user_id]['place_id'].tolist()
+        user_recommendations = user_recommendations[~user_recommendations['place_id'].isin(rated_place_ids)]
 
-        # Log the user recommendations for debugging
-        print("User Recommendations:", user_recommendations)  # Log recommendations before filtering
 
-        # Check if recommendations are empty
         if user_recommendations.empty:
             return jsonify({"error": "No recommendations found for this user."}), 404
 
         # Filter out NaN predictions
         user_recommendations = user_recommendations[user_recommendations['prediction'].notna()]
 
-        # Prepare recommended places without scores
-        recommended_places = pd.DataFrame(user_recommendations, columns=['place_id', 'prediction'])
-
         # Merge with places DataFrame
-        recommended_places_details = recommended_places.merge(places_df, on='place_id')
+        merged = user_recommendations.merge(places_df, on='place_id')
+
+        # Apply category filter BEFORE slicing top-K
+        if category_filter:
+            merged = merged[merged['granular_category'].str.lower() == category_filter.lower()]
+
+        # Take top-K after filtering
+        final_result = merged.sort_values('prediction', ascending=False).head(TOP_K)
 
         # Prepare the response, excluding the score
-        response = recommended_places_details[['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng']].to_dict(orient='records')
-
+        response = final_result[['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng']].to_dict(orient='records')
         print("Response:", response)  # Log the response for debugging
         return jsonify(response)
 

@@ -29,24 +29,33 @@ def map_emotion_to_rating(emotion_dict):
     Maps detected emotions to a rating between 1 and 5 based on 
     the difference between positive and negative emotions.
     """
+     # Print each emotion with its value
+    print("[Emotion Breakdown]")
+    for emotion, value in emotion_dict.items():
+        print(f"  {emotion.capitalize():<10}: {value:.2f}")
 
     # Calculate the total percentage of positive and negative emotions
     positive_score = emotion_dict.get('happy', 0) + emotion_dict.get('surprise', 0)
     negative_score = emotion_dict.get('angry', 0) + emotion_dict.get('sad', 0) + \
                      emotion_dict.get('fear', 0) + emotion_dict.get('disgust', 0)
-    neutral_score = emotion_dict.get('neutral', 0)  # Neutral score for balance reference
+    neutral_score = emotion_dict.get('neutral', 0)
 
     # Compute the response value as the difference between positive and negative scores
     response_value = positive_score - negative_score
+    print(f"[Emotion Analysis]")
+    print(f"  Positive Score: {positive_score}")
+    print(f"  Negative Score: {negative_score}")
+    print(f"  Neutral Score:  {neutral_score}")
+    print(f"  Response Value: {response_value}")
 
     # Assign a rating based on the response value range
-    if response_value >= 40:  
+    if response_value >= 60:  
         return 5  # Very Satisfied
-    elif 15 <= response_value < 40:
+    elif 20 <= response_value < 60:
         return 4  # Satisfied
-    elif -10 <= response_value < 15:
+    elif -20 <= response_value < 20:
         return 3  # Neutral
-    elif -35 <= response_value < -10:
+    elif -60 <= response_value < -20:
         return 2  # Unsatisfied
     else:
         return 1  # Very Unsatisfied

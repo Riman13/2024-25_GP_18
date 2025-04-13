@@ -1,5 +1,7 @@
 <?php
 session_start();
+$_SESSION['location'] = false;
+$_SESSION['camera'] = false;
 include 'config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -15,66 +17,96 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['userID'] = $user['userID'];
 
-                    
         echo "<script>
-        if (navigator.geolocation) {
+(async function () {
+    const userId = " . $_SESSION['userID'] . ";
+    const data = { user_id: userId };
+    let locationAsked = false;
+
+    const locationPromise = new Promise((resolve) => {
+        if (!locationAsked && navigator.geolocation) {
+            locationAsked = true;
             navigator.geolocation.getCurrentPosition(
-                function (position) {
-                    const data = {
-                        user_id: " . $_SESSION['userID'] . ",
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude
-                    };
-    
-                    // Call the function to save location to all APIs
-                    saveLocationToAPIs(data);
-    
-                    // Redirect to homepage after saving location
-                    window.location.href = 'homepage.php';
+                async function (position) {
+                    data.lat = position.coords.latitude;
+                    data.lng = position.coords.longitude;
+
+                    try {
+                        await saveLocationToAPIs(data);
+                        await fetch('update_session.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ status: 'enable_location' })
+                        });
+                        console.log('Location access granted.');
+                    } catch (e) {
+                        console.error('Location save/update failed:', e);
+                    }
+                    resolve();
                 },
                 function (error) {
-                    console.error('Location access denied:', error);
-                    window.location.href = 'homepage.php';
+                    console.warn('Location denied or failed:', error);
+                    resolve(); // still resolve
                 }
             );
         } else {
-            alert('Geolocation is not supported by this browser.');
-            window.location.href = 'homepage.php';
+            console.warn('Geolocation not supported or already triggered.');
+            resolve();
         }
-    
-        // The saveLocationToAPIs function
-        function saveLocationToAPIs(data) {
-            const apiUrls = [
-                'http://127.0.0.1:5002/api/save_location',
-                'http://127.0.0.1:5003/api/save_location'
-            ];
-    
-            apiUrls.forEach((url) => {
-                fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data),
-                })
-                    .then((response) => {
-                        if (!response.ok) {
-                            throw new Error(`Failed to save location to \${url}: \${response.statusText}`);
-                        }
-                        return response.json();
-                    })
-                    .then((result) => {
-                        console.log(`Location successfully saved to \${url}:`, result);
-                        fetch('update_session.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ status: 'Allow', lat: data.lat, lng: data.lng }),
-                    })
-                    })
-                    .catch((error) => {
-                        console.error(`Error sending location data to \${url}:`, error);
-                    });
+    });
+
+    const cameraPromise = new Promise(async (resolve) => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            stream.getTracks().forEach(track => track.stop());
+
+            await fetch('update_session.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: 'enable_camera' })
             });
+            console.log('Camera access granted.');
+        } catch (error) {
+            console.warn('Camera denied or failed:', error);
         }
-    </script>";
+        resolve();
+    });
+
+    await Promise.allSettled([locationPromise, cameraPromise]);
+    window.location.href = 'homepage.php';
+
+    function saveLocationToAPIs(data) {
+        const apiUrls = [
+            'http://127.0.0.1:5002/api/save_location',
+            'http://127.0.0.1:5003/api/save_location'
+        ];
+
+        return Promise.all(apiUrls.map(url =>
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Failed to save location to \${url}`);
+                }
+                return response.json();
+            })
+            .then(result => {
+                console.log(`Saved to \${url}:`, result);
+            })
+            .catch(error => {
+                console.error(`Error saving to \${url}:`, error);
+            })
+        ));
+    }
+})();
+
+        </script>";
+        
+
+        
         exit();
     } else {
         header("Location: registration.php?error=Invalid email or password");

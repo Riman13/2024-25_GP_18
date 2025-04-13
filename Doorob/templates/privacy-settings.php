@@ -15,133 +15,151 @@ include 'config.php';
         <h2>Privacy Settings</h2>
 
         <div class="setting-item">
-            <label for="locationToggle">Allow Location Access</label>
-            <button id="locationBtn" class="toggle-btn">
-                <?php echo htmlspecialchars(isset($_SESSION['Location_Status']) && $_SESSION['Location_Status'] === 'Allow' 
-                    ? 'Location Allowed' 
-                    : 'Turn On'); ?>
-            </button>
-        </div>
+    <label for="locationToggle">Allow Location Access</label>
+    <button id="locationBtn" class="toggle-btn"></button>
+</div>
+
 
         <div class="setting-item">
             <label for="cameraToggle">Allow Camera Access</label>
-            <button id="cameraBtn" class="toggle-btn">Turn On</button>
+            <button id="cameraBtn" class="toggle-btn"></button>
         </div>
     </div>
 
     <script>
-        const locationBtn = document.getElementById('locationBtn');
-        let cameraStream;
-        let locationEnabled = false; // Track the location state
 
-        // Function to save location to multiple APIs
-        function saveLocationToAPIs(data) {
-            const apiUrls = [
-                'http://127.0.0.1:5002/api/save_location',
-                'http://127.0.0.1:5003/api/save_location'
-            ];
+// Location Button Logic
+const locationBtn = document.getElementById('locationBtn');
+let locationEnabled = <?php echo json_encode(isset($_SESSION['location']) && $_SESSION['location'] === true); ?>;
 
-            apiUrls.forEach((url) => {
-                fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data),
-                })
-                .then((response) => {
-                    if (!response.ok) {
-                        throw new Error(`Failed to save location to ${url}: ${response.statusText}`);
-                    }
-                    return response.json();
-                })
-                .then((result) => {
-                    console.log(`Location saved to ${url}:`, result);
-                })
-                .catch((error) => {
-                    console.error(`Error sending location data to ${url}:`, error);
-                });
-            });
-        }
+if (locationEnabled) {
+    locationBtn.innerText = 'Turn Off';
+    locationBtn.classList.add('active', 'pressed');
+} else {
+    locationBtn.innerText = 'Turn On';
+}
 
-        // Function to handle geolocation errors
-        function handleGeolocationError(error) {
-            let message = '';
-            switch (error.code) {
-                case error.PERMISSION_DENIED:
-                    message = 'Location access denied.';
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    message = 'Location unavailable. Please try again later.';
-                    break;
-                case error.TIMEOUT:
-                    message = 'Request for location timed out. Please try again.';
-                    break;
-                default:
-                    message = 'An unknown error occurred while retrieving location.';
-                    break;
-            }
-            alert(message);
-        }
+locationBtn.addEventListener('click', function () {
+    if (!locationEnabled) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const data = {
+                        user_id: <?php echo json_encode($_SESSION['userID'] ?? null); ?>,
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
 
-        // Location Button Event Listener
-        locationBtn.addEventListener('click', function () {
-            if (!locationEnabled) {
-                // Turn location on
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            const data = {
-                                user_id: <?php echo json_encode($_SESSION['userID'] ?? null); ?>,
-                                lat: position.coords.latitude,
-                                lng: position.coords.longitude,
-                            };
+                    // Save to APIs
+                    ['http://127.0.0.1:5002/api/save_location', 'http://127.0.0.1:5003/api/save_location'].forEach((url) => {
+                        fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data)
+                        });
+                    });
 
-                            saveLocationToAPIs(data);
-
-                            locationEnabled = true; // Update state
-                            locationBtn.innerText = 'Location Allowed';
+                    // Update session to "enabled"
+                    fetch('update_session.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: 'enable_location' })
+                    })
+                    .then(res => res.json())
+                    .then(res => {
+                        if (res.success) {
+                            locationEnabled = true;
+                            locationBtn.innerText = 'Turn Off';
+                            locationBtn.classList.add('active', 'pressed');
                             alert('Your location has been saved successfully!');
-                        },
-                        (error) => {
-                            handleGeolocationError(error);
                         }
-                    );
-                } else {
-                    alert('Geolocation is not supported by your browser.');
+                    });
+                },
+                (error) => {
+                    alert('Location error: ' + error.message);
                 }
-            } else {
-                // Turn location off
-                locationEnabled = false; // Update state
+            );
+        } else {
+            alert('Geolocation is not supported by your browser.');
+        }
+    } else {
+        // Turn off location (just update session)
+        fetch('update_session.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'disable_location' })
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (res.success) {
+                locationEnabled = false;
                 locationBtn.innerText = 'Turn On';
+                locationBtn.classList.remove('active', 'pressed');
                 alert('Location access has been disabled.');
             }
         });
+    }
+});
 
-        // Camera Button Event Listener
-        const cameraBtn = document.getElementById('cameraBtn');
 
-        cameraBtn.addEventListener('click', function() {
-            if (cameraBtn.innerText === 'Turn On') {
-                navigator.mediaDevices.getUserMedia({ video: true })
-                    .then((stream) => {
-                        cameraStream = stream;
+// Camera Button Logic
+const cameraBtn = document.getElementById('cameraBtn');
+let cameraEnabled = <?php echo json_encode(isset($_SESSION['camera']) && $_SESSION['camera'] === true); ?>;
+let cameraStream = null;
+
+if (cameraEnabled) {
+    cameraBtn.innerText = 'Turn Off';
+    cameraBtn.classList.add('active', 'pressed');
+} else {
+    cameraBtn.innerText = 'Turn On';
+}
+
+cameraBtn.addEventListener('click', function () {
+    if (!cameraEnabled) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                cameraStream = stream;
+                fetch('update_session.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'enable_camera' })
+                })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.success) {
+                        cameraEnabled = true;
                         cameraBtn.innerText = 'Turn Off';
-                        cameraBtn.classList.add('active');
-                        cameraBtn.classList.add('pressed');
-                    })
-                    .catch(() => {
-                        alert('Camera access denied or not supported.');
-                        cameraBtn.innerText = 'Turn On';
-                    });
-            } else {
-                if (cameraStream) {
-                    cameraStream.getTracks().forEach(track => track.stop());
-                    cameraStream = null;
-                }
+                        cameraBtn.classList.add('active', 'pressed');
+                        alert('Camera is now enabled.');
+                    }
+                });
+            })
+            .catch(() => {
+                alert('Camera access denied or not supported.');
+            });
+    } else {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+        }
+
+        fetch('update_session.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'disable_camera' })
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (res.success) {
+                cameraEnabled = false;
                 cameraBtn.innerText = 'Turn On';
-                cameraBtn.classList.remove('active');
-                cameraBtn.classList.remove('pressed');
+                cameraBtn.classList.remove('active', 'pressed');
+                alert('Camera access has been disabled.');
             }
         });
+    }
+});
+
     </script>
 </body>
 </html>

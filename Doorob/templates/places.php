@@ -75,30 +75,7 @@ if ($response === false) {
         $recommendations = [];
     }
 }
-// Fetch context-based recommendations from Flask API
-$context_api_url = 'http://127.0.0.1:5002/api/recommendations_context/' . $user_id;
-
-// Initialize cURL session
-$ch_context = curl_init();
-curl_setopt($ch_context, CURLOPT_URL, $context_api_url);
-curl_setopt($ch_context, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch_context, CURLOPT_HTTPGET, true);
-curl_setopt($ch_context, CURLOPT_CONNECTTIMEOUT, 5);
-curl_setopt($ch_context, CURLOPT_TIMEOUT, 10); // Adjusted timeout
-
-// Execute the cURL request
-$context_response = curl_exec($ch_context);
-$context_http_status = curl_getinfo($ch_context, CURLINFO_HTTP_CODE);
-curl_close($ch_context);
-
-// Process the API response
 $context_recommendations = [];
-if ($context_response && $context_http_status == 200) {
-    $context_recommendations = json_decode($context_response, true);
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        $context_recommendations = []; // Fallback if JSON decoding fails
-    }
-}
 // Fetch context-based recommendations from Flask API
 $hybrid_api_url = 'http://127.0.0.1:5003/api/recommendations_hybrid/' . $user_id;
 
@@ -124,6 +101,7 @@ if ($hybrid_response && $hybrid_http_status == 200) {
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -137,6 +115,7 @@ if ($hybrid_response && $hybrid_http_status == 200) {
 <!--======== CSS ========-->
 <link rel="stylesheet" href="styles/footer-header-styles.css">
 <link rel="stylesheet" href="styles/places.css">
+<link rel="stylesheet" href="styles/msg.css">
 
 
 <!--======== ICONS ========-->
@@ -514,59 +493,109 @@ function toggleRating() {
 <script>
 
 //FER messages script 
+ const session = {
+    camera: <?php echo isset($_SESSION['camera']) && $_SESSION['camera'] ? 'true' : 'false'; ?> };
 
 let notifications = document.querySelector('.notifications');
 // Flag to check if the second info toast has been shown
 let hasShownSecondInfoToast = false;
+let isFirstInfoToastShown = false;
 
-// Generalized createToast function without countdown
-function createToast(type, title, message) {
-    let newToast = document.createElement('div');
-    newToast.classList.add('toast', type);
+function createToast(type, icon, title, text){
+        let newToast = document.createElement('div');
+        newToast.innerHTML = `
+            <div class="toast ${type}">
+                <i class="${icon}"></i>
+                <div class="content">
+                    <div class="title">${title}</div>
+                    <span>${text}</span>
+                </div>
+                <i class="fa-solid fa-xmark" onclick="(this.parentElement).remove()"></i>
+            </div>`;
+        notifications.appendChild(newToast);
+        setTimeout(() => newToast.remove(), 7500);
+    }
 
-// Apply different background colors based on the toast type
-if (type === 'success') {
-    newToast.style.backgroundImage = 'linear-gradient(to right, hsl(150, 40%, 95%), hsl(150, 45%, 85%) 30%)'; // Soft, cool green
-} else if (type === 'info') {
-    newToast.style.backgroundImage = 'linear-gradient(to right, hsl(210, 36%, 96%), hsl(200, 42%, 85%) 30%)'; // Soft blue
+
+
+function checkCameraAndShowToasts(session) {
+  if (session.camera === true) {
+    showEmotionAnalysisToasts();
+  } else {
+    createToast(
+      'warning',
+      'fa-solid fa-camera',
+      'Camera Access Needed',
+      'Please enable your camera to allow us to analyze your emotions and improve your recommendations.'
+    );
+  }
 }
 
-    newToast.innerHTML = `
-        <i class="${type === 'success' ? 'fa-solid fa-check-circle' : 'fa-solid fa-circle-info'}"></i>
-        <div class="content">
-            <div class="title">${title}</div>
-            <span>${message}</span>
-        </div>
-    `;
-    notifications.appendChild(newToast);
+function showEmotionAnalysisToasts() {
+  // Create and show the first toast
+  const toast = createToast(
+    'info',
+    'fa-solid fa-circle-info',
+    'Info',
+    'In the next few moments, we\'ll analyze your emotions about this place to improve your recommendations.'
+  );
 
-    // Ensure toast stays for 10 seconds before removal
-    setTimeout(() => {
-        // Remove the toast after 10 seconds
-        if (newToast) {
-            newToast.remove();
-        }
+  // After 7.5 seconds, remove the first toast and show the second one
+  setTimeout(() => {
+    if (toast && toast.parentNode) {
+      toast.parentNode.removeChild(toast);
+    }
 
-        // Only show the second toast after the first one is removed
-        if (type === 'info' && !hasShownSecondInfoToast) {
-            hasShownSecondInfoToast = true;
-            createToast('info', 'info', 'We have started analyzing your emotions.');
-        }
-
-        // Only show the second toast after the first one is removed
-        if (type === 'success' && hasShownSecondInfoToast) {
-            hasShownSecondInfoToast = false;
-        }
-    }, 7500);  // Toast will disappear after 10 seconds
-
+    // Show the second toast
+    createToast(
+      'info',
+      'fa-solid fa-circle-info',
+      'Info',
+      'Emotion analysis started'
+    );
+  }, 7500);
+}
+function checkCameraAndShowToasts(session) {
+  if (session.camera === true) {
+    showEmotionAnalysisToasts();
+  } else {
+    createToast(
+      'warning',
+      'fa-solid fa-camera',
+      'Activate Camera',
+      'Please enable your camera to allow us to analyze your emotions and improve your recommendations.'
+    );
+  }
 }
 
-// Success Toast with a different icon and message arrangement
-function showSuccessToast(rating) {
-    createToast('success', 'Analysis Complete', 
-    `Your emotion analysis is complete with a rating of ${rating}.`);
+function showEmotionAnalysisToasts() {
+  // Create and show the first toast
+  const toast = createToast(
+    'info',
+    'fa-solid fa-circle-info',
+    'Info',
+    'In the next few moments, we\'ll analyze your emotions about this place to improve your recommendations.'
+  );
 
+  // After 7.5 seconds, remove the first toast and show the second one
+  setTimeout(() => {
+    if (toast && toast.parentNode) {
+      toast.parentNode.removeChild(toast);
+    }
+
+    // Show the second toast
+    createToast(
+      'info',
+      'fa-solid fa-circle-info',
+      'Info',
+      'Emotion analysis started'
+    );
+  }, 7500);
 }
+
+
+
+
 
 //END FER messages
 
@@ -692,10 +721,18 @@ renderPlaces();
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert("Rating saved successfully!");
-
+            createToast('success','fa-solid fa-circle-check', 'Success', `Rating saved successfully!`);
+    // Fetch updated recommendations instantly
+    fetch(`http://127.0.0.1:5002/api/recommendations_context/<?php echo $user_id; ?>`)
+    .then(res => res.json())
+    .then(updatedContextRecs => {
+        context_recommendations.length = 0;
+        context_recommendations.push(...updatedContextRecs);
+        renderCXPlaces(); // 👈 re-render the section
+    })
         } else {
-            alert("Error saving rating: " + data.error);
+            createToast('error', 'fa-solid fa-circle-exclamation', 'Error', "Error saving rating: " + data.error);
+
         }
     })
     .catch(error => console.error("Error submitting rating:", error));
@@ -724,11 +761,13 @@ $(document).on('click', '.favorite-btn', function() {
                             button.addClass('bookmarked').html('<i class="fas fa-bookmark"></i> Bookmarked');
                         }
                     } else {
-                        alert(response.error || 'An error occurred.');
+                        createToast('error', 'fa-solid fa-circle-exclamation', 'Error', response.error || 'An error occurred.');
+
                     }
                 },
                 error: function() {
-                    alert('An error occurred while communicating with the server.');
+                    createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'An error occurred while communicating with the server.');
+
                 }
             });
         });
@@ -737,8 +776,7 @@ let currentSessionId = Date.now().toString();
     function showDetails(placeId, lat, lng) {
 
         //first FER message
-        createToast('info', 'Info', 'In the next few moments, we\'ll analyze your emotions about this place to improve your recommendations.');
-
+        checkCameraAndShowToasts(session);
         document.getElementById('placesContainer').style.display = 'none';
         document.getElementById('paginationss').style.visibility = 'hidden';
         document.getElementById('foort').style.visibility = 'hidden';
@@ -774,12 +812,14 @@ function checkForRating(sessionId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showSuccessToast(data.rating); // Call the success toast with the rating data
+            rating = data.rating; // Store fetched rating
+            createToast('success','fa-solid fa-circle-check', 'Success',`Your emotion analysis is complete with a rating of ${rating}.`);
             currentRating = data.rating; // Store fetched rating
             updateStarDisplay(currentRating);
             document.getElementById("rate-btn").style.display = "block"; // Show rating section
         } else {
-            alert("Error: " + data.error);
+            createToast('error', 'fa-solid fa-circle-exclamation', 'Error', "Error: " + data.error);
+
         }
     })
     .catch(error => console.error("Error checking rating:", error));
@@ -809,8 +849,6 @@ document.querySelectorAll('#starRating .star').forEach((star, index) => {
     });
 });
 
-
-
     // Fetch details from the server
     fetch(`get_place_details.php?id=${placeId}`)
         .then(response => response.text())  // Get raw text
@@ -822,6 +860,56 @@ document.querySelectorAll('#starRating .star').forEach((star, index) => {
                 document.getElementById('placeName').innerText = jsonData.place_name;
                 //document.getElementById('placeCategory').innerText = jsonData.categories;
                 document.getElementById('placeGranularCategory').innerText = jsonData.granular_category;
+                const selectedCategory = jsonData.granular_category;
+
+                fetch(`http://127.0.0.1:5002/api/recommendations_context/<?php echo $user_id; ?>?category=${encodeURIComponent(selectedCategory)}`)
+  .then(res => res.json())
+  .then(filteredContextRecs => {
+    context_recommendations.length = 0;
+    
+    if (filteredContextRecs.length > 0) {
+        context_recommendations.push(...filteredContextRecs);
+    } else {
+        // fallback: fetch general VW-based context recommendations
+        return fetch(`http://127.0.0.1:5002/api/recommendations_context/<?php echo $user_id; ?>`)
+          .then(res => res.json())
+          .then(generalRecs => {
+            context_recommendations.push(...generalRecs);
+          });
+    }
+  })
+  .then(() => {
+    renderCXPlaces();
+    document.getElementById('context-section').style.display = 'block';
+  })
+  .catch(error => {
+    console.error('Error fetching context recommendations:', error);
+  });
+
+  fetch(`http://127.0.0.1:5001/api/recommendations/<?php echo $user_id; ?>?category=${encodeURIComponent(selectedCategory)}`)
+  .then(res => res.json())
+  .then(filteredCFRecs => {
+    recommendations.length = 0;
+
+    if (filteredCFRecs.length > 0) {
+      recommendations.push(...filteredCFRecs);
+    } else {
+      // fallback: fetch general CF recommendations
+      return fetch(`http://127.0.0.1:5001/api/recommendations/<?php echo $user_id; ?>`)
+        .then(res => res.json())
+        .then(generalCFRecs => {
+          recommendations.push(...generalCFRecs);
+        });
+    }
+  })
+  .then(() => {
+    renderCFRSPlaces(); // this should re-render based on `cf_recommendations`
+    document.getElementById('cf-section').style.display = 'block';
+  })
+  .catch(error => {
+    console.error('Error fetching CF recommendations:', error);
+  });
+
                 document.getElementById('placeRating').innerText = jsonData.average_rating;
                 
               // Fetch and display previous rating if available
@@ -930,9 +1018,7 @@ if (recommendations && recommendations.length > 0) {
 // Cache to store fetched place images
 const cfrsPlaceImageCache = {};
 
-
-
-        
+      
 function renderCFRSPlaces() {
     const cfrsPlacesContainer = document.getElementById('CFproduct-container');
     cfrsPlacesContainer.innerHTML = ''; // Clear current recommendations
@@ -1020,7 +1106,7 @@ renderCFRSPlaces();
 
 //Discover Destenation Section END Here
 
-//CF Section Start Here
+//CF Section END Here
 
 //cxb 
 
@@ -1139,11 +1225,5 @@ window.addEventListener('beforeunload', () => {
     });
 });
 </script>
-<script 
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs&callback=initMap&libraries=marker"
-    async
-    defer>
-</script>
-   
   </body>
   </html>

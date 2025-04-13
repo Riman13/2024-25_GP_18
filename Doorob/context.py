@@ -186,8 +186,9 @@ def get_recommendations_by_id(user_id):
     Ensures real-time updates by fetching the latest ratings from MySQL every request.
     """
     try:
-        # **Force reloading ratings from MySQL & CSV**
-        ratings_df = load_ratings()  # ✅ Fetches updated ratings every request
+        selected_category = request.args.get('category')
+        #Force reloading ratings from MySQL & CSV
+        ratings_df = load_ratings()  
 
         # Get user's past ratings
         user_data = ratings_df[ratings_df['user_id'] == user_id]
@@ -203,7 +204,10 @@ def get_recommendations_by_id(user_id):
 
         # Get unrated places (places the user has NOT rated)
         rated_places = user_data['place_id'].tolist()
+        
         unrated_places = places_df[~places_df['place_id'].isin(rated_places)]
+        if selected_category:
+         unrated_places = unrated_places[unrated_places['granular_category'] == selected_category]
 
         recommendations = []
         for _, place in unrated_places.iterrows():
