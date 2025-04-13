@@ -146,7 +146,33 @@ if ($hybrid_response && $hybrid_http_status == 200) {
 
 
 // rate 
+// Fetch topRated recommendations from Flask API
+$toprated_api_url = 'http://127.0.0.1:5004/api/top_rated/' . $user_id;
 
+
+// Initialize cURL session
+$ch_toprated = curl_init();
+curl_setopt($ch_toprated, CURLOPT_URL, $toprated_api_url);  // Corrected URL usage
+curl_setopt($ch_toprated, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch_toprated, CURLOPT_HTTPGET, true);
+curl_setopt($ch_toprated, CURLOPT_CONNECTTIMEOUT, 5);
+curl_setopt($ch_toprated, CURLOPT_TIMEOUT, 10); // Adjusted timeout
+
+// Execute the cURL request
+$toprated_response = curl_exec($ch_toprated);
+$toprated_http_status = curl_getinfo($ch_toprated, CURLINFO_HTTP_CODE);
+curl_close($ch_toprated);
+
+// Process the API response
+$toprated_recommendations = [];
+if ($toprated_response && $toprated_http_status == 200) {
+    $toprated_recommendations = json_decode($toprated_response, true);
+    
+    // Check if JSON decoding was successful
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        $toprated_recommendations = []; // Fallback if JSON decoding fails
+    }
+}
 
 ?>
 
@@ -381,6 +407,75 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+
+async function checkNotifications() {
+  try {
+    const response = await fetch("notifications.php");
+    const data = await response.json();
+
+    // Show alert if needed
+    if (data.showAlert && data.alertMessage) {
+      showCustomAlert(data.alertMessage);
+    }
+
+    if (data.notifications && data.notifications.length > 0) {
+      console.table(data.notifications);
+    }
+
+  } catch (error) {
+    console.error("❌ Failed to fetch notifications:", error);
+  }
+}
+
+checkNotifications();
+
+// 💙 Smooth, pill-shaped top-center alert
+function showCustomAlert(message) {
+  const alertBox = document.createElement("div");
+  alertBox.textContent = message;
+  
+  alertBox.style.cssText = `
+    position: fixed;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #f0f8ff; /* Light, soft blue */
+    color: #1f2d3d;
+    padding: 16px 40px;
+    border-radius: 999px;
+    border: 1px solid #b3d4fc;
+    font-weight: 500;
+    font-family: 'Segoe UI', sans-serif;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+    text-align: center;
+    width: 80%;
+    max-width: 800px;
+    animation: fadeIn 0.4s ease-out;
+  `;
+
+  document.body.appendChild(alertBox);
+
+  // Auto-dismiss after 6 seconds with fade-out
+  setTimeout(() => {
+    alertBox.style.animation = "fadeOut 0.4s ease-in";
+    setTimeout(() => alertBox.remove(), 400);
+  }, 6000);
+}
+
+// Add fade animations if not already added
+const style = document.createElement("style");
+style.innerHTML = `
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateX(-50%) translateY(0); }
+  to { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+}`;
+document.head.appendChild(style);
+
 
 </script>
 
@@ -959,45 +1054,107 @@ renderHybridPlaces();
         showDetails(placeId);
     });
 });
-
 */
-function findBestPlace() {
-    if (!hybrid_recommendations || hybrid_recommendations.length === 0) {
-        console.log("No recommendations available.");
-        return;
+
+// Initialize current index for top-rated places
+let currentIndexTopRated = 0; // Initialize index for top-rated places
+const toprated_recommendations = <?php echo json_encode($toprated_recommendations); ?>; // Fetch data from PHP
+
+// Check if recommendations have data
+if (toprated_recommendations && toprated_recommendations.length > 0) {
+    const TopRatedSection = document.getElementById('rt-section');
+    if (TopRatedSection) {
+        TopRatedSection.style.display = 'block'; // Show section if recommendations exist
     }
+} else {
+    // Show a message to the user if there are no recommendations
+    const messageContainer = document.getElementById('rt-message'); // Container for the message
+    if (messageContainer) {
+        // Create a new div for the error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'errormessage'; // Add the class for styling
 
-    // Ensure every place has a rating, default to 0 if missing
-    let bestPlace = hybrid_recommendations.reduce((best, place) => {
-        if (!place.rating) place.rating = 0; // Default rating if undefined/null
-        return place.rating > best.rating ? place : best;
-    }, { rating: -1 }); // Start with an invalid low rating
+        // Set the error message content
+        errorDiv.innerHTML = `<p>No top-rated places available.</p>`;
 
-    // If no valid best place found, stop
-    if (bestPlace.rating === -1) {
-        console.log("No valid best place found.");
-        return;
+        // Append the error div to the message container
+        messageContainer.appendChild(errorDiv);
+
+        // Make the message container visible
+        messageContainer.style.display = 'block';
     }
-
-    console.log("Best Place Found:", bestPlace); // Debugging
-
-    // Send the name and rating to the server via fetch
-    fetch("store_best_place.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            place_name: bestPlace.place_name,
-            rating: bestPlace.rating
-        }),
-    })
-    .then(response => response.json())
-    .then(data => console.log("Server Response:", data)) // Debugging
-    .catch(error => console.error("Error storing best place:", error));
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    findBestPlace(); // Run after page loads
-});
+// Cache to store fetched place images
+const topratedPlaceImageCache = {}; 
+
+function renderTopRatedPlaces() {
+    const RTPlacesContainer = document.getElementById('RTproduct-container');
+    RTPlacesContainer.innerHTML = ''; // Clear previous recommendations
+
+    // Display 3 recommendations at a time
+    for (let i = currentIndexTopRated; i < toprated_recommendations.length; i++) {
+        const place = toprated_recommendations[i];
+        const placeDiv = document.createElement('div');
+        placeDiv.className = 'card';
+
+        placeDiv.innerHTML = `
+            <div class="face front">
+                <img id="toprated-place-img-${place.place_id}" src="imgs/logo.png" alt="${place.place_name}" class="product-thumb">
+                <div class="info-container">
+                    <h3 class="product-brand">${place.place_name}</h3>
+                    <p>Rating: ⭐ ${place.average_rating}</p>
+                    <button class="details-btn ri-arrow-right-line" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}"></button>
+                </div>
+            </div>
+        `;
+
+        RTPlacesContainer.appendChild(placeDiv);
+
+        // Attach event listener to the "More Details" button
+        placeDiv.querySelector('.details-btn').addEventListener('click', function () {
+            showDetails(place.place_id);
+        });
+
+        // Load place image
+        if (topratedPlaceImageCache[place.place_id]) {
+            document.getElementById(`toprated-place-img-${place.place_id}`).src = topratedPlaceImageCache[place.place_id];
+        } else {
+            fetchTopRatedPlaceImage(place.place_id);
+        }
+    }
+}
+
+// Fetch place image
+function fetchTopRatedPlaceImage(placeId) {
+    fetch(`get_place_details.php?id=${placeId}`)
+        .then(response => response.text())
+        .then(data => {
+            try {
+                const jsonData = JSON.parse(data);
+                const placeImage = document.getElementById(`toprated-place-img-${placeId}`);
+                if (jsonData.photos && jsonData.photos.length > 0) {
+                    const firstPhoto = jsonData.photos[0];
+                    const imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${firstPhoto.photo_reference}&key=AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs`;
+                    placeImage.src = imageUrl;
+                    topratedPlaceImageCache[placeId] = imageUrl;
+                } else {
+                    placeImage.src = 'imgs/logo.png';
+                    topratedPlaceImageCache[placeId] = 'imgs/logo.png';
+                }
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching place details:', error);
+        });
+}
+
+// Render the top-rated places when the page loads
+renderTopRatedPlaces();
+
+
 
 
     //reman -api photos
