@@ -87,12 +87,24 @@ def recommend_for_user(user_id, user_lat=None, user_lng=None, num_recommendation
     recommendations = []
     for item_index in top_items:
         # Get place_id from place_data using item_index
-        place_id = place_data.iloc[item_index]['ID']  # Use 'ID' instead of 'id'
-        place_name = place_names.get(place_id, "Unknown Place")
+        # place_id = place_data.iloc[item_index]['ID']  # Use 'ID' instead of 'id'
+        # place_name = place_names.get(place_id, "Unknown Place")
         
         # Add latitude and longitude
-        place_lat = place_data.iloc[item_index]['lat']
-        place_lng = place_data.iloc[item_index]['lng']
+        # place_lat = place_data.iloc[item_index]['lat']
+        # place_lng = place_data.iloc[item_index]['lng']
+
+        # new code 
+        # Get full row from place_data
+        place_row = place_data.iloc[item_index]
+    
+        # Use the internal incremental ID from 'num' column
+        place_id = place_row['num']  # ✅ Use 'num' instead of 'ID'
+        place_name = place_row['Name']
+    
+        # Add latitude and longitude
+        place_lat = place_row['lat']
+        place_lng = place_row['lng']
         
         # Calculate distance if user location is provided
         distance = None
@@ -100,7 +112,8 @@ def recommend_for_user(user_id, user_lat=None, user_lng=None, num_recommendation
             distance = geodesic((user_lat, user_lng), (place_lat, place_lng)).km
         
         recommendation = {
-            'place_id': place_id,
+            
+            'place_id': int(place_id),
             'place_name': place_name,
             'distance_km': distance
         }
