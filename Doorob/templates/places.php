@@ -354,9 +354,12 @@ function toggleRating() {
     </div>
 </section>
 
-
+<!-- CX error -->
+<section class="product" id="cx-message" style="display: none;">
+<h3 class="product-category">Best Nearby Destinations</h3>
+</section>
 <!-- Context -->
-<section class="product" id="context-section"> 
+<section class="product" id="context-section" style="display: none;"> 
     <!--Best Places for You Based on Your Location --> 
     <h3 class="product-category">Best Nearby Destinations <a href="all_places_Context.php" class="view-all-link">
         <img src="imgs/arrow.png" alt="View All" class="view-all-arrow">
@@ -368,7 +371,12 @@ function toggleRating() {
 </section>
 
 <!-- Hybrid -->
-<section class="product" id="hybrid-section"> 
+<!-- hybird error -->
+<section class="product" id="hybrid-message" style="display: none;">
+<h3 class="product-category">Top Recommended Destinations for You </h3>
+</section>
+<!-- Hybrid -->
+<section class="product" id="hybrid-section" style="display: none;"> 
     <!--Personalized Destinations Just for You-->
     <h3 class="product-category">Top Recommended Destinations for You <a href="all_places_hybird.php" class="view-all-link">
         <img src="imgs/arrow.png" alt="View All" class="view-all-arrow">
@@ -1110,6 +1118,7 @@ renderCFRSPlaces();
 
 //cxb 
 
+
 let currentIndexCx= 0; // Initialize current index for CFRS
 const context_recommendations = <?php echo json_encode($context_recommendations); ?> ;// Convert PHP array to JavaScript array
 
@@ -1120,7 +1129,28 @@ if (context_recommendations && context_recommendations.length > 0) {
     if (cxSection) {
         cxSection.style.display = 'block'; // Make the CF section visible
     }
+} else {
+    // Show a message to the user if there are no recommendations
+    const messageContainer = document.getElementById('cx-message'); // Container for the message
+    if (messageContainer) {
+        messageContainer.innerHTML = '';
+        messageContainer.innerHTML = ` <h3 class="product-category">Best Nearby Destinations</h3>`;
+
+        // Clear any existing content in the message container
+        // Create a new div for the error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'errormassage'; // Add the class for styling
+        
+        errorDiv.innerHTML = ` <p>No recommendations available to you because you do not have past ratings.</p>`;
+
+        // Append the error div to the message container
+        messageContainer.appendChild(errorDiv);
+
+        // Make the message container visible
+        messageContainer.style.display = 'block';
+    }
 }
+
 const cxPlaceImageCache = {};
 function renderCXPlaces() {
     const cxPlacesContainer = document.getElementById('CXproduct-container');
@@ -1195,6 +1225,106 @@ renderCXPlaces();
         })
         .catch(error => console.error('Error fetching place details:', error));
 }
+
+// Initialize current index for iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+let currentIndexHYBRID = 0; // Initialize index
+const hybrid_recommendations = <?php echo json_encode($hybrid_recommendations); ?>;
+
+
+// Check if recommendations have data
+if (hybrid_recommendations && hybrid_recommendations.length > 0) {
+    const HybridSection = document.getElementById('hybrid-section');
+    if (HybridSection) {
+        HybridSection.style.display = 'block'; // Show section if recommendations exist
+    }
+} else {
+    // Show a message to the user if there are no recommendations
+    const messageContainer = document.getElementById('hybrid-message'); // Container for the message
+    if (messageContainer) {
+        // Create a new div for the error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'errormassage'; // Add the class for styling
+
+        // Set the error message content
+        errorDiv.innerHTML = `<p>No recommendations available to you because you do not have past ratings.</p>`;
+
+        // Append the error div to the message container
+        messageContainer.appendChild(errorDiv);
+
+        // Make the message container visible
+        messageContainer.style.display = 'block';
+    }
+}
+// Cache to store fetched place images
+const hybridPlaceImageCache = {}; 
+
+function renderHybridPlaces() {
+    const HYPlacesContainer = document.getElementById('HYproduct-container');
+    HYPlacesContainer.innerHTML = ''; // Clear previous recommendations
+
+    // Display 3 recommendations at a time
+    for (let i = currentIndexHYBRID; i < hybrid_recommendations.length; i++) {
+        const place = hybrid_recommendations[i];
+        const placeDiv = document.createElement('div');
+        placeDiv.className = 'card';
+
+        placeDiv.innerHTML = `
+            <div class="face front">
+                <img id="hybrid-place-img-${place.place_id}" src="imgs/logo.png" alt="${place.place_name}" class="product-thumb">
+
+            <div class="info-container">
+                <h3 class="product-brand">${place.place_name}</h2>
+               
+               
+                <button class="details-btn ri-arrow-right-line" data-id="${place.place_id}" data-lat="${place.lat}" data-lng="${place.lng}"></button>
+                </div>
+            </div>
+        `;
+
+        HYPlacesContainer.appendChild(placeDiv);
+
+        // Attach event listener to the "More Details" button
+        placeDiv.querySelector('.details-btn').addEventListener('click', function () {
+            showDetails(place.place_id);
+        });
+
+        // Load place image
+        if (hybridPlaceImageCache[place.place_id]) {
+            document.getElementById(`hybrid-place-img-${place.place_id}`).src = hybridPlaceImageCache[place.place_id];
+        } else {
+            fetchHybridPlaceImage(place.place_id);
+        }
+    }
+}
+
+// Fetch place image
+function fetchHybridPlaceImage(placeId) {
+    fetch(`get_place_details.php?id=${placeId}`)
+        .then(response => response.text())
+        .then(data => {
+            try{
+            const jsonData = JSON.parse(data);
+            const placeImage = document.getElementById(`hybrid-place-img-${placeId}`);
+            if (jsonData.photos && jsonData.photos.length > 0) {
+                const firstPhoto = jsonData.photos[0];
+                const imageUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${firstPhoto.photo_reference}&key=AIzaSyBKbwrFBautvuemLAp5-GpZUHGnR_gUFNs`;
+                placeImage.src = imageUrl;
+                hybridPlaceImageCache[placeId] = imageUrl;
+            } else {
+                placeImage.src = 'imgs/logo.png';
+                hybridPlaceImageCache[placeId] = 'imgs/logo.png';
+            }
+        } catch (error) {
+            console.error('Error parsing JSON:', error);
+        }
+    })
+    .catch(error => {
+            console.error('Error fetching place details:', error);
+        });
+}
+
+renderHybridPlaces();
+
 function closeModal() {
      // Stop the emotion analysis when the modal is closed
      fetch('http://127.0.0.1:5000/stop_emotion_analysis', {

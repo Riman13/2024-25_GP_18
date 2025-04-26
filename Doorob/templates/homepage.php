@@ -555,8 +555,12 @@ document.head.appendChild(style);
 </section>
 
 
+<!-- CX error -->
+<section class="product" id="cx-message" style="display: none;">
+<h2 class="product-category">Best Nearby Destinations</h2>
+</section>
 <!-- Context -->
-<section class="product" id="context-section"> 
+<section class="product" id="context-section" style="display: none;"> 
     <!--Best Places for You Based on Your Location --> 
     <h2 class="product-category">Best Nearby Destinations <a href="all_places_Context.php" class="view-all-link">
         <img src="imgs/arrow.png" alt="View All" class="view-all-arrow">
@@ -865,7 +869,34 @@ renderCFRSPlaces();
 
 let currentIndexCx= 0; // Initialize current index for CFRS
 const context_recommendations = <?php echo json_encode($context_recommendations); ?> ;// Convert PHP array to JavaScript array
+// Check if recommendations have data
+if (context_recommendations && context_recommendations.length > 0) {
+    // Show the CF section if there are recommendations
+    const cxSection = document.getElementById('context-section'); // Get the CF section by ID
+    if (cxSection) {
+        cxSection.style.display = 'block'; // Make the CF section visible
+    }
+} else {
+    // Show a message to the user if there are no recommendations
+    const messageContainer = document.getElementById('cx-message'); // Container for the message
+    if (messageContainer) {
+        messageContainer.innerHTML = '';
+        messageContainer.innerHTML = ` <h3 class="product-category">Best Nearby Destinations</h3>`;
 
+        // Clear any existing content in the message container
+        // Create a new div for the error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'errormassage'; // Add the class for styling
+        
+        errorDiv.innerHTML = ` <p>No recommendations available to you because you do not have past ratings.</p>`;
+
+        // Append the error div to the message container
+        messageContainer.appendChild(errorDiv);
+
+        // Make the message container visible
+        messageContainer.style.display = 'block';
+    }
+}
 // Check if recommendations have data
 if (context_recommendations && context_recommendations.length > 0) {
     // Show the CF section if there are recommendations
