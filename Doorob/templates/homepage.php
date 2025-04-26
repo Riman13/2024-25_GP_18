@@ -391,7 +391,7 @@ document.addEventListener("DOMContentLoaded", function () {
     fetchNotifications();
 
     // Fetch notifications every 5 seconds to check for updates
-    setInterval(fetchNotifications, 5000);
+    setInterval(fetchNotifications, 500000);
 
     // Toggle the notification dropdown visibility on bell icon click
     bellIcon.addEventListener("click", function (event) {
@@ -582,6 +582,7 @@ document.head.appendChild(style);
     <div class="product-container" id="HYproduct-container">
     </div>
 </section>
+
 <!-- Recommendation End Here -->
 
 <!-- Place Details Modal Structure -->

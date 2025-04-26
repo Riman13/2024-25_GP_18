@@ -45,6 +45,10 @@ place_id_map = {place_id: idx for idx, place_id in enumerate(place_data['ID'].un
 # Dictionary to store user locations
 user_locations = {}
 
+# Dictionary to store best place notifications
+best_place_notifications = {}
+
+
 @app.route('/api/save_location', methods=['POST'])
 def save_user_location():
     """
@@ -144,6 +148,12 @@ def get_recommendations(user_id):
     recommendations = recommend_for_user(user_id, user_lat, user_lng)
     
     logging.debug(f"Recommendations for user {user_id}: {recommendations}")
+    
+    # Save the best place (first recommendation) for notification
+    if recommendations:
+        best_place_notifications[user_id] = recommendations[0]
+        logging.debug(f"Saved best place notification for user {user_id}: {recommendations[0]}")
+
     
     return jsonify(recommendations)
 
