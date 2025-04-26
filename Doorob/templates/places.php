@@ -791,6 +791,13 @@ let currentSessionId = Date.now().toString();
         document.getElementById('filt').style.visibility = 'hidden';
         currentSessionId = Date.now().toString(); // Generate new session ID for each place
 
+        let cameraEnabled = <?php echo json_encode(isset($_SESSION['camera']) && $_SESSION['camera'] === true); ?>;
+
+if (cameraEnabled) {
+    startEmotionAnalysis();
+}
+
+function startEmotionAnalysis() {
     fetch('http://127.0.0.1:5000/start_emotion_analysis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -800,16 +807,18 @@ let currentSessionId = Date.now().toString();
             sessionId: currentSessionId
         })
     }).then(response => response.json())
-      .then(data => {
-          if (data.success) {
-              console.log("Emotion analysis started for session:", currentSessionId);
-              setTimeout(() => {
-              checkForRating(currentSessionId);
-          }, 15000); // Wait for 15 seconds to allow enough time for emotion analysis
-          } else {
-              console.error("Error starting emotion analysis:", data.error);
-          }
-      }).catch(error => console.error("Error:", error));
+    .then(data => {
+        if (data.success) {
+            console.log("Emotion analysis started for session:", currentSessionId);
+            setTimeout(() => {
+                checkForRating(currentSessionId);
+            }, 15000); // Wait for 15 seconds
+        } else {
+            console.error("Error starting emotion analysis:", data.error);
+        }
+    }).catch(error => console.error("Error:", error));
+}
+
 
       //retraive emotion rating 
 
