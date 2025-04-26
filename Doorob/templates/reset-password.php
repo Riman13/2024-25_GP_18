@@ -39,6 +39,9 @@ if (strtotime($user["reset_token_expires_at"]) <= time()) {
     <link rel="stylesheet" href="styles/footer-header-styles.css">
     <!--======== ICONS ========-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+    <link rel="stylesheet" href="styles/msg.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
      <!--======== WEBSITEICON ========-->
      <link rel="shortcut icon" href="imgs/logo.png" type="image/x-icon">
 </head>
@@ -74,6 +77,8 @@ if (strtotime($user["reset_token_expires_at"]) <= time()) {
 
   <div style="height: 40px;"></div> 
 <body>
+<div class="notifications"></div>
+
     <div class="reset">
     <div class="container2">
         <div class="form-container2 reset-password-container2">
@@ -157,5 +162,43 @@ if (strtotime($user["reset_token_expires_at"]) <= time()) {
       
        <!--========== JS ==========-->
        <script src="scripts/scripts-fh.js"></script>
+       <script>
+    let notifications = document.querySelector('.notifications');
+
+    function getQueryParam(param) {
+        let urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    function createToast(type, icon, title, text) {
+        if (!text) return;
+
+        let newToast = document.createElement('div');
+        newToast.innerHTML = `
+            <div class="toast ${type}">
+                <i class="${icon}"></i>
+                <div class="content">
+                    <div class="title">${title}</div>
+                    <span>${text}</span>
+                </div>
+                <i class="fa-solid fa-xmark" onclick="(this.parentElement).remove()"></i>
+            </div>`;
+        notifications.appendChild(newToast);
+        setTimeout(() => newToast.remove(), 7500);
+    }
+
+    // Show error message
+    let errorMessage = getQueryParam('error');
+    if (errorMessage) {
+        createToast('error', 'fa-solid fa-circle-exclamation', 'Error', decodeURIComponent(errorMessage.replace(/\+/g, ' ')));
+    }
+
+    // Show success message
+    let successMessage = getQueryParam('success');
+    if (successMessage) {
+        createToast('success', 'fa-solid fa-circle-check', 'Success', decodeURIComponent(successMessage.replace(/\+/g, ' ')));
+    }
+</script>
+
 </body>
 </html>

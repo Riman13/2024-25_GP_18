@@ -127,7 +127,7 @@ if ($result && mysqli_num_rows($result) > 0) {
                 messageDiv.style.color = 'green';
 
                 setTimeout(() => {
-                    window.location.href = '/Doorob/templates/profile.php';
+                    window.location.href = 'profile.php';
 
             }, 2000); // 2-second delay
 

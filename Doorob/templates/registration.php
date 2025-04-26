@@ -219,6 +219,10 @@ if (isset($_GET['error'])) {
     if (errorMessage) {
         createToast('error', 'fa-solid fa-circle-exclamation', 'Error', errorMessage);
     }
+    let successMessage = getQueryParam('success');
+    if (successMessage) {
+        createToast('success', 'fa-solid fa-circle-check', 'Success', decodeURIComponent(successMessage.replace(/\+/g, ' ')));
+    }
 
 
 </script>

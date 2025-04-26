@@ -16,26 +16,17 @@ $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 
 if ($user === null) {
-    echo "<script>
-        alert('Token not found!');
-        window.location.href = 'index.php';
-    </script>";
+    header("Location: reset-password.php?token=$token&error=Token+not+found");
     exit;
 }
 
 if (strtotime($user["reset_token_expires_at"]) <= time()) {
-    echo "<script>
-        alert('Token has expired!');
-        window.location.href = 'index.php';
-    </script>";
+    header("Location: reset-password.php?token=$token&error=Token+has+expired");
     exit;
 }
 
 if ($_POST["password"] !== $_POST["password_confirmation"]) {
-    echo "<script>
-        alert('Passwords must match!');
-        window.history.back(); // Go back to the form
-    </script>";
+    header("Location: reset-password.php?token=$token&error=Passwords+must+match");
     exit;
 }
 
@@ -52,14 +43,9 @@ $stmt->bind_param("ss", $password_hash, $user["UserID"]);
 $stmt->execute();
 
 if ($stmt->affected_rows > 0) {
-    echo "<script>
-        alert('Password updated successfully. You can now login.');
-        window.location.href = 'registration.php';
-    </script>";
-} else {
-    echo "<script>
-        alert('An error occurred. Please try again.');
-        window.history.back(); // Go back to the form
-    </script>";
+    header("Location: registration.php?success=Password updated successfully. You can now login.");
+    exit;
+    } else {
+    header("Location: reset-password.php?token=$token&error=Something+went+wrong.+Please+try+again");
 }
 ?>
