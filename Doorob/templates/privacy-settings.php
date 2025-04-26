@@ -9,6 +9,7 @@ include 'config.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Settings</title>
     <link rel="stylesheet" href="styles/privacy-settings.css">
+
 </head>
 <body>
     <div class="privacy-settings">
@@ -26,6 +27,7 @@ include 'config.php';
         </div>
     </div>
 
+
     <script>
 
 // Location Button Logic
@@ -38,6 +40,21 @@ if (locationEnabled) {
 } else {
     locationBtn.innerText = 'Turn On';
 }
+
+
+
+function createToast(type, icon, title, text) {
+    let newToast = {
+        type: type,
+        icon: icon,
+        title: title,
+        text: text
+    };
+    
+    // Send toast data to parent window
+    window.parent.postMessage({ action: 'showToast', toast: newToast }, '*');
+}
+
 
 locationBtn.addEventListener('click', function () {
     if (!locationEnabled) {
@@ -71,16 +88,20 @@ locationBtn.addEventListener('click', function () {
                             locationEnabled = true;
                             locationBtn.innerText = 'Turn Off';
                             locationBtn.classList.add('active', 'pressed');
-                            alert('Your location has been saved successfully!');
+                            createToast('success','fa-solid fa-circle-check', 'Success', 'Your location has been saved successfully!');
+
                         }
                     });
                 },
                 (error) => {
-                    alert('Location error: ' + error.message);
+
+                    createToast('error', 'fa-solid fa-circle-exclamation', 'Error', "Location error: " + error.message);
+
                 }
             );
         } else {
-            alert('Geolocation is not supported by your browser.');
+            createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'Geolocation is not supported by your browser.');
+
         }
     } else {
         // Turn off location (just update session)
@@ -95,7 +116,8 @@ locationBtn.addEventListener('click', function () {
                 locationEnabled = false;
                 locationBtn.innerText = 'Turn On';
                 locationBtn.classList.remove('active', 'pressed');
-                alert('Location access has been disabled.');
+                createToast('success', 'fa-solid fa-circle-check', 'Success', 'Location access has been disabled.');
+
             }
         });
     }
@@ -130,12 +152,14 @@ cameraBtn.addEventListener('click', function () {
                         cameraEnabled = true;
                         cameraBtn.innerText = 'Turn Off';
                         cameraBtn.classList.add('active', 'pressed');
-                        alert('Camera is now enabled.');
+                        createToast('success','fa-solid fa-circle-check', 'Success', 'Camera is now enabled.');
+
                     }
                 });
             })
             .catch(() => {
-                alert('Camera access denied or not supported.');
+            createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'Camera access denied or not supported.');
+
             });
     } else {
         if (cameraStream) {
@@ -154,7 +178,8 @@ cameraBtn.addEventListener('click', function () {
                 cameraEnabled = false;
                 cameraBtn.innerText = 'Turn On';
                 cameraBtn.classList.remove('active', 'pressed');
-                alert('Camera access has been disabled.');
+                createToast('success', 'fa-solid fa-circle-check', 'Success', 'Camera access has been disabled.');
+
             }
         });
     }

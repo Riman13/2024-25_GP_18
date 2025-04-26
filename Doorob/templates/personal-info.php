@@ -26,6 +26,7 @@ $user = $result->fetch_assoc();
     <title>Personal Information</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles/personal-info.css">
+
 </head>
 <body>
     <div class="personal-info-container">
@@ -53,6 +54,7 @@ $user = $result->fetch_assoc();
                 </a>
             </label>
         </div>
+
     </div>
 
     <script>
@@ -77,6 +79,18 @@ $user = $result->fetch_assoc();
             }
         }
 
+        function createToast(type, icon, title, text) {
+    let newToast = {
+        type: type,
+        icon: icon,
+        title: title,
+        text: text
+    };
+    
+    // Send toast data to parent window
+    window.parent.postMessage({ action: 'showToast', toast: newToast }, '*');
+}
+
         // Function to save changes (name only)
         function saveChanges() {
             const name = document.getElementById('name').value;
@@ -91,11 +105,10 @@ $user = $result->fetch_assoc();
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Name updated successfully!');
-                    location.reload();
-                    window.parent.postMessage({ action: 'updateUserInfo', name: name }, '*');
+                    createToast('success','fa-solid fa-circle-check', 'Success',`Name updated successfully!`);
+                   window.parent.postMessage({ action: 'updateUserInfo', name: name }, '*');
                 } else {
-                    alert('Failed to update name: ' + data.error);
+                    createToast('error', 'fa-solid fa-circle-exclamation', 'Error', 'Failed to update name: ' + data.error);
                 }
             });
         }

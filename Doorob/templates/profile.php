@@ -26,6 +26,9 @@ if ($result && mysqli_num_rows($result) > 0) {
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> 
   <link rel="stylesheet" href="styles/footer-header-styles.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+  <link rel="stylesheet" href="styles/msg.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <!--======== ICONS ========-->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet"/>
@@ -80,6 +83,8 @@ if ($result && mysqli_num_rows($result) > 0) {
     </header>
   
     <div style="height: 80px;"></div> 
+    <div class="notifications"></div>
+
   
 <div class="Maincontainer">
     <div class="container1">
@@ -108,6 +113,28 @@ if ($result && mysqli_num_rows($result) > 0) {
     </div>
 
     <script>
+
+window.addEventListener('message', (event) => {
+    if (event.data.action === 'showToast') {
+        const { type, icon, title, text } = event.data.toast;
+        const notifications = document.querySelector('.notifications');
+
+        let newToast = document.createElement('div');
+        newToast.innerHTML = `
+            <div class="toast ${type}">
+                <i class="${icon}"></i>
+                <div class="content">
+                    <div class="title">${title}</div>
+                    <span>${text}</span>
+                </div>
+                <i class="fa-solid fa-xmark" onclick="(this.parentElement).remove()"></i>
+            </div>`;
+        notifications.appendChild(newToast);
+
+        setTimeout(() => newToast.remove(), 7500);
+    }
+});
+
         function showIframe(iframeId) {
             document.querySelectorAll('.iframe').forEach(iframe => {
                 iframe.style.display = 'none';
