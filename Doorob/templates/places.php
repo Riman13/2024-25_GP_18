@@ -1231,9 +1231,7 @@ function fetchCXPlaceImage(placeId) {
 }
 
 renderCXPlaces();
-        })
-        .catch(error => console.error('Error fetching place details:', error));
-}
+
 
 // Initialize current index for iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
 let currentIndexHYBRID = 0; // Initialize index
@@ -1333,7 +1331,9 @@ function fetchHybridPlaceImage(placeId) {
 }
 
 renderHybridPlaces();
-
+})
+        .catch(error => console.error('Error fetching place details:', error));
+}
 function closeModal() {
      // Stop the emotion analysis when the modal is closed
      fetch('http://127.0.0.1:5000/stop_emotion_analysis', {
