@@ -1498,7 +1498,6 @@ $(document).on('click', '.favorite-btn', function() {
         checkCameraAndShowToasts(session);
         document.getElementById('intro-Container').style.display = 'none';
         document.getElementById('foort').style.visibility = 'hidden';
-        document.getElementById('rt-section').style.visibility = 'hidden';
         document.getElementById('cf-message').style.visibility = 'hidden';
         document.getElementById('context-section').style.visibility = 'hidden';
         document.getElementById('foort').style.visibility = 'hidden';
@@ -2052,7 +2051,6 @@ function closeModal() {
       }).catch(error => console.error("Error:", error));
     document.getElementById('detailsModal').style.display = "none";
     document.getElementById('intro-Container').style.display = 'grid';
-    document.getElementById('rt-section').style.visibility = 'visible';
         document.getElementById('cf-message').visibility = 'visible';
         document.getElementById('context-section').style.visibility = 'visible';
         document.getElementById('foort').style.visibility = 'visible';
@@ -2060,7 +2058,7 @@ function closeModal() {
         document.getElementById('cf-section').style.visibility = 'visible';
         document.getElementById('hybrid-message').style.visibility = 'visible';
         document.getElementById('hybrid-section').style.visibility = 'visible';
-    document.getElementById('foort').style.visibility = 'visible';
+ 
     
 }
 
