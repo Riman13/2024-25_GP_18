@@ -392,7 +392,7 @@ document.addEventListener("DOMContentLoaded", function () {
     fetchNotifications();
 
     // Fetch notifications every 5 seconds to check for updates
-    setInterval(fetchNotifications, 500000);
+    setInterval(fetchNotifications, 50000);
 
     // Toggle the notification dropdown visibility on bell icon click
     bellIcon.addEventListener("click", function (event) {
@@ -407,7 +407,50 @@ document.addEventListener("DOMContentLoaded", function () {
             dropdown.classList.remove("show");
         }
     });
+
 });
+//maybe?
+
+
+function findBestPlace() {
+    if (!hybrid_recommendations || hybrid_recommendations.length === 0) {
+        console.log("No recommendations available.");
+        return;
+    }
+
+    // Ensure every place has a rating, default to 0 if missing
+    let bestPlace = hybrid_recommendations.reduce((best, place) => {
+        if (!place.rating) place.rating = 0; // Default rating if undefined/null
+        return place.rating > best.rating ? place : best;
+    }, { rating: -1 }); // Start with an invalid low rating
+
+    // If no valid best place found, stop
+    if (bestPlace.rating === -1) {
+        console.log("No valid best place found.");
+        return;
+    }
+
+    console.log("Best Place Found:", bestPlace); // Debugging
+
+    // Send the name and rating to the server via fetch
+    fetch("store_best_place.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            place_name: bestPlace.place_name,
+            rating: bestPlace.rating
+        }),
+    })
+    .then(response => response.json())
+    .then(data => console.log("Server Response:", data)) // Debugging
+    .catch(error => console.error("Error storing best place:", error));
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    findBestPlace(); // Run after page loads
+});
+
+
 
 async function checkNotifications() {
   try {
@@ -427,6 +470,7 @@ async function checkNotifications() {
     console.error("❌ Failed to fetch notifications:", error);
   }
 }
+
 
 checkNotifications();
 
@@ -528,15 +572,7 @@ document.head.appendChild(style);
 
 <!-- Recommendation -->
 
-<!--top rated places -->
-<section class="product" id="rt-section"> 
-    <!--Recommended Destinations Based on What Others Like--> 
-    <h2 class="product-category">Best Rated Destinations</h2>
-    <button class="pre-btn"><img src="imgs/arrow.png" alt=""></button>
-    <button class="nxt-btn"><img src="imgs/arrow.png" alt=""></button>
-    <div class="product-container" id="RTproduct-container">
-    </div>
-</section>
+
 
 
 <!-- CF error -->
@@ -1970,43 +2006,6 @@ function renderHybridPlaces() {
         }
     }
 }
-function findBestPlace() {
-    if (!hybrid_recommendations || hybrid_recommendations.length === 0) {
-        console.log("No recommendations available.");
-        return;
-    }
-
-    // Ensure every place has a rating, default to 0 if missing
-    let bestPlace = hybrid_recommendations.reduce((best, place) => {
-        if (!place.rating) place.rating = 0; // Default rating if undefined/null
-        return place.rating > best.rating ? place : best;
-    }, { rating: -1 }); // Start with an invalid low rating
-
-    // If no valid best place found, stop
-    if (bestPlace.rating === -1) {
-        console.log("No valid best place found.");
-        return;
-    }
-
-    console.log("Best Place Found:", bestPlace); // Debugging
-
-    // Send the name and rating to the server via fetch
-    fetch("store_best_place.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            place_name: bestPlace.place_name,
-            rating: bestPlace.rating
-        }),
-    })
-    .then(response => response.json())
-    .then(data => console.log("Server Response:", data)) // Debugging
-    .catch(error => console.error("Error storing best place:", error));
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    findBestPlace(); // Run after page loads
-});
 
 // Fetch place image
 function fetchHybridPlaceImage(placeId) {
