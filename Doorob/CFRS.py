@@ -193,7 +193,7 @@ def get_recommendations_by_id(user_id):
         category_filter = request.args.get('category')
         # Fetch user recommendations
         # Fetch all recommendations for this user
-        user_recommendations = model.recommend_k_items(pd.DataFrame({'user_id': [user_id]}), top_k=500, remove_seen=True)
+        user_recommendations = model.recommend_k_items(pd.DataFrame({'user_id': [user_id]}), top_k=100, remove_seen=True)
         rated_place_ids = ratings_df[ratings_df['user_id'] == user_id]['place_id'].tolist()
         user_recommendations = user_recommendations[~user_recommendations['place_id'].isin(rated_place_ids)]
 
