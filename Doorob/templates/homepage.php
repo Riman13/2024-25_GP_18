@@ -1452,10 +1452,17 @@ renderTopRatedPlaces();
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert("Rating saved successfully!");
-            closeModal();
+            createToast('success','fa-solid fa-circle-check', 'Success', `Rating saved successfully!`);
+    // Fetch updated recommendations instantly
+    fetch(`http://127.0.0.1:5002/api/recommendations_context/<?php echo $user_id; ?>`)
+    .then(res => res.json())
+    .then(updatedContextRecs => {
+        context_recommendations.length = 0;
+        context_recommendations.push(...updatedContextRecs);
+        renderCXPlaces(); // 👈 re-render the section
+    }) 
         } else {
-            alert("Error saving rating: " + data.error);
+            createToast('error', 'fa-solid fa-circle-exclamation', 'Error', "Error saving rating: " + data.error);
         }
     })
     .catch(error => console.error("Error submitting rating:", error));
@@ -1643,7 +1650,6 @@ fetch(`http://127.0.0.1:5001/api/recommendations/<?php echo $user_id; ?>?categor
     console.error('Error fetching CF recommendations:', error);
   });
                 document.getElementById('placeRating').innerText = jsonData.average_rating;
-                // Fetch and display previous rating if available
               // Fetch and display previous rating if available
               fetch('get_user_rating.php?userId=<?php echo $user_id; ?>&placeId=' + placeId)
     .then(response => response.json())
