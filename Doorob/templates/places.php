@@ -1,7 +1,7 @@
 <?php
 include 'config.php'; 
 include 'session.php';
-$sql = "SELECT id, place_name, granular_category, average_rating , place_id ,lng ,lat FROM  riyadhplaces_doroob";
+$sql = "SELECT id, place_name, granular_category, average_rating , place_id ,lat ,lng FROM  riyadhplaces_doroob";
 $result = $conn->query($sql);
 // Store places in an array
 $places = [];
@@ -27,6 +27,40 @@ if ($result && mysqli_num_rows($result) > 0) {
     $username = "Guest";
 }
 
+// Search functionality
+// Search functionality
+$searchTerm = isset($_GET['search']) ? $_GET['search'] : '';
+$sql = "SELECT p1.id, p1.place_name, p1.granular_category, p1.average_rating, p1.place_id
+        FROM riyadhplaces_doroob p1
+        INNER JOIN (
+            SELECT MIN(id) as min_id, place_name
+            FROM riyadhplaces_doroob";
+
+if (!empty($searchTerm)) {
+    $searchTerm = mysqli_real_escape_string($conn, $searchTerm);
+    $sql .= " WHERE place_name LIKE '%$searchTerm%'";
+}
+
+$sql .= " GROUP BY place_name
+        ) p2 ON p1.place_name = p2.place_name AND p1.id = p2.min_id";
+
+if (!empty($searchTerm)) {
+    $sql .= (strpos($sql, 'WHERE') === false ? ' WHERE' : ' AND') . " p1.place_name LIKE '%$searchTerm%'";
+}
+
+$result = $conn->query($sql);
+
+// Store places in an array
+$places = [];
+$noPlacesFound = false; // Flag to indicate if no places were found
+
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $places[] = $row;
+    }
+} else {
+    $noPlacesFound = true; // Set the flag to true if no places are found
+}
 // ====================
 // 2. Communicate with Flask API FOR CF
 // ====================
@@ -225,12 +259,21 @@ if ($hybrid_response && $hybrid_http_status == 200) {
         </div>
     </div>
     <div class="search-bar">
-        <div class="search-input-container">
-            <input type="text" placeholder="Search destinations...">
-            <button>
+        <form action="" method="GET" class="search-input-container">
+            <input type="text" name="search" id="searchInput" placeholder="Search destinations..." value="<?php echo htmlspecialchars($searchTerm); ?>">
+            <button type="submit">
                 <i class="fas fa-search"></i>
             </button>
-        </div>
+        </form>
+        <div id="suggestions"></div>
+    </div>
+</div>
+
+<div class="des" id="destination1">
+    <div class="places-container" id="placesContainer">
+        <?php if ($noPlacesFound): ?>
+            <p>No Results Found!</p>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -619,6 +662,10 @@ const placeImageCache = {};
 function renderPlaces() {
     const placesContainer = document.getElementById('placesContainer');
     placesContainer.innerHTML = ''; // Clear current places
+    if (filteredPlaces.length ===0) {
+            placesContainer.innerHTML = '<p>No Results Found!</p>';
+            return;
+        }
 
     // Display the next set of places
     const displayedPlaces = filteredPlaces.slice(currentIndex, currentIndex + placesPerPage);
@@ -1363,6 +1410,47 @@ window.addEventListener('beforeunload', () => {
         body: JSON.stringify({ sessionId: currentSessionId })
     });
 });
+
+// Autocomplete JavaScript
+const searchInput = document.getElementById('searchInput');
+    const suggestionsDiv = document.getElementById('suggestions');
+
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value;
+
+        if (searchTerm.length > 2) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'get_suggestions.php?term=' + encodeURIComponent(searchTerm), true);
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    const suggestions = JSON.parse(xhr.responseText);
+                    displaySuggestions(suggestions);
+                } else {
+                    suggestionsDiv.innerHTML = '';
+                }
+            };
+            xhr.send();
+        } else {
+            suggestionsDiv.innerHTML = '';
+        }
+    });
+
+    function displaySuggestions(suggestions) {
+        suggestionsDiv.innerHTML = '';
+        if (suggestions.length > 0) {
+            const suggestionList = document.createElement('ul');
+            suggestions.forEach(suggestion => {
+                const listItem = document.createElement('li');
+                listItem.textContent = suggestion;
+                listItem.addEventListener('click', function() {
+                    searchInput.value = suggestion;
+                    suggestionsDiv.innerHTML = '';
+                });
+                suggestionList.appendChild(listItem);
+            });
+            suggestionsDiv.appendChild(suggestionList);
+        }
+    }
 </script>
   </body>
   </html>
