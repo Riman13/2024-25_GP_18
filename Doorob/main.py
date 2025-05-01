@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-
+from flask import Blueprint, jsonify, request
 from geopy.distance import geodesic
 import logging
 from lightfm import LightFM
@@ -14,8 +14,11 @@ import joblib
 app = Flask(__name__)
 CORS(app)
 # Setup logging for debugging
-logging.basicConfig(level=logging.DEBUG)
 
+
+#logging.basicConfig(level=logging.DEBUG)
+# Initialize the Blueprint
+#lightfm_bp = Blueprint('lightfm', __name__)
 # Load the saved model (trained model)
    #with open('trained_mode2.pkl', 'rb') as f:
  #   model = pickle.load(f)
@@ -159,6 +162,6 @@ def get_recommendations(user_id):
 
 
 
-if __name__ == '__main__':
+#if __name__ == '__main__':
     # Run the Flask app with debugging enabled
-    app.run(debug=True, port=5003)  
+   # app.run(debug=True, port=5003)  
