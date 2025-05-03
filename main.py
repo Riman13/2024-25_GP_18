@@ -27,12 +27,12 @@ CORS(app)
 #with open('item_features.pkl', 'rb') as f:
   #  item_features_matrix = pickle.load(f)
 
-model = joblib.load('trained_model.joblib')
-item_features_matrix = joblib.load('item_features1.joblib')
+model = joblib.load('Doorob/trained_model.joblib')
+item_features_matrix = joblib.load('Doorob/item_features1.joblib')
 
 # Load or define your place and user data (place names, mappings)
-place_data = pd.read_excel('DATADATA.xlsx')  # Assuming you have this file
-ratings_data = pd.read_csv('modified_ratings.csv')  # Assuming this is your ratings data
+place_data = pd.read_excel('Doorob/DATADATA.xlsx')  # Assuming you have this file
+ratings_data = pd.read_csv('Doorob/modified_ratings.csv')  # Assuming this is your ratings data
 
 # Log the place data and model
 logging.debug(f"Loaded place data:\n{place_data.head()}")
