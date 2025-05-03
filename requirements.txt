@@ -7,3 +7,4 @@ lightfm @ git+https://github.com/lyst/lightfm.git
 pandas==2.2.3
 geopy==2.4.1
 openpyxl==3.1.5
+gunicorn==21.2.0
