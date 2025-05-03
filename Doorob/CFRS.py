@@ -18,10 +18,13 @@ from recommenders.models.sar import SAR
 from recommenders.utils.python_utils import binarize
 from sklearn.metrics import roc_auc_score
 from sklearn.preprocessing import minmax_scale
+from flask import Blueprint, jsonify, render_template, request
 
-app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+#app = Flask(__name__)
+#CORS(app)  # Enable CORS for all routes
 
+# Initialize the Blueprint
+recommendations_bp = Blueprint('recommendations', __name__, url_prefix='/recommendations')
 
 # Top K items to recommend
 TOP_K = 5
@@ -226,5 +229,5 @@ def get_recommendations_by_id(user_id):
 
 
 
-if __name__ == '__main__':
-    app.run(debug=True, threaded=True, port=5001)
+#if __name__ == '__main__':
+   # app.run(debug=True, threaded=True, port=5001)

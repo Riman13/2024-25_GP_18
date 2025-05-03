@@ -8,10 +8,12 @@ import numpy as np
 from deepface import DeepFace
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+from flask import Blueprint, jsonify, request
 
-app = Flask(__name__)
-CORS(app)
+#app = Flask(__name__)
+#CORS(app)
 
+emotion_bp = Blueprint('emotion', __name__, url_prefix='/emotion')
 # Database configuration
 db_config = {
     'host': 'localhost',
@@ -216,5 +218,5 @@ def get_rating():
     print("Session not found or still processing.")
     return jsonify({"success": False, "error": "Session not found or still processing."}), 404
         
-if __name__ == '__main__':
-    app.run(port=5000)
+#if __name__ == '__main__':
+ #   app.run(port=5000)

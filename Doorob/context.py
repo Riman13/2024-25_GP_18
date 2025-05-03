@@ -1,4 +1,5 @@
 import logging
+from flask import Blueprint, jsonify, request
 
 import pandas as pd
 import pymysql
@@ -12,9 +13,9 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 from vowpalwabbit import pyvw
 
 # Flask app setup
-app = Flask(__name__)
-CORS(app)
-
+#app = Flask(__name__)
+#CORS(app)Blueprint
+context_bp = Blueprint('context', __name__, url_prefix='/context')
 # Data paths
 PLACES_DATA_PATH = 'DATADATA.csv'
 RATINGS_CSV_PATH = 'modified_ratings.csv'
@@ -244,5 +245,5 @@ def get_recommendations_by_id(user_id):
         logging.error(f"Error generating recommendations for user {user_id}: {e}")
         return jsonify({"error": "Unable to generate recommendations"}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True, threaded=True, port=5002)
+#if __name__ == '__main__':
+    #app.run(debug=True, threaded=True, port=5002)
