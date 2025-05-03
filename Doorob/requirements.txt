@@ -1,6 +1,6 @@
 Flask==2.2.2
 flask-cors==5.0.1
-opencv-python==4.5.5
+opencv-python==4.5.5.64
 mysql-connector-python==8.0.28
 deepface==0.0.93
 numpy==1.23.1
