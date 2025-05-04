@@ -7,7 +7,7 @@ numpy==1.23.1
 pandas==1.4.2
 pymysql==1.0.2
 geopy==2.2.0
-recommenders==0.0.1
+recommenders==1.2.0
 scikit-learn==1.0.2
 lightfm==1.16.0
 scipy==1.7.3
