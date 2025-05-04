@@ -1,4 +1,6 @@
 pip>=25.1.1
+wheel
+setuptools
 Flask==2.2.2
 flask-cors==5.0.1
 opencv-python==4.5.5.64
@@ -12,7 +14,5 @@ recommenders==1.2.0
 scikit-learn==1.0.2
 lightfm==1.16.0
 scipy==1.7.3
-wheel
-setuptools
 
 
