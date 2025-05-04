@@ -11,3 +11,4 @@ recommenders==1.2.0
 scikit-learn==1.0.2
 lightfm==1.16.0
 scipy==1.7.3
+pip>=25.1.1
