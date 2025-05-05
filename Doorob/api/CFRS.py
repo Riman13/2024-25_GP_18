@@ -1,6 +1,6 @@
 import logging
 import sys
-
+from app import app 
 import numpy as np
 import pandas as pd
 # Import pymysql at the top of your script:
