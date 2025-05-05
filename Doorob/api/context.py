@@ -10,8 +10,8 @@ from recommenders.evaluation.python_evaluation import (ndcg_at_k,
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from vowpalwabbit import pyvw
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# إعداد الـ logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s')
 
 # Flask Blueprint setup
 context_bp = Blueprint('context', __name__, url_prefix='/context')

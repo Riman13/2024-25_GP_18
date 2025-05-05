@@ -11,8 +11,9 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask import Blueprint, jsonify, request
 
-# Initialize logging
-logging.basicConfig(level=logging.INFO)
+# إعداد الـ logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s')
+
 
 #app = Flask(__name__)
 #CORS(app)
