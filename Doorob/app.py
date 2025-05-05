@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
-from api.CFRS import recommendations_bp
+#from api.CFRS import recommendations_bp
 from api.context import context_bp 
 from api.emotion import emotion_bp
 # Initialize Flask app
