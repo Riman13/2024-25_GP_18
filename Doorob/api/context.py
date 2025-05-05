@@ -38,7 +38,7 @@ def get_db_connection():
     return pymysql.connect(
         host="Doroob.mysql.pythonanywhere-services.com",
         user="Doroob",
-        password="Qwer1234@",
+        password="RASL1234",
         database="Doroob$doroob",
         cursorclass=pymysql.cursors.DictCursor
     )

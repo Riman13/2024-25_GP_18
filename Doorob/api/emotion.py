@@ -18,7 +18,7 @@ emotion_bp = Blueprint('emotion', __name__, url_prefix='/emotion')
 db_config = {
     'host': 'Doroob.mysql.pythonanywhere-services.com',
     'user': 'Doroob',  
-    'password': 'Qwer1234@', 
+    'password': 'RASL1234', 
     'database': 'Doroob$doroob',
 }
 
