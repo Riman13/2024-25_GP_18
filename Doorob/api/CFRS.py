@@ -33,8 +33,8 @@ TEST_SIZE = 0.2 # 20% for testing, 80% for training
 
 RANDOM_SEED = 42
 
-PLACES_DATA_PATH = 'DATADATA.csv'          
-RATINGS_DATA_PATH = 'modified_ratings.csv' 
+PLACES_DATA_PATH = '/home/Doroob/2024-25_GP_18/Doorob/DATADATA.csv'          
+RATINGS_DATA_PATH = '/home/Doroob/2024-25_GP_18/Doorob/modified_ratings.csv' 
 
 # Load your datasets
 places_df = pd.read_csv(PLACES_DATA_PATH)

@@ -17,8 +17,8 @@ from vowpalwabbit import pyvw
 #CORS(app)Blueprint
 context_bp = Blueprint('context', __name__, url_prefix='/context')
 # Data paths
-PLACES_DATA_PATH = 'DATADATA.csv'
-RATINGS_CSV_PATH = 'modified_ratings.csv'
+PLACES_DATA_PATH = '/home/Doroob/2024-25_GP_18/Doorob/DATADATA.csv'
+RATINGS_CSV_PATH = '/home/Doroob/2024-25_GP_18/Doorob/modified_ratings.csv'
 
 # Load places data from CSV
 places_df = pd.read_csv(PLACES_DATA_PATH, encoding='utf-8')
