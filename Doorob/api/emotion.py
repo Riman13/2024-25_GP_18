@@ -1,6 +1,7 @@
 # Backend Flask Script (Python)
 import threading  # Added for non-blocking emotion analysis
 import time
+import logging
 
 import cv2
 import mysql.connector
@@ -10,10 +11,14 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask import Blueprint, jsonify, request
 
+# Initialize logging
+logging.basicConfig(level=logging.INFO)
+
 #app = Flask(__name__)
 #CORS(app)
 
 emotion_bp = Blueprint('emotion', __name__, url_prefix='/emotion')
+
 # Database configuration
 db_config = {
     'host': 'Doroob.mysql.pythonanywhere-services.com',
@@ -32,9 +37,9 @@ def map_emotion_to_rating(emotion_dict):
     the difference between positive and negative emotions.
     """
      # Print each emotion with its value
-    print("[Emotion Breakdown]")
+    logging.info("[Emotion Breakdown]")
     for emotion, value in emotion_dict.items():
-        print(f"  {emotion.capitalize():<10}: {value:.2f}")
+        logging.info(f"  {emotion.capitalize():<10}: {value:.2f}")
 
     # Calculate the total percentage of positive and negative emotions
     positive_score = emotion_dict.get('happy', 0) + emotion_dict.get('surprise', 0)
@@ -43,12 +48,11 @@ def map_emotion_to_rating(emotion_dict):
     neutral_score = emotion_dict.get('neutral', 0)
 
     # Compute the response value as the difference between positive and negative scores
-    response_value = positive_score - negative_score
-    print(f"[Emotion Analysis]")
-    print(f"  Positive Score: {positive_score}")
-    print(f"  Negative Score: {negative_score}")
-    print(f"  Neutral Score:  {neutral_score}")
-    print(f"  Response Value: {response_value}")
+    logging.info(f"[Emotion Analysis]")
+    logging.info(f"  Positive Score: {positive_score}")
+    logging.info(f"  Negative Score: {negative_score}")
+    logging.info(f"  Neutral Score:  {neutral_score}")
+    logging.info(f"  Response Value: {response_value := positive_score - negative_score}")
 
     # Assign a rating based on the response value range
     if response_value >= 60:  
@@ -86,7 +90,7 @@ def save_rating_to_db(user_id, place_id, rating):
             """
             
             cursor.execute(update_query, (rating, user_id, place_id))
-            print(f"Rating updated in the database for user {user_id} at place {place_id}.")
+            logging.info(f"Rating updated in the database for user {user_id} at place {place_id}.")
         else:
             # Insert a new rating
             insert_query = """
@@ -94,14 +98,14 @@ def save_rating_to_db(user_id, place_id, rating):
                 VALUES (%s, %s, %s)
             """
             cursor.execute(insert_query, (user_id, place_id, rating))
-            print(f"New rating inserted into the database for user {user_id} at place {place_id}.")
+            logging.info(f"New rating inserted into the database for user {user_id} at place {place_id}.")
 
         conn.commit()
         cursor.close()
         conn.close()
 
     except mysql.connector.Error as err:
-        print(f"Database Error: {err}")
+        logging.error(f"Database Error: {err}")
 
 # API to start emotion analysis
 @emotion_bp.route('/start_emotion_analysis', methods=['POST'])
@@ -157,12 +161,12 @@ def analyze_emotion_in_session(session_id):
     try:
         while time.time() - start_time < 10:  # Ensure minimum 5 seconds of analysis
             if session_data["stop_analysis"]:  # Stop if requested
-                print(f"Session {session_id} stopped by user.")
+                logging.info(f"Session {session_id} stopped by user.")
                 break
 
             ret, frame = cap.read()
             if not ret:
-                print("Camera capture failed.")
+                logging.warning("Camera capture failed.")
                 break
 
             try:
@@ -173,7 +177,7 @@ def analyze_emotion_in_session(session_id):
                 emotion_scores = analysis['emotion']
                 emotion_scores_list.append(emotion_scores)
             except Exception as e:
-                print(f"Error analyzing frame: {e}")
+                logging.error(f"Error analyzing frame: {e}")
 
     finally:
         cap.release()
@@ -184,39 +188,36 @@ def analyze_emotion_in_session(session_id):
         avg_emotion_scores = {key: sum(d[key] for d in emotion_scores_list) / len(emotion_scores_list) for key in emotion_scores_list[0]}
         rating = map_emotion_to_rating(avg_emotion_scores)
         save_rating_to_db(user_id, place_id, rating)
-        print(f"Session {session_id}: Final Rating {rating} saved.")
+        logging.info(f"Session {session_id}: Final Rating {rating} saved.")
         # Store the rating in the session so frontend can retrieve it
         active_sessions[session_id]["rating"] = rating
     else:
-        print(f"Session {session_id}: Insufficient data or time for rating.")
+        logging.warning(f"Session {session_id}: Insufficient data or time for rating.")
         # Store an error message if detection failed
         active_sessions[session_id]["error"] = "Insufficient data or time for rating."
 
-    # route to send the rating to the frontend 
+# route to send the rating to the frontend 
 @emotion_bp.route('/get_rating', methods=['GET'])
 def get_rating():
     session_id = request.args.get('sessionId')
 
     # Debugging print to see if session exists
-    print(f"Checking session: {session_id}")
+    logging.info(f"Checking session: {session_id}")
 
     if session_id in active_sessions:
         if "rating" in active_sessions[session_id]:
-            print(f"Returning rating: {active_sessions[session_id]['rating']}")
+            logging.info(f"Returning rating: {active_sessions[session_id]['rating']}")
             rating = active_sessions[session_id]["rating"]
             # Clean up session after rating is retrieved
             del active_sessions[session_id]
             return jsonify({"success": True, "rating": rating})
         
         elif "error" in active_sessions[session_id]:
-            print(f"Returning error: {active_sessions[session_id]['error']}")
+            logging.warning(f"Returning error: {active_sessions[session_id]['error']}")
             error = active_sessions[session_id]["error"]
             # Clean up session after error is retrieved
             del active_sessions[session_id]
             return jsonify({"success": False, "error": error})
     
-    print("Session not found or still processing.")
+    logging.info("Session not found or still processing.")
     return jsonify({"success": False, "error": "Session not found or still processing."}), 404
-        
-#if __name__ == '__main__':
- #   app.run(port=5000)
