@@ -7,9 +7,9 @@ from api.emotion import emotion_bp
 app = Flask(__name__)
 CORS(app)
 # تسجيل Blueprint مع المسار المسبق
-app.register_blueprint(recommendations_bp)
+#app.register_blueprint(recommendations_bp)
 
-app.register_blueprint(context_bp, url_prefix='/context')
+app.register_blueprint(context_bp)
 app.register_blueprint(emotion_bp, url_prefix='/emotion')
 
 if __name__ == "__main__":

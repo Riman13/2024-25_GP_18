@@ -180,7 +180,8 @@ def save_user_location():
     return jsonify({"message": "Location saved successfully"}), 200
 
 # API to generate recommendations
-@app.route('/api/recommendations_context/<int:user_id>', methods=['GET'])
+@context_bp .route('/<int:user_id>', methods=['GET'])
+#@app.route('/api/recommendations_context/<int:user_id>', methods=['GET'])
 def get_recommendations_by_id(user_id):
     """
     Generate content-based recommendations, prioritizing nearby places.
