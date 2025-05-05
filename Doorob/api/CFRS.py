@@ -1,6 +1,6 @@
 import logging
 import sys
-from app import app 
+ 
 import numpy as np
 import pandas as pd
 # Import pymysql at the top of your script:
@@ -189,8 +189,7 @@ print("Model:\t",
       "Logloss:\t%f" % eval_logloss,
       "AUC:\t%f" % eval_auc,
       sep='\n')
-
-@app.route('/api/recommendations/<int:user_id>', methods=['GET'])
+@recommendations_bp.route('/<int:user_id>', methods=['GET'])
 def get_recommendations_by_id(user_id):
     try:
         category_filter = request.args.get('category')
