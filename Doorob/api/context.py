@@ -163,7 +163,7 @@ def evaluate_model(vw_model, test_data, test, k=5):
     return {"rmse": rmse_val, "mae": mae_val, "r2": r2_val, "ndcg": ndcg, "precision": precision, "recall": recall}
 
 # API to save user location
-@app.route('/api/save_location', methods=['POST'])
+@context_bp.route('/api/save_location', methods=['POST'])
 def save_user_location():
     """
     Store user location to personalize recommendations.

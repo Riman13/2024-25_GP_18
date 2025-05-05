@@ -104,7 +104,7 @@ def save_rating_to_db(user_id, place_id, rating):
         print(f"Database Error: {err}")
 
 # API to start emotion analysis
-@app.route('/start_emotion_analysis', methods=['POST'])
+@emotion_bp.route('/start_emotion_analysis', methods=['POST'])
 def start_emotion_analysis():
     data = request.json
     session_id = str(data.get('sessionId'))
@@ -128,7 +128,7 @@ def start_emotion_analysis():
     return jsonify({"success": True, "sessionId": session_id})
 
 # API to stop emotion analysis
-@app.route('/stop_emotion_analysis', methods=['POST'])
+@emotion_bp.route('/stop_emotion_analysis', methods=['POST'])
 def stop_emotion_analysis():
     data = request.json
     session_id = str(data.get('sessionId'))
@@ -193,7 +193,7 @@ def analyze_emotion_in_session(session_id):
         active_sessions[session_id]["error"] = "Insufficient data or time for rating."
 
     # route to send the rating to the frontend 
-@app.route('/get_rating', methods=['GET'])
+@emotion_bp.route('/get_rating', methods=['GET'])
 def get_rating():
     session_id = request.args.get('sessionId')
 
