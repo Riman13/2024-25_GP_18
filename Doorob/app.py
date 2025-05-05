@@ -12,3 +12,5 @@ app.register_blueprint(recommendations_bp, url_prefix='/recommendations')
 app.register_blueprint(context_bp, url_prefix='/context')
 app.register_blueprint(emotion_bp, url_prefix='/emotion')
 
+if __name__ == "__main__":
+    app.run(debug=True)
