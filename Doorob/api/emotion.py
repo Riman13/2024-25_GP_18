@@ -16,10 +16,10 @@ from flask import Blueprint, jsonify, request
 emotion_bp = Blueprint('emotion', __name__, url_prefix='/emotion')
 # Database configuration
 db_config = {
-    'host': 'localhost',
-    'user': 'root',  
-    'password': 'root', 
-    'database': 'doroob7',
+    'host': 'Doroob.mysql.pythonanywhere-services.com',
+    'user': 'Doroob',  
+    'password': 'Qwer1234@', 
+    'database': 'Doroob$doroob',
 }
 
 # Dictionary to track active sessions

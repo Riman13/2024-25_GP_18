@@ -36,10 +36,10 @@ user_locations = {}
 # Function to establish MySQL connection
 def get_db_connection():
     return pymysql.connect(
-        host="localhost",
-        user="root",
-        password="",
-        database="doroob",
+        host="Doroob.mysql.pythonanywhere-services.com",
+        user="Doroob",
+        password="Qwer1234@",
+        database="Doroob$doroob",
         cursorclass=pymysql.cursors.DictCursor
     )
 

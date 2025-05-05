@@ -42,10 +42,10 @@ places_df = pd.read_csv(PLACES_DATA_PATH)
 # Define a function to establish a connection to your MySQL database:
 def get_db_connection():
     return pymysql.connect(
-        host="localhost",  
-        user="root",       
-        password="",   
-        database="doroob", 
+        host="Doroob.mysql.pythonanywhere-services.com",  
+        user="Doroob",       
+        password="Qwert1234@",   
+        database="Doroob$doroob", 
         cursorclass=pymysql.cursors.DictCursor
     )
 
