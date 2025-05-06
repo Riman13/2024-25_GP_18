@@ -12,6 +12,7 @@ from flask_cors import CORS
 
 # إعداد الـ logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s')
 
 # إنشاء البلوبرينت
 emotion_bp = Blueprint('emotion', __name__, url_prefix='/emotion')
