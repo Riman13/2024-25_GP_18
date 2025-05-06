@@ -204,12 +204,13 @@ def analyze_emotion_in_session(session_id, frame):
 def get_rating():
     session_id = request.args.get('sessionId')
 
+
     # Debugging print to see if session exists
     logging.info(f"Checking session: {session_id}")
 
     if session_id in active_sessions:
           # إضافة تأخير إذا كانت الجلسة قيد المعالجة
-        max_wait_time = 10  # مدة الانتظار القصوى (بالثواني)
+        max_wait_time = 30  # مدة الانتظار القصوى (بالثواني)
         wait_time = 0
         while "rating" not in active_sessions[session_id] and wait_time < max_wait_time:
             time.sleep(1)  # الانتظار لمدة ثانية
