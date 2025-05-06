@@ -176,11 +176,16 @@ def analyze_emotion_in_session(session_id, frame):
                 analysis = analysis[0]
             emotion_scores = analysis['emotion']
             emotion_scores_list.append(emotion_scores)
+            logging.info(f"Emotion scores for session {session_id}: {emotion_scores}")
+
         except Exception as e:
             logging.error(f"Error analyzing image: {e}")
 
     finally:
-        # تنفيذ عملية حفظ التقييم بعد التحليل
+        logging.info(f"Image size: {image.size}")
+        logging.info(f"Frame shape: {frame.shape}")
+
+        # تنفيذ عملية حفظ التقييم بعد التحليل 
         logging.info(f"Session {session_id}: Number of emotion scores = {len(emotion_scores_list)}")
         logging.debug(f"Session {session_id}: emotion_scores_list = {emotion_scores_list}")
 
