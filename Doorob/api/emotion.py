@@ -1,31 +1,27 @@
-# Backend Flask Script (Python)
 import threading  # Added for non-blocking emotion analysis
 import time
 import logging
-
-import cv2
-import mysql.connector
+import base64
+from io import BytesIO
+from PIL import Image
 import numpy as np
+import mysql.connector
 from deepface import DeepFace
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Blueprint
 from flask_cors import CORS
-from flask import Blueprint, jsonify, request
 
 # إعداد الـ logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s')
 
-
-#app = Flask(__name__)
-#CORS(app)
-
+# إنشاء البلوبرينت
 emotion_bp = Blueprint('emotion', __name__, url_prefix='/emotion')
 
 # Database configuration
 db_config = {
     'host': '77.37.35.85',
-    'user': 'u783774210_mig',  
-    'password': 'g]I/EHm=v6', 
-    'database': 'u783774210_mig"',
+    'user': 'u783774210_mig',
+    'password': 'g]I/EHm=v6',
+    'database': 'u783774210_mig',
 }
 
 # Dictionary to track active sessions
@@ -34,10 +30,10 @@ active_sessions = {}
 # Function to map emotions to ratings
 def map_emotion_to_rating(emotion_dict):
     """
-    Maps detected emotions to a rating between 1 and 5 based on 
+    Maps detected emotions to a rating between 1 and 5 based on
     the difference between positive and negative emotions.
     """
-     # Print each emotion with its value
+    # Print each emotion with its value
     logging.info("[Emotion Breakdown]")
     for emotion, value in emotion_dict.items():
         logging.info(f"  {emotion.capitalize():<10}: {value:.2f}")
@@ -56,7 +52,7 @@ def map_emotion_to_rating(emotion_dict):
     logging.info(f"  Response Value: {response_value := positive_score - negative_score}")
 
     # Assign a rating based on the response value range
-    if response_value >= 60:  
+    if response_value >= 60:
         return 5  # Very Satisfied
     elif 20 <= response_value < 60:
         return 4  # Satisfied
@@ -89,7 +85,6 @@ def save_rating_to_db(user_id, place_id, rating):
                 SET Rating = %s
                 WHERE userID = %s AND placeID = %s
             """
-            
             cursor.execute(update_query, (rating, user_id, place_id))
             logging.info(f"Rating updated in the database for user {user_id} at place {place_id}.")
         else:
@@ -115,19 +110,30 @@ def start_emotion_analysis():
     session_id = str(data.get('sessionId'))
     user_id = data.get('userId')
     place_id = data.get('placeId')
+    image_base64 = data.get('image')  # الحصول على الصورة Base64
 
-    if not session_id or not user_id or not place_id:
-        return jsonify({"success": False, "error": "Missing sessionId, userId, or placeId"}), 400
+    if not session_id or not user_id or not place_id or not image_base64:
+        return jsonify({"success": False, "error": "Missing sessionId, userId, placeId, or image"}), 400
 
-    # Start a new session
+    # تحويل الـ Base64 إلى صورة
+    try:
+        # إزالة الـ Prefix الخاص بـ Data URL إذا كان موجود
+        image_data = base64.b64decode(image_base64.split(',')[1])
+        image = Image.open(BytesIO(image_data))
+        frame = np.array(image)  # تحويل الصورة إلى numpy array
+    except Exception as e:
+        logging.error(f"Error decoding image: {e}")
+        return jsonify({"success": False, "error": "Error decoding image"}), 400
+
+    # بدء الجلسة
     active_sessions[session_id] = {
         "user_id": user_id,
         "place_id": place_id,
         "stop_analysis": False,
     }
 
-    # Run emotion analysis in a separate thread
-    thread = threading.Thread(target=analyze_emotion_in_session, args=(session_id,))
+    # تشغيل التحليل في ثريد منفصل
+    thread = threading.Thread(target=analyze_emotion_in_session, args=(session_id, frame))  # مرر الصورة
     thread.start()
 
     return jsonify({"success": True, "sessionId": session_id})
@@ -146,8 +152,7 @@ def stop_emotion_analysis():
     return jsonify({"success": True })
 
 # Function to handle emotion analysis
-# Function to process and analyze emotions
-def analyze_emotion_in_session(session_id):
+def analyze_emotion_in_session(session_id, frame):
     if session_id not in active_sessions:
         return
 
@@ -155,49 +160,33 @@ def analyze_emotion_in_session(session_id):
     user_id = session_data["user_id"]
     place_id = session_data["place_id"]
 
-    cap = cv2.VideoCapture(0)
     emotion_scores_list = []
     start_time = time.time()
 
     try:
-        while time.time() - start_time < 10:  # Ensure minimum 5 seconds of analysis
-            if session_data["stop_analysis"]:  # Stop if requested
-                logging.info(f"Session {session_id} stopped by user.")
-                break
-
-            ret, frame = cap.read()
-            if not ret:
-                logging.warning("Camera capture failed.")
-                break
-
-            try:
-                # Analyze emotions from the frame
-                analysis = DeepFace.analyze(frame, actions=['emotion'], enforce_detection=False)
-                if isinstance(analysis, list):
-                    analysis = analysis[0]
-                emotion_scores = analysis['emotion']
-                emotion_scores_list.append(emotion_scores)
-            except Exception as e:
-                logging.error(f"Error analyzing frame: {e}")
+        # تحليل الإيموشن من الصورة
+        try:
+            analysis = DeepFace.analyze(frame, actions=['emotion'], enforce_detection=False)
+            if isinstance(analysis, list):
+                analysis = analysis[0]
+            emotion_scores = analysis['emotion']
+            emotion_scores_list.append(emotion_scores)
+        except Exception as e:
+            logging.error(f"Error analyzing image: {e}")
 
     finally:
-        cap.release()
-        cv2.destroyAllWindows()
+        # تنفيذ عملية حفظ التقييم بعد التحليل
+        if len(emotion_scores_list) > 0 and time.time() - start_time >= 10:
+            avg_emotion_scores = {key: sum(d[key] for d in emotion_scores_list) / len(emotion_scores_list) for key in emotion_scores_list[0]}
+            rating = map_emotion_to_rating(avg_emotion_scores)
+            save_rating_to_db(user_id, place_id, rating)
+            logging.info(f"Session {session_id}: Final Rating {rating} saved.")
+            active_sessions[session_id]["rating"] = rating
+        else:
+            logging.warning(f"Session {session_id}: Insufficient data or time for rating.")
+            active_sessions[session_id]["error"] = "Insufficient data or time for rating."
 
-    # Only save the rating if analysis was conducted for the minimum time
-    if len(emotion_scores_list) > 0 and time.time() - start_time >= 10:
-        avg_emotion_scores = {key: sum(d[key] for d in emotion_scores_list) / len(emotion_scores_list) for key in emotion_scores_list[0]}
-        rating = map_emotion_to_rating(avg_emotion_scores)
-        save_rating_to_db(user_id, place_id, rating)
-        logging.info(f"Session {session_id}: Final Rating {rating} saved.")
-        # Store the rating in the session so frontend can retrieve it
-        active_sessions[session_id]["rating"] = rating
-    else:
-        logging.warning(f"Session {session_id}: Insufficient data or time for rating.")
-        # Store an error message if detection failed
-        active_sessions[session_id]["error"] = "Insufficient data or time for rating."
-
-# route to send the rating to the frontend 
+# route to send the rating to the frontend
 @emotion_bp.route('/get_rating', methods=['GET'])
 def get_rating():
     session_id = request.args.get('sessionId')
