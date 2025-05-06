@@ -43,6 +43,8 @@ def map_emotion_to_rating(emotion_dict):
     negative_score = emotion_dict.get('angry', 0) + emotion_dict.get('sad', 0) + \
                      emotion_dict.get('fear', 0) + emotion_dict.get('disgust', 0)
     neutral_score = emotion_dict.get('neutral', 0)
+    response_value = positive_score - negative_score
+
 
     # Compute the response value as the difference between positive and negative scores
     logging.info(f"[Emotion Analysis]")
@@ -182,14 +184,12 @@ def analyze_emotion_in_session(session_id, frame):
             logging.error(f"Error analyzing image: {e}")
 
     finally:
-        logging.info(f"Image size: {image.size}")
-        logging.info(f"Frame shape: {frame.shape}")
-
+      
         # تنفيذ عملية حفظ التقييم بعد التحليل 
         logging.info(f"Session {session_id}: Number of emotion scores = {len(emotion_scores_list)}")
         logging.debug(f"Session {session_id}: emotion_scores_list = {emotion_scores_list}")
 
-        if len(emotion_scores_list) > 0: #and time.time() - start_time >= 10:
+        if len(emotion_scores_list) > 0 and time.time() - start_time >= 10:
             avg_emotion_scores = {key: sum(d[key] for d in emotion_scores_list) / len(emotion_scores_list) for key in emotion_scores_list[0]}
             rating = map_emotion_to_rating(avg_emotion_scores)
             save_rating_to_db(user_id, place_id, rating)
