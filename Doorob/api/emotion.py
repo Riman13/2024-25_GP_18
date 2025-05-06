@@ -181,7 +181,7 @@ def analyze_emotion_in_session(session_id, frame):
 
     finally:
         # تنفيذ عملية حفظ التقييم بعد التحليل
-        if len(emotion_scores_list) > 0 and time.time() - start_time >= 10:
+        if len(emotion_scores_list) > 0: #and time.time() - start_time >= 10:
             avg_emotion_scores = {key: sum(d[key] for d in emotion_scores_list) / len(emotion_scores_list) for key in emotion_scores_list[0]}
             rating = map_emotion_to_rating(avg_emotion_scores)
             save_rating_to_db(user_id, place_id, rating)
