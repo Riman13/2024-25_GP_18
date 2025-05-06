@@ -34,7 +34,7 @@ places_df = pd.read_csv(PLACES_DATA_PATH)
 
 def get_db_connection():
     return pymysql.connect(
-        host="localhost",
+        host="mysql.hostinger.com",
         user="u783774210_mig",
         password="g]I/EHm=v6",
         database="u783774210_mig",
