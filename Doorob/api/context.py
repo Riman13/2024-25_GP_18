@@ -33,10 +33,10 @@ user_locations = {}
 
 def get_db_connection():
     return pymysql.connect(
-        host="Doroob.mysql.pythonanywhere-services.com",
-        user="Doroob",
-        password="RASL1234",
-        database="Doroob$doroob",
+        host="77.37.35.85",
+        user="u783774210_mig",
+        password="g]I/EHm=v6",
+        database="u783774210_mig",
         cursorclass=pymysql.cursors.DictCursor
     )
 
