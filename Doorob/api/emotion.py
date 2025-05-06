@@ -111,6 +111,8 @@ def start_emotion_analysis():
     user_id = data.get('userId')
     place_id = data.get('placeId')
     image_base64 = data.get('image')  # الحصول على الصورة Base64
+    logging.info(f"Received base64 image: {image_base64[:50]}...")  # طباعة جزء من الصورة لتأكد من أنها ليست فارغة
+
 
     if not session_id or not user_id or not place_id or not image_base64:
         return jsonify({"success": False, "error": "Missing sessionId, userId, placeId, or image"}), 400
