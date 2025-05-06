@@ -12,7 +12,6 @@ from flask_cors import CORS
 
 # إعداد الـ logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s')
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s')
 
 # إنشاء البلوبرينت
 emotion_bp = Blueprint('emotion', __name__, url_prefix='/emotion')
@@ -201,6 +200,14 @@ def get_rating():
     logging.info(f"Checking session: {session_id}")
 
     if session_id in active_sessions:
+          # إضافة تأخير إذا كانت الجلسة قيد المعالجة
+        max_wait_time = 10  # مدة الانتظار القصوى (بالثواني)
+        wait_time = 0
+        while "rating" not in active_sessions[session_id] and wait_time < max_wait_time:
+            time.sleep(1)  # الانتظار لمدة ثانية
+            wait_time += 1
+            logging.info(f"Waiting for session {session_id} to process... {wait_time}s")
+
         if "rating" in active_sessions[session_id]:
             logging.info(f"Returning rating: {active_sessions[session_id]['rating']}")
             rating = active_sessions[session_id]["rating"]
