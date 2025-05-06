@@ -115,6 +115,9 @@ def start_emotion_analysis():
     if not session_id or not user_id or not place_id or not image_base64:
         return jsonify({"success": False, "error": "Missing sessionId, userId, placeId, or image"}), 400
 
+    # تسجيل اللوج عندما يتم استقبال الفيديو من الـ Frontend
+    logging.info(f"Received video for session {session_id} from user {user_id} at place {place_id}")
+
     # تحويل الـ Base64 إلى صورة
     try:
         # إزالة الـ Prefix الخاص بـ Data URL إذا كان موجود
