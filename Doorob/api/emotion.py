@@ -51,7 +51,7 @@ def map_emotion_to_rating(emotion_dict):
     logging.info(f"  Positive Score: {positive_score}")
     logging.info(f"  Negative Score: {negative_score}")
     logging.info(f"  Neutral Score:  {neutral_score}")
-    logging.info(f"  Response Value: {response_value := positive_score - negative_score}")
+    logging.info(f"  Response Value: {response_value}")
 
     # Assign a rating based on the response value range
     if response_value >= 60:
@@ -214,7 +214,7 @@ def get_rating():
 
     if session_id in active_sessions:
           # إضافة تأخير إذا كانت الجلسة قيد المعالجة
-        max_wait_time = 10  # مدة الانتظار القصوى (بالثواني)
+        max_wait_time = 20  # مدة الانتظار القصوى (بالثواني)
         wait_time = 0
         while "rating" not in active_sessions[session_id] and wait_time < max_wait_time:
             time.sleep(1)  # الانتظار لمدة ثانية
