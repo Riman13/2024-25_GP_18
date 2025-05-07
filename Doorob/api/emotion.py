@@ -189,7 +189,7 @@ def analyze_emotion_in_session(session_id, frame):
         logging.info(f"Session {session_id}: Number of emotion scores = {len(emotion_scores_list)}")
         logging.debug(f"Session {session_id}: emotion_scores_list = {emotion_scores_list}")
 
-        if len(emotion_scores_list) > 0 and time.time() - start_time >= 10:
+        if len(emotion_scores_list) > 0: # and time.time() - start_time >= 10:
             avg_emotion_scores = {key: sum(d[key] for d in emotion_scores_list) / len(emotion_scores_list) for key in emotion_scores_list[0]}
             rating = map_emotion_to_rating(avg_emotion_scores)
             save_rating_to_db(user_id, place_id, rating)
@@ -197,6 +197,7 @@ def analyze_emotion_in_session(session_id, frame):
             active_sessions[session_id]["rating"] = rating
         else:
             logging.warning(f"Session {session_id}: Insufficient data or time for rating.")
+
             active_sessions[session_id]["error"] = "Insufficient data or time for rating."
 
 # route to send the rating to the frontend
@@ -210,7 +211,7 @@ def get_rating():
 
     if session_id in active_sessions:
           # إضافة تأخير إذا كانت الجلسة قيد المعالجة
-        max_wait_time = 30  # مدة الانتظار القصوى (بالثواني)
+        max_wait_time = 10  # مدة الانتظار القصوى (بالثواني)
         wait_time = 0
         while "rating" not in active_sessions[session_id] and wait_time < max_wait_time:
             time.sleep(1)  # الانتظار لمدة ثانية
