@@ -137,6 +137,8 @@ def start_emotion_analysis():
         "user_id": user_id,
         "place_id": place_id,
         "stop_analysis": False,
+        "emotion_scores": [],  # <-- أضف هذا
+      "start_time": time.time(),  # <-- أضف هذا للتتبع الزمني
     }
 
     # تشغيل التحليل في ثريد منفصل
@@ -167,7 +169,8 @@ def analyze_emotion_in_session(session_id, frame):
     user_id = session_data["user_id"]
     place_id = session_data["place_id"]
 
-    emotion_scores_list = []
+    emotion_scores_list = session_data["emotion_scores"]
+
     start_time = time.time()
 
     try:
