@@ -23,7 +23,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(me
 # إنشاء Blueprint
 recommendations_bp = Blueprint('recommendations', __name__, url_prefix='/recommendations')
 
-TOP_K = 5
+TOP_K = 3
 TEST_SIZE = 0.2
 RANDOM_SEED = 42
 

@@ -112,7 +112,8 @@ def recommend_for_user(user_id, user_lat=None, user_lng=None, num_recommendation
         # Add latitude and longitude
         place_lat = place_row['lat']
         place_lng = place_row['lng']
-        
+        rat = place_row['average_rating']
+        cat = place_row['granular_category']
         # Calculate distance if user location is provided
         distance = None
         if user_lat is not None and user_lng is not None:
@@ -122,7 +123,11 @@ def recommend_for_user(user_id, user_lat=None, user_lng=None, num_recommendation
             
             'place_id': int(place_id),
             'place_name': place_name,
-            'distance_km': distance
+            'distance_km': distance,
+            'average_rating': rat,
+            'granular_category': cat,
+            'lat': place_row['lat'],
+            'lng': place_row['lng']
         }
         recommendations.append(recommendation)
 
