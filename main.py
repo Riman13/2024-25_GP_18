@@ -161,7 +161,7 @@ def get_recommendations(user_id):
     return jsonify(recommendations)
 
 
-
+#
 #if __name__ == '__main__':
     # Run the Flask app with debugging enabled
    # app.run(debug=True, port=5003)
