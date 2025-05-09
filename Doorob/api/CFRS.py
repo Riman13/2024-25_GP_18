@@ -45,10 +45,10 @@ from mysql.connector import Error
 
 try:
     connection = mysql.connector.connect(
-        host='your_hostinger_mysql_host',      # e.g., 'mysql.hostinger.com' or an IP
-        database='doroob_database',            # your DB name
-        user='your_db_username',               # your DB user
-        password='your_db_password'            # your DB password
+        host="77.37.35.85",
+        user="u783774210_mig",
+        password="g]I/EHm=v6",
+        database="u783774210_mig"
     )
 
     if connection.is_connected():
@@ -65,7 +65,9 @@ finally:
     if 'connection' in locals() and connection.is_connected():
         connection.close()
         print("Connection closed.")
-        
+
+
+
 def fetch_mysql_ratings():
     connection = get_db_connection()
     try:
