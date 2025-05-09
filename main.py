@@ -9,6 +9,8 @@ import logging
 from lightfm import LightFM
 from scipy.sparse import csr_matrix
 import joblib
+import pymysql
+
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -37,7 +39,14 @@ ratings_data = pd.read_csv('Doorob/modified_ratings.csv')  # Assuming this is yo
 # Log the place data and model
 logging.debug(f"Loaded place data:\n{place_data.head()}")
 logging.debug(f"Model loaded successfully.")
-
+def get_db_connection():
+    return pymysql.connect(
+        host="77.37.35.85",
+        user="u783774210_mig",
+        password="g]I/EHm=v6",
+        database="u783774210_mig",
+        cursorclass=pymysql.cursors.DictCursor
+    )
 # Place names dictionary
 place_names = dict(zip(place_data['ID'], place_data['Name']))  # Use 'ID' instead of 'id'
 
@@ -70,6 +79,21 @@ def save_user_location():
     logging.debug(f"User locations dict: {user_locations}")
 
     return jsonify({"message": "Location saved successfully"}), 200
+
+def get_user_ratings_from_db(user_id):
+    conn = get_db_connection()
+    try:
+        with conn.cursor() as cursor:
+            query = """
+                SELECT PlaceID, Rating
+                FROM ratings
+                WHERE UserID= %s
+                LIMIT 10
+            """
+            cursor.execute(query, (user_id,))
+            return cursor.fetchall()
+    finally:
+        conn.close()
 
 def recommend_for_user(user_id, user_lat=None, user_lng=None, num_recommendations=10):
     """
@@ -151,19 +175,28 @@ def get_recommendations(user_id):
         user_lat, user_lng = None, None
         logging.warning(f"User location for {user_id} not found or invalid: {user_location}")
 
-    
-    # Fetch recommendations from your recommendation function
+    # Fetch recommendations
     recommendations = recommend_for_user(user_id, user_lat, user_lng)
-    
+
     logging.debug(f"Recommendations for user {user_id}: {recommendations}")
-    
-    # Save the best place (first recommendation) for notification
+
+    # Save the best recommendation
     if recommendations:
         best_place_notifications[user_id] = recommendations[0]
         logging.debug(f"Saved best place notification for user {user_id}: {recommendations[0]}")
 
-    
+    # If user ID > 9000, fetch and return recent ratings too
+    if user_id > 9000:
+        user_ratings = get_user_ratings_from_db(user_id)
+        if len(user_ratings) >= 10:
+            return jsonify({
+                "recommendations": recommendations,
+                "user_recent_ratings": user_ratings
+            })
+
+    # Default return if not eligible for ratings
     return jsonify(recommendations)
+
 
 
 
