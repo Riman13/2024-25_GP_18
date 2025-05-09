@@ -124,10 +124,7 @@ def recommend_for_user(user_id, user_lat=None, user_lng=None, num_recommendation
             'place_id': int(place_id),
             'place_name': place_name,
             'distance_km': distance,
-            'average_rating': rat,
-            'granular_category': cat,
-            'lat': place_row['lat'],
-            'lng': place_row['lng'],
+      
         }
         recommendations.append(recommendation)
 
