@@ -9,7 +9,6 @@ import logging
 from lightfm import LightFM
 from scipy.sparse import csr_matrix
 import joblib
-import pymysql
 
 
 # Initialize Flask app
@@ -72,8 +71,6 @@ def save_user_location():
     logging.debug(f"User locations dict: {user_locations}")
 
     return jsonify({"message": "Location saved successfully"}), 200
-
-
 
 def recommend_for_user(user_id, user_lat=None, user_lng=None, num_recommendations=10):
     """
@@ -155,21 +152,19 @@ def get_recommendations(user_id):
         user_lat, user_lng = None, None
         logging.warning(f"User location for {user_id} not found or invalid: {user_location}")
 
-    # Fetch recommendations
+    
+    # Fetch recommendations from your recommendation function
     recommendations = recommend_for_user(user_id, user_lat, user_lng)
-
+    
     logging.debug(f"Recommendations for user {user_id}: {recommendations}")
-
-    # Save the best recommendation
+    
+    # Save the best place (first recommendation) for notification
     if recommendations:
         best_place_notifications[user_id] = recommendations[0]
         logging.debug(f"Saved best place notification for user {user_id}: {recommendations[0]}")
 
     
-
-    # Default return if not eligible for ratings
     return jsonify(recommendations)
-
 
 
 
