@@ -40,7 +40,32 @@ def get_db_connection():
         database="u783774210_mig",
         cursorclass=pymysql.cursors.DictCursor
     )
+import mysql.connector
+from mysql.connector import Error
 
+try:
+    connection = mysql.connector.connect(
+        host='your_hostinger_mysql_host',      # e.g., 'mysql.hostinger.com' or an IP
+        database='doroob_database',            # your DB name
+        user='your_db_username',               # your DB user
+        password='your_db_password'            # your DB password
+    )
+
+    if connection.is_connected():
+        print("Connected successfully to Doroob DB!")
+        cursor = connection.cursor()
+        cursor.execute("SHOW TABLES;")
+        for table in cursor.fetchall():
+            print(table)
+
+except Error as e:
+    print(f"Error while connecting: {e}")
+
+finally:
+    if 'connection' in locals() and connection.is_connected():
+        connection.close()
+        print("Connection closed.")
+        
 def fetch_mysql_ratings():
     connection = get_db_connection()
     try:
