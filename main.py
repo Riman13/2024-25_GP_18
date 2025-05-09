@@ -10,7 +10,6 @@ from lightfm import LightFM
 from scipy.sparse import csr_matrix
 import joblib
 
-
 # Initialize Flask app
 app = Flask(__name__)
 CORS(app)
@@ -128,7 +127,7 @@ def recommend_for_user(user_id, user_lat=None, user_lng=None, num_recommendation
             'average_rating': rat,
             'granular_category': cat,
             'lat': place_row['lat'],
-            'lng': place_row['lng']
+            'lng': place_row['lng'],
         }
         recommendations.append(recommendation)
 
