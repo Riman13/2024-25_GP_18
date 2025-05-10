@@ -6,7 +6,7 @@ from api.emotion import emotion_bp
 # Initialize Flask app
 app = Flask(__name__)
 # Enable CORS for your domain (doroob.site)
-CORS(app, resources={r"/*": {"origins": "https://doroob.site"}})# تسجيل Blueprint مع المسار المسبق
+CORS(app)# تسجيل Blueprint مع المسار المسبق
 app.register_blueprint(recommendations_bp)
 
 app.register_blueprint(context_bp)
