@@ -20,6 +20,7 @@ context_bp = Blueprint('context', __name__, url_prefix='/context')
 PLACES_DATA_PATH = '/home/Doroob/2024-25_GP_18/Doorob/DATADATA.csv'
 RATINGS_CSV_PATH = '/home/Doroob/2024-25_GP_18/Doorob/modified_ratings.csv'
 
+
 # Load places data
 places_df = pd.read_csv(PLACES_DATA_PATH, encoding='utf-8')
 places_df = places_df.rename(columns={'id': 'place_id'})
@@ -27,6 +28,12 @@ essential_columns = ['place_id', 'place_name', 'average_rating', 'granular_categ
 places_df = places_df.dropna(subset=essential_columns)
 places_df['place_id'] = places_df['place_id'].astype(int)
 places_df['average_rating'] = pd.to_numeric(places_df['average_rating'], errors='coerce').fillna(0.0)
+
+# ✅ Remove duplicates to fix place name mismatch and duplication
+duplicate_ids = places_df[places_df.duplicated(subset='place_id', keep=False)]
+places_df.drop_duplicates(subset='place_id', keep='first', inplace=True)
+print("⚠️ Duplicated place_ids:\n", duplicate_ids[['place_id', 'place_name']])
+
 
 # User location cache
 user_locations = {}
