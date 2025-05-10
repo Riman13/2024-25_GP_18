@@ -9,7 +9,8 @@ import mysql.connector
 from deepface import DeepFace
 from flask import Flask, jsonify, request, Blueprint
 from flask_cors import CORS
-
+import mysql.connector
+from mysql.connector import Error
 # إعداد الـ logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s')
 
@@ -24,32 +25,6 @@ db_config = {
     'database': 'u783774210_mig',
 }
 
-
-import mysql.connector
-from mysql.connector import Error
-
-try:
-    connection = mysql.connector.connect(
-        host="77.37.35.85",
-        user="u783774210_mig",
-        password="g]I/EHm=v6",
-        database="u783774210_mig"
-    )
-
-    if connection.is_connected():
-        print("Connected successfully to Doroob DB!")
-        cursor = connection.cursor()
-        cursor.execute("SHOW TABLES;")
-        for table in cursor.fetchall():
-            print(table)
-
-except Error as e:
-    print(f"Error while connecting: {e}")
-
-finally:
-    if 'connection' in locals() and connection.is_connected():
-        connection.close()
-        print("Connection closed.")
 
 # Dictionary to track active sessions
 active_sessions = {}

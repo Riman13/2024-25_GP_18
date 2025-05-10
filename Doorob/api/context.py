@@ -9,7 +9,8 @@ from recommenders.evaluation.python_evaluation import (ndcg_at_k,
                                                        recall_at_k, rsquared)
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from vowpalwabbit import pyvw
-
+import mysql.connector
+from mysql.connector import Error
 # إعداد الـ logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s')
 
@@ -39,31 +40,6 @@ def get_db_connection():
         database="u783774210_mig",
         cursorclass=pymysql.cursors.DictCursor
     )
-import mysql.connector
-from mysql.connector import Error
-
-try:
-    connection = mysql.connector.connect(
-        host="77.37.35.85",
-        user="u783774210_mig",
-        password="g]I/EHm=v6",
-        database="u783774210_mig"
-    )
-
-    if connection.is_connected():
-        print("Connected successfully to Doroob DB!")
-        cursor = connection.cursor()
-        cursor.execute("SHOW TABLES;")
-        for table in cursor.fetchall():
-            print(table)
-
-except Error as e:
-    print(f"Error while connecting: {e}")
-
-finally:
-    if 'connection' in locals() and connection.is_connected():
-        connection.close()
-        print("Connection closed.")
 
 
 def fetch_mysql_ratings():

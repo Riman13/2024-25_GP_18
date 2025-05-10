@@ -1,6 +1,7 @@
 import logging
 import sys
-
+import mysql.connector
+from mysql.connector import Error
 import numpy as np
 import pandas as pd
 import pymysql
@@ -40,31 +41,9 @@ def get_db_connection():
         database="u783774210_mig",
         cursorclass=pymysql.cursors.DictCursor
     )
-import mysql.connector
-from mysql.connector import Error
 
-try:
-    connection = mysql.connector.connect(
-        host="77.37.35.85",
-        user="u783774210_mig",
-        password="g]I/EHm=v6",
-        database="u783774210_mig"
-    )
 
-    if connection.is_connected():
-        print("Connected successfully to Doroob DB!")
-        cursor = connection.cursor()
-        cursor.execute("SHOW TABLES;")
-        for table in cursor.fetchall():
-            print(table)
 
-except Error as e:
-    print(f"Error while connecting: {e}")
-
-finally:
-    if 'connection' in locals() and connection.is_connected():
-        connection.close()
-        print("Connection closed.")
 
 
 
@@ -201,3 +180,4 @@ def get_recommendations_by_id(user_id):
     except Exception as e:
         logging.error(f"Error occurred: {str(e)}")
         return jsonify({"error": "An unexpected error occurred."}), 500
+    
