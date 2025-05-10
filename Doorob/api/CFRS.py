@@ -34,7 +34,7 @@ places_df = pd.read_csv(PLACES_DATA_PATH)
 
 def get_db_connection():
     return pymysql.connect(
-        host="srv1944.hstgr.io",
+        host="77.37.35.85",
         user="u783774210_mig",
         password="g]I/EHm=v6",
         database="u783774210_mig",
@@ -45,7 +45,7 @@ from mysql.connector import Error
 
 try:
     connection = mysql.connector.connect(
-        host="srv1944.hstgr.io",
+        host="77.37.35.85",
         user="u783774210_mig",
         password="g]I/EHm=v6",
         database="u783774210_mig"
