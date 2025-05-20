@@ -9,6 +9,7 @@ import logging
 from lightfm import LightFM
 from scipy.sparse import csr_matrix
 import joblib
+import mysql.connector
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -33,16 +34,33 @@ item_features_matrix = joblib.load('Doorob/item_features1.joblib')
 # Load or define your place and user data (place names, mappings)
 place_data = pd.read_excel('Doorob/DATADATA.xlsx')  # Assuming you have this file
 ratings_data = pd.read_csv('Doorob/modified_ratings.csv')  # Assuming this is your ratings data
-
+def get_mysql_connection():
+    return mysql.connector.connect(
+        host="77.37.35.85",
+        user="u783774210_mig",
+        password="g]I/EHm=v6",
+        database="u783774210_mig"
+    )
 # Log the place data and model
 logging.debug(f"Loaded place data:\n{place_data.head()}")
 logging.debug(f"Model loaded successfully.")
+
+def load_new_ratings_from_mysql():
+    conn = get_mysql_connection()
+    query = "SELECT UserID, placeID, Rating FROM user_ratings"
+    new_ratings = pd.read_sql(query, conn)
+    conn.close()
+    return new_ratings
+
+
+new_ratings = load_new_ratings_from_mysql()
+all_ratings = pd.concat([ratings_data, new_ratings], ignore_index=True)
+user_id_map = {user_id: idx for idx, user_id in enumerate(all_ratings['user_id'].unique())}
 
 # Place names dictionary
 place_names = dict(zip(place_data['ID'], place_data['Name']))  # Use 'ID' instead of 'id'
 
 # Create user and place mappings (using 'ID' instead of 'id')
-user_id_map = {user_id: idx for idx, user_id in enumerate(ratings_data['user_id'].unique())}
 place_id_map = {place_id: idx for idx, place_id in enumerate(place_data['ID'].unique())}  # Use 'ID'
 
 # Dictionary to store user locations
@@ -75,6 +93,7 @@ def recommend_for_user(user_id, user_lat=None, user_lng=None, num_recommendation
     """
     Recommend places to the user based on their ID and location using the trained LightFM model.
     """
+
     # Map user_id to index
     user_index = user_id_map.get(user_id)
     if user_index is None:
