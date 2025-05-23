@@ -3,13 +3,13 @@ import numpy as np
 import pandas as pd
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from flask import Blueprint, jsonify, request
 from geopy.distance import geodesic
 import logging
 from lightfm import LightFM
 from scipy.sparse import csr_matrix
 import joblib
 import mysql.connector
+from lightfm import Dataset
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -155,11 +155,23 @@ def recommend_for_user(user_id, user_lat=None, user_lng=None, num_recommendation
 
     return recommendations
 
+def retrain_model_with_user(all_ratings_df, item_features_matrix):
+    dataset = Dataset()
+    dataset.fit(all_ratings_df['user_id'], all_ratings_df['placeID'])
+    (interactions, _) = dataset.build_interactions(
+        ((row['user_id'], row['placeID'], row['Rating']) for _, row in all_ratings_df.iterrows())
+    )
+
+    model = LightFM(no_components=100, loss='warp-kos')
+    model.fit(interactions, item_features=item_features_matrix, epochs=10, num_threads=2)
+    return model
+
 @app.route('/api/recommendations_hybrid/<int:user_id>', methods=['GET'])
 def get_recommendations(user_id):
     """
     Endpoint to get recommendations for a user.
     """
+    global model
     # Get user's location if saved
     user_location = user_locations.get(user_id)
 
@@ -169,7 +181,15 @@ def get_recommendations(user_id):
         user_lat, user_lng = None, None
         logging.warning(f"User location for {user_id} not found or invalid: {user_location}")
 
-    
+    user_ratings_count = all_ratings[all_ratings['user_id'] == user_id].shape[0]
+
+    if user_id > 7500 and user_ratings_count >= 9:
+        logging.debug(f"Retraining model for user {user_id} with {user_ratings_count} ratings...")
+        model = retrain_model_with_user(all_ratings, item_features_matrix)
+    else:
+        logging.warning(f"No retraining. User {user_id} has only {user_ratings_count} ratings.")
+
+
     # Fetch recommendations from your recommendation function
     recommendations = recommend_for_user(user_id, user_lat, user_lng)
     
