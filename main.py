@@ -9,7 +9,7 @@ from lightfm import LightFM
 from scipy.sparse import csr_matrix
 import joblib
 import mysql.connector
-from lightfm import Dataset
+from lightfm.data import Dataset
 
 # Initialize Flask app
 app = Flask(__name__)
