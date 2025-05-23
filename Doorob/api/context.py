@@ -1,16 +1,18 @@
 import logging
-from flask import Blueprint, jsonify, request
+
+import mysql.connector
 import pandas as pd
 import pymysql
+from flask import Blueprint, jsonify, request
 from flask_cors import CORS
 from geopy.distance import geodesic
+from mysql.connector import Error
 from recommenders.evaluation.python_evaluation import (ndcg_at_k,
                                                        precision_at_k,
                                                        recall_at_k, rsquared)
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from vowpalwabbit import pyvw
-import mysql.connector
-from mysql.connector import Error
+
 # إعداد الـ logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s')
 
@@ -87,10 +89,11 @@ train = ratings_df.sample(frac=0.9, random_state=42)
 test = ratings_df.drop(train.index)
 train_data = prepare_vw_data(train, places_df, user_locations)
 
-vw_model = pyvw.vw("--loss_function squared --l2 0.00001 --learning_rate 0.3 --bit_precision 25")
+global_vw_model = pyvw.vw("--loss_function squared --l2 0.00001 --learning_rate 0.3 --bit_precision 25")
 for _ in range(5):
     for row in train_data:
-        vw_model.learn(row)
+        global_vw_model.learn(row)
+
 
 logging.info("Initial model training completed.")
 
@@ -160,10 +163,15 @@ def get_recommendations_by_id(user_id):
         user_data = ratings_df[ratings_df['user_id'] == user_id]
         user_location = user_locations.get(user_id)
 
-        train_data = prepare_vw_data(user_data, places_df, user_locations)
-        user_model = pyvw.vw("--loss_function squared --l2 0.00001 --learning_rate 0.3 --bit_precision 25")
-        for row in train_data:
-            user_model.learn(row)
+        if user_data.empty:
+            model_to_use = global_vw_model
+            logging.info(f"User {user_id} is new, using global VW model for recommendations.")
+        else:
+            train_data_user = prepare_vw_data(user_data, places_df, user_locations)
+            model_to_use = pyvw.vw("--loss_function squared --l2 0.00001 --learning_rate 0.3 --bit_precision 25")
+            for row in train_data_user:
+                model_to_use.learn(row)
+            logging.info(f"User model trained for user {user_id}.")
 
         rated_places = user_data['place_id'].tolist()
         unrated_places = places_df[~places_df['place_id'].isin(rated_places)]
@@ -182,17 +190,16 @@ def get_recommendations_by_id(user_id):
                         f"avg_rating:{place['average_rating']} "
                         f"granular_category_{place['granular_category']}:1 "
                         f"adjusted_distance:{adjusted_distance:.5f} ")
-            
-            score = user_model.predict(features)
+
+            score = model_to_use.predict(features)
             recommendations.append((place['place_id'], place['place_name'], place['average_rating'],
                                     place['granular_category'], place['lat'], place['lng'], score, distance))
 
         recommendations = sorted(recommendations, key=lambda x: (x[7], -x[6]))[:5]
-
         response = pd.DataFrame(recommendations, columns=['place_id', 'place_name', 'average_rating',
                                                            'granular_category', 'lat', 'lng', 'predicted_rating', 'distance'])
 
-        return jsonify(response[['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng', 'distance']].to_dict(orient='records')), 200
+        return jsonify(response[['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng', 'distance']].to_dict(orient='records')), 200  
 
     except Exception as e:
         logging.error(f"Error generating recommendations for user {user_id}: {e}")
