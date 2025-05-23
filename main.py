@@ -47,7 +47,7 @@ logging.debug(f"Model loaded successfully.")
 
 def load_new_ratings_from_mysql():
     conn = get_mysql_connection()
-    query = "SELECT UserID, placeID, Rating FROM user_ratings"
+    query = "SELECT UserID, placeID, Rating FROM ratings"
     new_ratings = pd.read_sql(query, conn)
     conn.close()
     return new_ratings
