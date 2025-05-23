@@ -54,19 +54,19 @@ try:
     )
 
     if connection.is_connected():
-        print("Connected successfully to Doroob DB!")
+        logging.info("Connected successfully to Doroob DB!")
         cursor = connection.cursor()
         cursor.execute("SHOW TABLES;")
         for table in cursor.fetchall():
-            print(table)
+            logging.info(table)
 
 except Error as e:
-    print(f"Error while connecting: {e}")
+    logging.info(f"Error while connecting: {e}")
 
 finally:
     if 'connection' in locals() and connection.is_connected():
         connection.close()
-        print("Connection closed.")
+        logging.info("Connection closed.")
 
 
 
@@ -225,14 +225,14 @@ def retrain_model_if_needed(user_id):
             train, test = python_stratified_split(latest_ratings_df, ratio=0.80, col_user="user_id", col_item="place_id", seed=42)
             model.fit(train)
             last_retrain_users.add(user_id)  # ✅ Only after successful retrain
-            print(f"Model retrained for new user {user_id}")
+            logging.info(f"Model retrained for new user {user_id}")
 
 
 @recommendations_bp.route('/<int:user_id>', methods=['GET'])
 def get_recommendations_by_id(user_id):
 
     try:
-        print(f"Received recommendation request for user_id={user_id}")
+        logging.info(f"Received recommendation request for user_id={user_id}")
         category_filter = request.args.get('category')
 
         # Trigger retraining logic if needed
@@ -248,7 +248,7 @@ def get_recommendations_by_id(user_id):
 
         # Generate recommendations
         user_recommendations = model.recommend_k_items(pd.DataFrame({'user_id': [user_id]}), top_k=100, remove_seen=True)
-        print(f"Recommendations generated: {user_recommendations.shape[0]}")
+        logging.info(f"Recommendations generated: {user_recommendations.shape[0]}")
 
         if user_recommendations.empty:
             return jsonify({"error": "No recommendations found for this user."}), 404
@@ -258,8 +258,8 @@ def get_recommendations_by_id(user_id):
         user_recommendations = user_recommendations[~user_recommendations['place_id'].isin(rated_place_ids)]
         user_recommendations = user_recommendations[user_recommendations['prediction'].notna()]
 
-        print("user_recommendations columns:", user_recommendations.columns.tolist())
-        print("places_df columns:", places_df.columns.tolist())
+        logging.info("user_recommendations columns:", user_recommendations.columns.tolist())
+        logging.info("places_df columns:", places_df.columns.tolist())
 
         merged = user_recommendations.merge(places_df, on='place_id')
 
@@ -269,15 +269,15 @@ def get_recommendations_by_id(user_id):
         final_result = merged.sort_values('prediction', ascending=False).head(TOP_K)
         response = final_result[['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng']].to_dict(orient='records')
 
-        print(f"Returning {len(response)} recommendations for user {user_id}")
+        logging.info(f"Returning {len(response)} recommendations for user {user_id}")
         return jsonify(response)
 
     except KeyError as ke:
-        print(f"KeyError: {ke}")
+        logging.info(f"KeyError: {ke}")
         traceback.print_exc()
         return jsonify({"error": f"Key error: {ke}"}), 500
 
     except Exception as e:
-        print(f"General error: {e}")
+        logging.info(f"General error: {e}")
         traceback.print_exc()
         return jsonify({"error": "An unexpected error occurred."}), 500
