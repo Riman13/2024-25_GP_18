@@ -1,7 +1,7 @@
 import logging
 import sys
 import mysql.connector
-
+from mysql.connector import Error
 import numpy as np
 import pandas as pd
 import pymysql
@@ -17,7 +17,6 @@ from recommenders.models.sar import SAR
 from recommenders.utils.python_utils import binarize
 from sklearn.metrics import roc_auc_score
 from sklearn.preprocessing import minmax_scale
-import traceback
 
 # إعداد الـ logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)-8s %(message)s')
@@ -42,31 +41,9 @@ def get_db_connection():
         database="u783774210_mig",
         cursorclass=pymysql.cursors.DictCursor
     )
-import mysql.connector
-from mysql.connector import Error
 
-try:
-    connection = mysql.connector.connect(
-        host="77.37.35.85",
-        user="u783774210_mig",
-        password="g]I/EHm=v6",
-        database="u783774210_mig"
-    )
 
-    if connection.is_connected():
-        logging.info("Connected successfully to Doroob DB!")
-        cursor = connection.cursor()
-        cursor.execute("SHOW TABLES;")
-        for table in cursor.fetchall():
-            logging.info(table)
 
-except Error as e:
-    logging.info(f"Error while connecting: {e}")
-
-finally:
-    if 'connection' in locals() and connection.is_connected():
-        connection.close()
-        logging.info("Connection closed.")
 
 
 
@@ -175,109 +152,32 @@ logging.info(
     f"AUC: {eval_auc:.6f}"
 )
 
-from threading import Lock
-
-retrain_lock = Lock()
-last_retrain_users = set()
-
-def retrain_model_if_needed(user_id):
-    global train, test, model, last_retrain_users
-
-    # Skip if already trained successfully
-    if user_id in last_retrain_users:
-        return
-
-    # Check only in the original CSV
-    csv_ratings = pd.read_csv(RATINGS_DATA_PATH)
-    if user_id in csv_ratings['user_id'].unique():
-        return  # Already exists in base data
-
-    # Get ratings from MySQL
-    mysql_ratings = fetch_mysql_ratings()
-
-    # حذف التقييمات المكررة لنفس (user_id, place_id)
-    mysql_ratings = mysql_ratings.drop_duplicates(subset=['user_id', 'place_id'], keep='last')
-
-    # الآن نستخرج تقييمات هذا المستخدم بعد حذف التكرارات
-    user_ratings = mysql_ratings[mysql_ratings['user_id'] == user_id]
-    user_ratings_count = user_ratings.shape[0]
-
-   # تحقق من العدد بعد حذف التكرارات
-    if user_ratings_count < 9:
-      raise ValueError(f"User {user_id} has only {user_ratings_count} unique ratings. At least 9 are needed.")
-
-    # دمج التقييمات القديمة مع الجديدة
-    latest_ratings_df = pd.concat([csv_ratings, mysql_ratings], ignore_index=True)
-
-    # حذف التكرارات (مرّة أخرى بعد الدمج)
-    latest_ratings_df = latest_ratings_df.drop_duplicates(subset=['user_id', 'place_id'], keep='last')
-
-    # تحويل الأنواع
-    latest_ratings_df['rating'] = latest_ratings_df['rating'].astype(float)
-    latest_ratings_df['user_id'] = latest_ratings_df['user_id'].astype(int)
-    latest_ratings_df['place_id'] = latest_ratings_df['place_id'].astype(int)
-
-
-
-    with retrain_lock:
-        # Ensure the user isn't already included after another retrain
-        if user_id not in train.user_id.unique():
-            train, test = python_stratified_split(latest_ratings_df, ratio=0.80, col_user="user_id", col_item="place_id", seed=42)
-            model.fit(train)
-            last_retrain_users.add(user_id)  # ✅ Only after successful retrain
-            logging.info(f"Model retrained for new user {user_id}")
-
-
 @recommendations_bp.route('/<int:user_id>', methods=['GET'])
 def get_recommendations_by_id(user_id):
-
     try:
-        logging.info(f"Received recommendation request for user_id={user_id}")
         category_filter = request.args.get('category')
-
-        # Trigger retraining logic if needed
-        try:
-            retrain_model_if_needed(user_id)
-        except ValueError as ve:
-            # Not enough ratings
-            return jsonify({"error": str(ve)}), 400
-
-        # If still not present after retraining, return 503
-        if user_id not in train.user_id.unique():
-            return jsonify({"error": f"User {user_id} data not ready for recommendations yet."}), 503
-
-        # Generate recommendations
         user_recommendations = model.recommend_k_items(pd.DataFrame({'user_id': [user_id]}), top_k=100, remove_seen=True)
-        logging.info(f"Recommendations generated: {user_recommendations.shape[0]}")
+
+        rated_place_ids = ratings_df[ratings_df['user_id'] == user_id]['place_id'].tolist()
+        user_recommendations = user_recommendations[~user_recommendations['place_id'].isin(rated_place_ids)]
 
         if user_recommendations.empty:
             return jsonify({"error": "No recommendations found for this user."}), 404
 
-        # Filter seen and merge with places
-        rated_place_ids = train[train['user_id'] == user_id]['place_id'].tolist()
-        user_recommendations = user_recommendations[~user_recommendations['place_id'].isin(rated_place_ids)]
         user_recommendations = user_recommendations[user_recommendations['prediction'].notna()]
-
-        logging.info("user_recommendations columns:", user_recommendations.columns.tolist())
-        logging.info("places_df columns:", places_df.columns.tolist())
-
         merged = user_recommendations.merge(places_df, on='place_id')
 
         if category_filter:
             merged = merged[merged['granular_category'].str.lower() == category_filter.lower()]
 
         final_result = merged.sort_values('prediction', ascending=False).head(TOP_K)
-        response = final_result[['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng']].to_dict(orient='records')
 
-        logging.info(f"Returning {len(response)} recommendations for user {user_id}")
+        response = final_result[['place_id', 'place_name', 'average_rating', 'granular_category', 'lat', 'lng']].to_dict(orient='records')
+        
+        logging.info(f"Response: {response}")
         return jsonify(response)
 
-    except KeyError as ke:
-        logging.info(f"KeyError: {ke}")
-        traceback.print_exc()
-        return jsonify({"error": f"Key error: {ke}"}), 500
-
     except Exception as e:
-        logging.info(f"General error: {e}")
-        traceback.print_exc()
+        logging.error(f"Error occurred: {str(e)}")
         return jsonify({"error": "An unexpected error occurred."}), 500
+    
